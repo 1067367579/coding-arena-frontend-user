@@ -26,8 +26,9 @@ service.interceptors.response.use(
         if(code === 3001) {
             //如果是令牌出现异常 就直接跳到登录界面 这样就能保证后端redis已经过期 前端也能同步处理
             //同时要去掉cookie当中的token 才能够使该操作不再重复 防止持续刷接口
+            ElMessage.error("登录状态已过期")
+            //C端不登录也能实现部分操作 访问部分页面 实现部分功能
             removeToken();
-            router.push("/oj/login");
         }
         return Promise.reject(new Error(msg));
     },
