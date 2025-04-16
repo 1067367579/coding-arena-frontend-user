@@ -5,7 +5,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      redirect: "/c-oj/home"
+      redirect: "/c-oj/home/exam"
     },
     {
       path: "/c-oj/login",
@@ -15,7 +15,19 @@ const router = createRouter({
     {
       path: "/c-oj/home",
       name: 'Home',
-      component: () => import("@/views/Home.vue")
+      component: () => import("@/views/Home.vue"),
+      children: [
+        {
+          path: "question",
+          name: "Question",
+          component: () => import("@/views/Question.vue")
+        },
+        {
+          path: "exam",
+          name: "Exam",
+          component: () => import("@/views/Exam.vue")
+        }
+      ]
     },
   ],
 })

@@ -5,15 +5,15 @@
           <Navbar></Navbar>
         </div>
       </div>
-      <div v-if="$route.meta.showBanner">
+      <!-- <div v-if="$route.meta.showBanner"> -->
         <img src="@/assets/images/log-banner.png" class="banner-img">
-      </div>
+      <!-- </div> -->
     </div>
     <RouterView />
   </template>
   
   <script setup>
-  import Navbar from '@/components/Navbar.vue'
+  import Navbar from '@/components/NavBar.vue'
   </script>
   
   <style lang="scss" scoped>
