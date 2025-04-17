@@ -151,21 +151,25 @@
     getExamList()
   }
   
+  //已开赛条件判断
   function isOngoingAndUnregisteredCompetition(exam){
     const now = new Date(); //当前时间
     return new Date(exam.startTime) < now && new Date(exam.endTime) > now && !exam.enter
   }
   
+  //报名 未开赛
   function isEntryAndNotStart(exam) {
     const now = new Date();
     return new Date(exam.startTime) > now && exam.enter
   }
+  
   
   function isHistoryExam(exam) {
     const now = new Date();
     return new Date(exam.endTime) < now;
   }
   
+  //开赛
   function isStartExam(exam) {
     const now = new Date();
     return new Date(exam.startTime) < now && new Date(exam.endTime) > now && exam.enter;
@@ -179,8 +183,12 @@
   const isLogin = ref(false)
   async function checkLogin() {
     if (getToken()) {
-      await getUserInfoService()
-      isLogin.value = true
+        try {
+        await getUserInfoService()
+        isLogin.value = true
+      } catch(error) {
+        ElMessage.error(error.message);
+      }
     }
   }
   
@@ -193,14 +201,18 @@
     const enterExamDTO = ref({
       examId: examId
     })
-    await enterExamService(enterExamDTO.value)
-    ElMessage.success('您已报名成功，请按时参赛',)
-    getExamList() //报名成功后刷新竞赛列表
+    try {
+      await enterExamService(enterExamDTO.value)
+      ElMessage.success('您已报名成功，请按时参赛',)
+      getExamList() //报名成功后刷新竞赛列表
+    } catch(error) {
+      ElMessage.error(error.message);
+    }
   }
   
   function goExam(exam) {
     //需要后端提供一个获取竞赛中第一道题目的id接口
-    router.push(`/c-oj/anwser?examId=${exam.examId}&examTitle=${exam.title}&examEndTime=${exam.endTime}`)
+    router.push(`/c-oj/answer?examId=${exam.examId}&examTitle=${exam.title}&examEndTime=${exam.endTime}`)
   }
   
   const rankParams = reactive({

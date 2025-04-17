@@ -20,12 +20,26 @@ const router = createRouter({
         {
           path: "question",
           name: "Question",
-          component: () => import("@/views/Question.vue")
+          component: () => import("@/views/Question.vue"),
+          meta: {
+            showBanner: true
+          }
         },
         {
           path: "exam",
           name: "Exam",
-          component: () => import("@/views/Exam.vue")
+          component: () => import("@/views/Exam.vue"),
+          meta: {
+            showBanner: true
+          }
+        },
+        {
+          path: 'user/exam',
+          name: "UserExam",
+          component: () => import("@/views/UserExam.vue"),
+          meta: {
+            showBanner: false
+          }
         }
       ]
     },

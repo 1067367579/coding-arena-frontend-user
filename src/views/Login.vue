@@ -74,7 +74,7 @@
         const loginRef = await codeLoginService(mobileForm)
         setToken(loginRef.data)
         ElMessage.success("登录成功!");
-        router.push('/c-oj/home')
+        router.push('/c-oj/home/exam')
     } catch(error) {
         ElMessage.error(error.message);
     }

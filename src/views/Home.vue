@@ -5,9 +5,9 @@
           <Navbar></Navbar>
         </div>
       </div>
-      <!-- <div v-if="$route.meta.showBanner"> -->
+      <div v-if="$route.meta.showBanner">
         <img src="@/assets/images/log-banner.png" class="banner-img">
-      <!-- </div> -->
+      </div>
     </div>
     <RouterView />
   </template>
