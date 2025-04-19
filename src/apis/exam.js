@@ -37,6 +37,12 @@ export function examPreQuestionService() {
 
 } 
 
-export function getExamFirstQuestionService() {
-
+export function getExamFirstQuestionService(examId) {
+    return service({
+        url: "/exam/getFirstQuestion",
+        method: "get",
+        params: {
+            examId
+        }
+    })
 }

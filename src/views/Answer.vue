@@ -3,7 +3,7 @@
       <div class="box_1 flex-row">
         <div class="group_1 ">
           <img class="label_4" src="@/assets/ide/liebiao.png" />
-          <span>{{ examTitle ? examTitle : 精选题库 }}</span>
+          <span>{{ typeof examTitle === 'undefined' ? "精选题库" : examTitle }}</span>
           <el-countdown v-if="examEndTime && new Date() < new Date(examEndTime)" class="exam-time-countdown"
             @finish="handleCountdownFinish" title="距离竞赛结束还有:" :value="new Date(examEndTime)" />
         </div>
