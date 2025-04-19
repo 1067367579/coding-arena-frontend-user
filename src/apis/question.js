@@ -11,3 +11,37 @@ export function getQuestionListService(params) {
 export function getHotQuestionListService() {
 
 }
+
+export function getQuestionDetailService(questionId) {
+    return service({
+        url: "/question/detail",
+        method: "get",
+        params: {
+            questionId
+        }
+    })
+}
+
+export function preQuestionService(questionId) {
+    return service({
+        url: "/question/pre",
+        method: "get",
+        params: {
+            questionId
+        }
+    })
+}
+
+export function nextQuestionService(questionId) {
+    return service({
+        url: "/question/next",
+        method: "get",
+        params: {
+            questionId
+        }
+    })
+} 
+
+export function getQuestionResultService() {
+
+}

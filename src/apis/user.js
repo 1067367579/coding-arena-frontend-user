@@ -28,3 +28,30 @@ export function getUserInfoService() {
         method: "get"
     })
 }
+
+export function getUserDetailService() {
+    return service({
+        url: "/user/detail",
+        method: "get"
+    })
+}
+
+export function editUserService(data) {
+    return service({
+        url: "/user/edit",
+        method: "put",
+        data        
+    })
+} 
+
+export function updateAvatarService(data) {
+    return service({
+        url: "/user/avatar/update",
+        method: "post",
+        data
+    })
+}
+
+export function userSubmitService() {
+    
+}

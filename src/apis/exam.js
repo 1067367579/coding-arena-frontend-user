@@ -27,3 +27,16 @@ export function getMyExamListService(params) {
         params
     });
 }
+
+
+export function examNextQuestionService() {
+
+} 
+
+export function examPreQuestionService() {
+
+} 
+
+export function getExamFirstQuestionService() {
+
+}

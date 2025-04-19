@@ -44,12 +44,25 @@
   import router from '@/router';
   import { getToken, removeToken } from '@/utils/cookie';
   import { logoutService, getUserInfoService } from '@/apis/user';
+  import { onMounted } from 'vue';
+  import { onUnmounted } from 'vue';
+  import { eventBus } from '@/utils/eventBus';
   
   const isLogin = ref(false)
   const userInfo = reactive({
     nickName: '',
     avatar: ''
   })
+
+  // 监听全局事件：用户信息更新时重新获取数据
+  onMounted(() => {
+    eventBus.$on('user-info-updated', checkLogin);
+  });
+
+  // 组件卸载时移除监听（避免内存泄漏）
+  onUnmounted(() => {
+    eventBus.$off('user-info-updated', checkLogin);
+  });
   
   async function checkLogin() {
     if (getToken()) {
@@ -116,7 +129,6 @@
     .oj-navbar-menus {
       display: flex;
       align-items: center;
-      height: 50px;
   
       .el-menu-item {
         font-family: PingFangSC, PingFang SC;
@@ -180,7 +192,6 @@
   
     .oj-message {
       cursor: pointer;
-      margin-top: 15px;
     }
   
     .oj-head-image {
@@ -192,7 +203,6 @@
   
     .oj-navbar-name {
       cursor: pointer;
-      margin-top: 15px;
       margin-right: 15px;
       font-weight: 400;
       color: #000;

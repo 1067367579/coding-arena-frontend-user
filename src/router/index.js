@@ -40,9 +40,22 @@ const router = createRouter({
           meta: {
             showBanner: false
           }
+        },
+        {
+          path: 'user/detail',
+          name: "UserDetail",
+          component: () => import("@/views/UserDetail.vue"),
+          meta: {
+            showBanner: false
+          }
         }
       ]
     },
+    {
+      path: "/c-oj/answer",
+      name: "Answer",
+      component: () => import("@/views/Answer.vue")
+    }
   ],
 })
 
