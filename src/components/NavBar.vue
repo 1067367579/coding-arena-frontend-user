@@ -47,6 +47,7 @@
   import { onMounted } from 'vue';
   import { onUnmounted } from 'vue';
   import { eventBus } from '@/utils/eventBus';
+import { clearAllStorage } from '@/utils/codeStorage';
   
   const isLogin = ref(false)
   const userInfo = reactive({
@@ -105,6 +106,7 @@
     try {
         await logoutService();
         removeToken();
+        clearAllStorage();
         isLogin.value = false;
         //不需要退回到登录页 因为能够进行一部分的操作
     } catch(error) {

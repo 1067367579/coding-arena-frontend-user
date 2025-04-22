@@ -96,6 +96,7 @@
   import { examNextQuestionService, examPreQuestionService, getExamFirstQuestionService } from "@/apis/exam"
   import { ElMessage } from "element-plus"
   import { userSubmitService } from "@/apis/user"
+import { loadCode,saveCode } from "@/utils/codeStorage"
   
   function goBack() {
     router.go(-1);
@@ -118,9 +119,13 @@
     }
     const res = await getQuestionDetailService(questionId)
     Object.assign(questionDetail, res.data)
-    defaultCodeRef.value.setAceCode(questionDetail.defaultCode)
+    let code = loadCode(examId,questionId)
+    defaultCodeRef.value.setAceCode(code == null ? questionDetail.defaultCode: code)
+    // 新增：获取判题结果
+    const resultRes = await getQuestionResultService(examId, questionDetail.questionId, currentTime);
+    userQuestionResultVO.value = resultRes.data || { pass: 2 }; // 默认未提交状态
   }
-getQuestionDetail()
+  getQuestionDetail()
   
   async function preQuestion() {
     try {
@@ -212,7 +217,10 @@ getQuestionDetail()
     await userSubmitService(submitDTO)
     currentTime = formatDateToStandard(new Date());
     submitTime = new Date();
+    userQuestionResultVO.value.exeMessage = '';
+    userQuestionResultVO.value.userExeResultList = [];
     userQuestionResultVO.value.pass = 3
+    saveCode(examId,questionId,submitDTO.userCode);
     startPolling()
   }
 
