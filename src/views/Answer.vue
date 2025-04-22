@@ -123,7 +123,7 @@ import { loadCode,saveCode } from "@/utils/codeStorage"
     defaultCodeRef.value.setAceCode(code == null ? questionDetail.defaultCode: code)
     // 新增：获取判题结果
     const resultRes = await getQuestionResultService(examId, questionDetail.questionId, currentTime);
-    userQuestionResultVO.value = resultRes.data || { pass: 2 }; // 默认未提交状态
+    userQuestionResultVO.value = (resultRes.data.pass == 3) ? { pass: 2 } : resultRes.data; // 默认未提交状态
   }
   getQuestionDetail()
   

@@ -102,7 +102,7 @@
   
   const hotQuestionList = ref([])
   async function getHotQuestionList(params) {
-    const hotRef = await getHotQuestionListService()
+    const hotRef = await getHotQuestionListService(8)
     hotQuestionList.value = hotRef.data
   }
   

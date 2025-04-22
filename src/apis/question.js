@@ -8,8 +8,14 @@ export function getQuestionListService(params) {
     })
 }
 
-export function getHotQuestionListService() {
-
+export function getHotQuestionListService(top) {
+    return service({
+        url: "/user/question/hot",
+        method: "get",
+        params: {
+            top
+        }
+    })
 }
 
 export function getQuestionDetailService(questionId) {
