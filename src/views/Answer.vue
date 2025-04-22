@@ -214,7 +214,11 @@ import { loadCode,saveCode } from "@/utils/codeStorage"
   async function submitQuestion() {
     submitDTO.examId = examId
     submitDTO.questionId = questionId
-    await userSubmitService(submitDTO)
+    try {
+      await userSubmitService(submitDTO)
+    } catch(error) {
+      ElMessage.error(error.message);
+    }
     currentTime = formatDateToStandard(new Date());
     submitTime = new Date();
     userQuestionResultVO.value.exeMessage = '';
