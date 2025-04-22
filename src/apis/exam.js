@@ -29,12 +29,24 @@ export function getMyExamListService(params) {
 }
 
 
-export function examNextQuestionService() {
-
+export function examNextQuestionService(examId,questionId) {
+    return service({
+        url: "/exam/next",
+        method: "get",
+        params: {
+            examId,questionId
+        }
+    })
 } 
 
-export function examPreQuestionService() {
-
+export function examPreQuestionService(examId,questionId) {
+    return service({
+        url: "/exam/pre",
+        method: "get",
+        params: {
+            examId,questionId
+        }
+    })
 } 
 
 export function getExamFirstQuestionService(examId) {

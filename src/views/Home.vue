@@ -22,14 +22,13 @@
   }
   
   .oj-main-layout {
-    // background-color: #f7f7f7;
-    padding-top: 20px;
+    //background-color: #000000;
+    padding-top: 15px;
   
     .banner-img {
       max-width: 1520px;
-      margin: 0 auto;
       border-radius: 16px;
-      width: "100%"
+      width: 100%
     }
   
     .oj-main-layout-header {

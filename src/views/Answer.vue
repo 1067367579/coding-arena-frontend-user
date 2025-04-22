@@ -67,6 +67,7 @@
                     <span class="text_1 success" v-if="userQuestionResultVO.pass === 1">通过</span>
                     <span class="text_1 warning" v-if="userQuestionResultVO.pass === 2">请先执行代码</span>
                     <span class="text_1 info" v-if="userQuestionResultVO.pass === 3">系统正在处理您的代码，请稍后</span>
+                    <span class="text_1 info" v-if="userQuestionResultVO.pass === 4">系统错误</span>
                   </div>
                   <span class="error-text" v-if="userQuestionResultVO.pass === 0">异常信息：{{
                     userQuestionResultVO.exeMessage }}</span>
@@ -177,12 +178,25 @@ getQuestionDetail()
   
   const pollingInterval = ref(null);
   let currentTime
+  let submitTime
   
   function startPolling() {
     stopPolling(); // 停止之前的轮询
+    //定义最大尝试时间
+    const maxPollingTime = 15000; //15s
     pollingInterval.value = setInterval(() => {
+      if(Date.now()-submitTime >= maxPollingTime) {
+        clearInterval(pollingInterval.value)
+        handlePollingTimeout();
+        return;
+      }
       getQuestionResult();
     }, 2000); // 每隔2秒请求一次
+  }
+
+  function handlePollingTimeout() {
+    userQuestionResultVO.value.pass = 4;
+    userQuestionResultVO.value.exeMessage = "系统异常，请稍后重试";
   }
   
   function stopPolling() {
@@ -196,10 +210,27 @@ getQuestionDetail()
     submitDTO.examId = examId
     submitDTO.questionId = questionId
     await userSubmitService(submitDTO)
-    currentTime = new Date().toLocaleString();
+    currentTime = formatDateToStandard(new Date());
+    submitTime = new Date();
     userQuestionResultVO.value.pass = 3
     startPolling()
   }
+
+  function formatDateToStandard(date) {
+            const year = date.getFullYear();
+            // 月份从0开始，需要+1后补零
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            // 日期补零
+            const day = String(date.getDate()).padStart(2, '0');
+            // 小时补零
+            const hour = String(date.getHours()).padStart(2, '0');
+            // 分钟补零
+            const minute = String(date.getMinutes()).padStart(2, '0');
+            // 秒补零
+            const second = String(date.getSeconds()).padStart(2, '0');
+            
+            return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
+        }
   
   async function getQuestionResult() {
     const res = await getQuestionResultService(submitDTO.examId, submitDTO.questionId, currentTime)
@@ -356,9 +387,10 @@ getQuestionDetail()
         .box_3 {
           background-color: rgba(255, 255, 255, 1);
           border-radius: 10px;
-          height: 765px;
+          height: 770px;
           width: 600px;
           margin-right: 10px;
+          overflow-y: auto; // 允许垂直滚动
   
           .question-title {
             font-weight: bold;
@@ -441,18 +473,18 @@ getQuestionDetail()
           .code-result {
             background-color: rgba(240, 240, 240, 1);
             border-radius: 10px 10px 0px 0px;
-            height: 64px;
-            margin-top: 20px;
+            height: 50px;
+            margin-top: 10px;
             width: calc(100vw - 663px);
   
             .code-result-image {
               width: 27px;
               height: 27px;
-              margin: 24px 0 0 20px;
+              margin: 14px 0 0 20px;
             }
   
             .code-result-content {
-              margin: 26px 0 0 5px;
+              margin: 16px 0 0 5px;
             }
           }
         }
@@ -466,12 +498,17 @@ getQuestionDetail()
           background-color: rgba(255, 255, 255, 1);
           border-radius: 0px 0px 10px 10px;
           width: 100%;
-          height: 200px;
+          height: 156px;
+          overflow-y: auto; // 允许垂直滚动
   
           .section_3 {
             width: 100%;
             height: 286px;
-            margin: 24px 0 0 20px;
+            margin: 8px 0 0 20px;
+
+            .el-table {
+                width: 100%; // 确保表格适应容器宽度
+            }
   
             .error-text {
               padding: 6px 20px;

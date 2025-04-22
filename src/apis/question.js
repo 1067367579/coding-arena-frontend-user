@@ -42,6 +42,13 @@ export function nextQuestionService(questionId) {
     })
 } 
 
-export function getQuestionResultService() {
+export function getQuestionResultService(examId,questionId,currentTime) {
+    return service({
+        url: "/user/question/exe/result",
+        method: "get",
+        params: {
+            examId,questionId,currentTime
+        }
+    })
 
 }

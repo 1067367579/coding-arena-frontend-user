@@ -52,6 +52,11 @@ export function updateAvatarService(data) {
     })
 }
 
-export function userSubmitService() {
+export function userSubmitService(data) {
+    return service({
+        url: "/user/question/rabbit/submit",
+        method: "post",
+        data
+    })
     
 }
