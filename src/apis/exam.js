@@ -16,8 +16,12 @@ export function enterExamService(data) {
     })
 } 
 
-export function getExamRankListService() {
-
+export function getExamRankListService(params) {
+    return service({
+        url: "/exam/semiLogin/rank/list",
+        method: "get",
+        params
+    })
 }
 
 export function getMyExamListService(params) {

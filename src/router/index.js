@@ -48,6 +48,14 @@ const router = createRouter({
           meta: {
             showBanner: false
           }
+        },
+        {
+          path: 'user/message',
+          name: "UserMessage",
+          component: () => import("@/views/UserMessage.vue"),
+          meta: {
+            showBanner: false
+          }
         }
       ]
     },

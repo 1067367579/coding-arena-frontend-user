@@ -67,7 +67,7 @@
                     <span class="text_1 success" v-if="userQuestionResultVO.pass === 1">通过</span>
                     <span class="text_1 warning" v-if="userQuestionResultVO.pass === 2">请先执行代码</span>
                     <span class="text_1 info" v-if="userQuestionResultVO.pass === 3">系统正在处理您的代码，请稍后</span>
-                    <span class="text_1 info" v-if="userQuestionResultVO.pass === 4">系统错误</span>
+                    <span class="text_1 red" v-if="userQuestionResultVO.pass === 4">系统错误</span>
                   </div>
                   <span class="error-text" v-if="userQuestionResultVO.pass === 0">异常信息：{{
                     userQuestionResultVO.exeMessage }}</span>
@@ -215,17 +215,19 @@ import { loadCode,saveCode } from "@/utils/codeStorage"
     submitDTO.examId = examId
     submitDTO.questionId = questionId
     try {
+      //用户被拉黑之后无法执行接下来的逻辑
       await userSubmitService(submitDTO)
+      currentTime = formatDateToStandard(new Date());
+      submitTime = new Date();
+      userQuestionResultVO.value.exeMessage = '';
+      userQuestionResultVO.value.userExeResultList = [];
+      userQuestionResultVO.value.pass = 3
+      //提交代码之后 在本地存储中保存代码
+      saveCode(examId,questionId,submitDTO.userCode);
+      startPolling()
     } catch(error) {
       ElMessage.error(error.message);
     }
-    currentTime = formatDateToStandard(new Date());
-    submitTime = new Date();
-    userQuestionResultVO.value.exeMessage = '';
-    userQuestionResultVO.value.userExeResultList = [];
-    userQuestionResultVO.value.pass = 3
-    saveCode(examId,questionId,submitDTO.userCode);
-    startPolling()
   }
 
   function formatDateToStandard(date) {
