@@ -196,7 +196,7 @@ import { loadCode,saveCode } from "@/utils/codeStorage"
         return;
       }
       getQuestionResult();
-    }, 2000); // 每隔2秒请求一次
+    }, 1000); // 每隔1秒请求一次
   }
 
   function handlePollingTimeout() {
