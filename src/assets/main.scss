@@ -14,13 +14,13 @@
   --oj-danger: #dc2626;
   --oj-danger-soft: #fee2e2;
   --oj-code: #1f2937;
-  --oj-radius: 12px;
-  --oj-radius-sm: 8px;
-  --oj-shadow: 0 18px 50px rgba(17, 24, 39, 0.08);
-  --oj-shadow-sm: 0 8px 24px rgba(17, 24, 39, 0.06);
+  --oj-radius: 16px;
+  --oj-radius-sm: 10px;
+  --oj-shadow: 0 24px 48px -12px rgba(17, 24, 39, 0.1);
+  --oj-shadow-sm: 0 12px 24px -6px rgba(17, 24, 39, 0.05);
   --el-color-primary: var(--oj-primary) !important;
   --el-color-primary-light-9: var(--oj-primary-soft) !important;
-  --el-border-radius-base: 8px;
+  --el-border-radius-base: 10px;
 }
 
 body * {
@@ -134,11 +134,11 @@ button:active {
 
 .el-button--primary:not(.is-plain) {
   background:
-    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.24), transparent 36%),
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.2), transparent 36%),
     linear-gradient(135deg, var(--oj-primary), var(--oj-primary-strong));
   border-color: transparent;
   color: #fff;
-  box-shadow: 0 12px 24px rgba(15, 111, 59, 0.2);
+  box-shadow: 0 12px 24px -6px rgba(15, 111, 59, 0.3);
 }
 
 .el-button--primary:not(.is-plain):hover {
@@ -147,7 +147,7 @@ button:active {
     linear-gradient(135deg, #19a759, #0d5f33);
   border-color: transparent;
   color: #fff;
-  box-shadow: 0 16px 30px rgba(15, 111, 59, 0.26);
+  box-shadow: 0 16px 32px -8px rgba(15, 111, 59, 0.4);
 }
 
 .el-button--primary.is-plain {

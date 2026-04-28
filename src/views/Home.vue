@@ -33,7 +33,7 @@
   .oj-main-layout {
     padding-top: 0;
 
-    .practice-hero {
+      .practice-hero {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
@@ -41,30 +41,37 @@
       gap: 24px;
       width: min(1520px, calc(100% - 48px));
       max-width: 1520px;
-      min-height: 176px;
-      margin: 18px auto 0;
-      padding: 32px 36px;
-      border: 1px solid rgba(22, 131, 74, 0.12);
-      border-radius: 22px;
+      min-height: 186px;
+      margin: 18px auto 28px;
+      padding: 38px 44px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 28px;
       background:
-        linear-gradient(135deg, rgba(22, 131, 74, 0.14), rgba(245, 158, 11, 0.08)),
-        linear-gradient(180deg, #ffffff 0%, #f8faf5 100%);
-      box-shadow: var(--oj-shadow-sm);
+        radial-gradient(120% 120% at 0% 0%, rgba(22, 131, 74, 0.18) 0%, rgba(255, 255, 255, 0) 100%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 245, 0.95) 100%);
+      box-shadow: 0 24px 48px -12px rgba(15, 111, 59, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
 
       .hero-label {
         display: inline-flex;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
+        padding: 6px 14px;
+        background: rgba(22, 131, 74, 0.08);
+        border-radius: 999px;
         color: var(--oj-primary-strong);
         font-size: 13px;
         font-weight: 800;
-        letter-spacing: 0;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
       }
 
       h2 {
         margin: 0;
         color: var(--oj-ink);
-        font-size: 34px;
+        font-size: 38px;
+        font-weight: 900;
         line-height: 1.2;
+        letter-spacing: -0.5px;
       }
 
       p {
@@ -82,20 +89,29 @@
         gap: 12px;
 
         span {
-          min-width: 86px;
-          padding: 14px 16px;
-          border: 1px solid var(--oj-line);
-          border-radius: 14px;
-          background: rgba(255, 255, 255, 0.72);
+          min-width: 96px;
+          padding: 16px 20px;
+          border: 1px solid rgba(255, 255, 255, 0.6);
+          border-radius: 20px;
+          background: rgba(255, 255, 255, 0.6);
           color: var(--oj-muted);
-          font-size: 13px;
+          font-size: 14px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+          backdrop-filter: blur(10px);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+          }
         }
 
         strong {
           display: block;
-          margin-bottom: 4px;
+          margin-bottom: 6px;
           color: var(--oj-ink);
-          font-size: 22px;
+          font-size: 26px;
+          font-weight: 900;
         }
       }
     }

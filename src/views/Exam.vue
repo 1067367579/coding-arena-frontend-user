@@ -466,8 +466,10 @@
 .contest-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  padding: 20px 32px 28px;
+  gap: 32px;
+  row-gap: 32px;
+  column-gap: 32px;
+  padding: 24px 32px 32px;
 }
 
 .contest-card {
@@ -701,6 +703,7 @@
 .exam-page-pagination {
   display: flex;
   justify-content: flex-end;
+  margin-top: 28px;
   padding: 0 32px 32px;
 }
 
