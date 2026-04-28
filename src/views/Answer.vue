@@ -348,6 +348,7 @@
 .code-panel {
   display: grid;
   grid-template-rows: 58px minmax(320px, 1fr) minmax(164px, 25vh);
+  background: #111a24;
 }
 
 .panel-toolbar {
@@ -392,11 +393,18 @@
 }
 
 .code-toolbar {
-  background: linear-gradient(90deg, #ffffff, rgba(232, 245, 236, 0.72));
+  border-bottom-color: rgba(148, 163, 184, 0.16);
+  background:
+    linear-gradient(90deg, rgba(22, 163, 74, 0.16), rgba(17, 26, 36, 0)),
+    #111a24;
+
+  .panel-title {
+    color: #f8fafc;
+  }
 }
 
 .code-meta {
-  color: var(--oj-muted);
+  color: #95a3b8;
   font-size: 13px;
 }
 
@@ -476,14 +484,14 @@
 .editor-shell {
   min-height: 0;
   overflow: hidden;
-  background: #fff;
+  background: #111a24;
 }
 
 .result-panel {
   min-height: 0;
   overflow: auto;
-  border-top: 1px solid var(--oj-line);
-  background: #fff;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  background: #f9faf7;
   padding: 16px 18px;
   box-sizing: border-box;
 
