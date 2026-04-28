@@ -1,26 +1,27 @@
 :root {
-  --oj-bg: #f5f5f0;
-  --oj-surface: #ffffff;
-  --oj-surface-soft: #fafaf7;
-  --oj-ink: #111827;
-  --oj-muted: #6b7280;
-  --oj-subtle: #9ca3af;
-  --oj-line: #e5e7dc;
-  --oj-primary: #16834a;
-  --oj-primary-strong: #0f6f3b;
-  --oj-primary-soft: #e8f5ec;
-  --oj-accent: #f59e0b;
-  --oj-accent-soft: #fff4d6;
-  --oj-danger: #dc2626;
-  --oj-danger-soft: #fee2e2;
-  --oj-code: #1f2937;
+  --oj-bg: #F5F5F7;
+  --oj-surface: #FFFFFF;
+  --oj-surface-soft: #F5F5F7;
+  --oj-ink: #1D1D1F;
+  --oj-muted: #86868B;
+  --oj-subtle: #86868B;
+  --oj-line: rgba(0, 0, 0, 0.05);
+  --oj-primary: #007AFF;
+  --oj-primary-strong: #0056b3;
+  --oj-primary-soft: rgba(0, 122, 255, 0.1);
+  --oj-accent: #FF9500;
+  --oj-accent-soft: rgba(255, 149, 0, 0.1);
+  --oj-danger: #FF3B30;
+  --oj-danger-soft: rgba(255, 59, 48, 0.1);
+  --oj-success: #34C759;
+  --oj-code: #1D1D1F;
   --oj-radius: 16px;
-  --oj-radius-sm: 10px;
-  --oj-shadow: 0 24px 48px -12px rgba(17, 24, 39, 0.1);
-  --oj-shadow-sm: 0 12px 24px -6px rgba(17, 24, 39, 0.05);
+  --oj-radius-sm: 12px;
+  --oj-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  --oj-shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.03);
   --el-color-primary: var(--oj-primary) !important;
   --el-color-primary-light-9: var(--oj-primary-soft) !important;
-  --el-border-radius-base: 10px;
+  --el-border-radius-base: 12px;
 }
 
 body * {
@@ -34,13 +35,11 @@ img {
 
 body {
   margin: 0;
-  padding: 72px 24px 0;
+  padding: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 8% -10%, rgba(22, 131, 74, 0.13), transparent 34%),
-    #fbfbf7;
+  background: var(--oj-bg);
   color: var(--oj-ink);
-  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro", "PingFang SC", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -57,143 +56,89 @@ button {
   background-color: transparent;
 }
 
-button:active {
-  transform: translateY(1px);
+/* Micro-interactions */
+button:active, .el-button:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.flex-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.flex-row {
-  display: flex;
-  flex-direction: row;
-}
-
-.justify-start {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.justify-center {
-  display: flex;
-  justify-content: center;
-}
-
-.justify-end {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.justify-evenly {
-  display: flex;
-  justify-content: space-evenly;
-}
-
-.justify-around {
-  display: flex;
-  justify-content: space-around;
-}
-
-.justify-between {
-  display: flex;
-  justify-content: space-between;
-}
-
-.align-start {
-  display: flex;
-  align-items: flex-start;
-}
-
-.align-center {
-  display: flex;
-  align-items: center;
-}
-
-.align-end {
-  display: flex;
-  align-items: flex-end;
-}
+.flex-col { display: flex; flex-direction: column; }
+.flex-row { display: flex; flex-direction: row; }
+.justify-start { display: flex; justify-content: flex-start; }
+.justify-center { display: flex; justify-content: center; }
+.justify-end { display: flex; justify-content: flex-end; }
+.justify-evenly { display: flex; justify-content: space-evenly; }
+.justify-around { display: flex; justify-content: space-around; }
+.justify-between { display: flex; justify-content: space-between; }
+.align-start { display: flex; align-items: flex-start; }
+.align-center { display: flex; align-items: center; }
+.align-end { display: flex; align-items: flex-end; }
 
 .el-button {
-  min-height: 36px;
-  border-radius: 10px;
-  font-weight: 600;
+  min-height: 40px;
+  border-radius: var(--oj-radius-sm);
+  font-weight: 500;
   letter-spacing: 0;
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none !important;
 }
 
 .el-button:hover {
   transform: translateY(-1px);
-}
-
-.el-button:active {
-  transform: translateY(1px) scale(0.98);
+  box-shadow: var(--oj-shadow-sm);
 }
 
 .el-button--primary:not(.is-plain) {
-  background:
-    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.2), transparent 36%),
-    linear-gradient(135deg, var(--oj-primary), var(--oj-primary-strong));
-  border-color: transparent;
+  background: var(--oj-primary);
   color: #fff;
-  box-shadow: 0 12px 24px -6px rgba(15, 111, 59, 0.3);
 }
 
 .el-button--primary:not(.is-plain):hover {
-  background:
-    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.28), transparent 36%),
-    linear-gradient(135deg, #19a759, #0d5f33);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 16px 32px -8px rgba(15, 111, 59, 0.4);
+  background: var(--oj-primary-strong);
 }
 
 .el-button--primary.is-plain {
   background: var(--oj-primary-soft);
-  border-color: rgba(22, 131, 74, 0.28);
-  color: var(--oj-primary-strong);
+  color: var(--oj-primary);
 }
 
 .el-button--primary.is-plain:hover {
-  background: var(--oj-primary);
-  border-color: var(--oj-primary);
-  color: #fff;
+  background: var(--oj-primary-soft);
+  opacity: 0.8;
 }
 
-.el-button--info.is-plain {
-  background: #f3f4ef;
-  border-color: var(--oj-line);
-  color: var(--oj-muted);
+.el-button--info.is-plain, .el-button--default {
+  background: var(--oj-surface);
+  color: var(--oj-ink);
+  box-shadow: var(--oj-shadow-sm);
 }
 
 .el-button--info.is-plain:hover,
 .el-button--default:hover {
-  background: #fff;
-  border-color: rgba(22, 131, 74, 0.24);
-  color: var(--oj-primary-strong);
-  box-shadow: var(--oj-shadow-sm);
+  background: var(--oj-surface-soft);
 }
 
 .el-input__wrapper,
 .el-select__wrapper,
 .el-textarea__inner {
-  border-radius: 10px;
-  box-shadow: 0 0 0 1px var(--oj-line) inset;
-  transition: box-shadow 160ms ease, background 160ms ease;
+  border-radius: var(--oj-radius-sm) !important;
+  box-shadow: none !important;
+  background: var(--oj-surface) !important;
+  border: none !important;
+  transition: all 0.3s ease;
 }
 
 .el-input__wrapper:hover,
 .el-select__wrapper:hover,
 .el-textarea__inner:hover {
-  box-shadow: 0 0 0 1px rgba(22, 131, 74, 0.38) inset;
+  background: var(--oj-surface-soft) !important;
 }
 
 .el-input__wrapper.is-focus,
 .el-select__wrapper.is-focused,
 .el-textarea__inner:focus {
-  box-shadow: 0 0 0 1px var(--oj-primary) inset, 0 0 0 4px rgba(22, 131, 74, 0.1);
+  background: var(--oj-surface) !important;
+  box-shadow: 0 0 0 2px var(--oj-primary-soft) !important;
 }
 
 .el-form-item {
@@ -201,63 +146,81 @@ button:active {
 }
 
 .el-form-item__label {
-  color: var(--oj-muted);
-  font-weight: 800;
-  letter-spacing: 0;
+  color: var(--oj-ink);
+  font-weight: 500;
 }
 
+/* Elegant Table */
 .el-table {
-  --el-table-header-bg-color: #f8faf5;
-  --el-table-row-hover-bg-color: #f6fbf7;
+  --el-table-border-color: transparent !important;
+  --el-table-header-bg-color: transparent !important;
+  --el-table-row-hover-bg-color: var(--oj-surface-soft) !important;
   color: var(--oj-ink);
+  background: transparent !important;
+}
+
+.el-table::before {
+  display: none;
 }
 
 .el-table th.el-table__cell {
   color: var(--oj-muted);
-  font-weight: 800;
+  font-weight: 500;
+  border-bottom: 1px solid var(--oj-line) !important;
+  padding: 16px 0 !important;
+}
+
+.el-table td.el-table__cell {
+  border-bottom: 1px solid var(--oj-line) !important;
+  padding: 20px 0 !important;
 }
 
 .el-pagination {
-  gap: 6px;
+  gap: 8px;
   color: var(--oj-muted);
+  margin-top: 32px;
 }
 
 .el-pagination.is-background .el-pager li,
 .el-pagination.is-background button {
-  border: 1px solid var(--oj-line);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--oj-muted);
-  box-shadow: none;
+  border: none;
+  border-radius: var(--oj-radius-sm);
+  background: var(--oj-surface);
+  color: var(--oj-ink);
+  box-shadow: var(--oj-shadow-sm);
+  min-width: 36px;
+  height: 36px;
 }
 
 .el-pagination.is-background .el-pager li.is-active {
   background: var(--oj-primary);
-  border-color: var(--oj-primary);
   color: #fff;
-  box-shadow: 0 10px 20px rgba(15, 111, 59, 0.18);
 }
 
 .el-dialog {
-  border-radius: 18px;
+  border-radius: var(--oj-radius);
   overflow: hidden;
   box-shadow: var(--oj-shadow);
+  border: none;
 }
 
 .el-dialog__header {
-  padding: 20px 24px 10px;
+  padding: 32px 32px 16px;
+  margin: 0;
+}
+
+.el-dialog__title {
+  font-weight: 600;
+  color: var(--oj-ink);
 }
 
 .el-dialog__body {
-  padding: 18px 24px 24px;
+  padding: 16px 32px 32px;
 }
 
 .el-overlay {
-  backdrop-filter: blur(4px);
-}
-
-.el-date-editor {
-  --el-date-editor-width: 360px;
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .el-radio__input.is-checked .el-radio__inner {
@@ -266,5 +229,60 @@ button:active {
 }
 
 .el-radio__input.is-checked + .el-radio__label {
-  color: var(--oj-primary-strong);
+  color: var(--oj-primary);
 }
+
+.floating-card {
+  background: var(--oj-surface);
+  border-radius: var(--oj-radius);
+  box-shadow: var(--oj-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.floating-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* ElMessageBox Apple HIG Override */
+.el-message-box {
+  border-radius: 16px !important;
+  border: none !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  padding: 24px !important;
+}
+
+.el-message-box__header {
+  padding-bottom: 12px !important;
+}
+
+.el-message-box__title {
+  font-weight: 600 !important;
+  color: var(--oj-ink) !important;
+  font-size: 18px !important;
+}
+
+.el-message-box__content {
+  color: var(--oj-muted) !important;
+  font-size: 14px !important;
+  padding: 12px 0 24px !important;
+}
+
+.el-message-box__btns {
+  padding-top: 0 !important;
+  
+  .el-button {
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-weight: 500 !important;
+    
+    &--primary {
+      background-color: var(--oj-primary) !important;
+      border-color: var(--oj-primary) !important;
+    }
+  }
+}
+

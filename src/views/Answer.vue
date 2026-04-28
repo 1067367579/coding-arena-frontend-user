@@ -1,738 +1,766 @@
 <template>
-  <div class="answer-workbench">
-    <header class="answer-topbar">
-      <div class="answer-context">
-        <span class="answer-eyebrow">{{ typeof examTitle === 'undefined' ? "精选题库" : examTitle }}</span>
-        <h1>{{ questionDetail.title || '题目加载中' }}</h1>
-        <el-countdown v-if="examEndTime && new Date() < new Date(examEndTime)" class="exam-time-countdown"
-          @finish="handleCountdownFinish" title="距离竞赛结束还有" :value="new Date(examEndTime)" />
+  <div class="oj-workspace">
+    <header class="workspace-header">
+      <div class="header-left">
+        <button class="icon-btn back-btn" @click="goBack()" title="返回">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="divider"></div>
+        <span class="exam-tag" v-if="examTitle">{{ examTitle }}</span>
+        <h1 class="problem-title">{{ questionDetail.title || '题目加载中' }}</h1>
+        <div class="countdown-wrap" v-if="examEndTime && new Date() < new Date(examEndTime)">
+          <el-countdown @finish="handleCountdownFinish" :value="new Date(examEndTime)" format="HH:mm:ss" />
+        </div>
       </div>
-      <div class="answer-actions">
+      
+      <div class="header-right">
         <button class="submit-code-button" :class="{ running: userQuestionResultVO.pass === 3 }"
           :disabled="userQuestionResultVO.pass === 3" @click="submitQuestion">
           <span class="submit-pulse" aria-hidden="true"></span>
           <span class="submit-icon" aria-hidden="true">
-            <UploadFilled />
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
           </span>
           <span class="submit-label">{{ userQuestionResultVO.pass === 3 ? '判题中' : '提交代码' }}</span>
           <span class="submit-key">Run</span>
         </button>
-        <button class="answer-back" @click="goBack()">返回</button>
       </div>
     </header>
 
-    <main class="answer-grid">
+    <main class="workspace-main">
       <section class="problem-panel">
-        <div class="panel-toolbar">
-          <span class="panel-title">题目描述</span>
-          <div class="problem-nav">
-            <button @click="preQuestion">
-              <el-icon><ArrowLeft /></el-icon>
-              上一题
+        <div class="panel-header">
+          <div class="tabs">
+            <div class="tab active">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              题目描述
+            </div>
+          </div>
+          <div class="nav-controls">
+            <button @click="preQuestion" class="icon-btn" title="上一题">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
             </button>
-            <button @click="nextQuestion">
-              下一题
-              <el-icon><ArrowRight /></el-icon>
+            <button @click="nextQuestion" class="icon-btn" title="下一题">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </button>
           </div>
         </div>
 
-        <article class="problem-content">
-          <div class="problem-title-row">
-            <h2>{{ questionDetail.title }}</h2>
-            <span class="difficulty-tag" :class="`level-${questionDetail.difficulty || 1}`">
-              <template v-if="questionDetail.difficulty === 1">简单</template>
-              <template v-else-if="questionDetail.difficulty === 2">中等</template>
-              <template v-else-if="questionDetail.difficulty === 3">困难</template>
-              <template v-else>题目</template>
-            </span>
+        <div class="problem-scroll-area">
+          <div class="problem-meta">
+            <h2 class="problem-h2">{{ questionDetail.title }}</h2>
+            <div class="meta-tags">
+              <span class="difficulty" :class="`level-${questionDetail.difficulty || 1}`">
+                <template v-if="questionDetail.difficulty === 1">简单</template>
+                <template v-else-if="questionDetail.difficulty === 2">中等</template>
+                <template v-else-if="questionDetail.difficulty === 3">困难</template>
+              </span>
+              <span class="meta-item">时间限制: {{ questionDetail.timeLimit || '-' }} ms</span>
+              <span class="meta-item">空间限制: {{ questionDetail.spaceLimit || '-' }} 字节</span>
+            </div>
           </div>
-          <div class="limit-row">
-            <span>时间 {{ questionDetail.timeLimit || '-' }} ms</span>
-            <span>空间 {{ questionDetail.spaceLimit || '-' }} 字节</span>
-          </div>
-          <div class="question-content" v-html="questionDetail.content"></div>
-        </article>
+          
+          <div class="html-content" v-html="questionDetail.content"></div>
+        </div>
       </section>
 
-      <section class="code-panel">
-        <div class="panel-toolbar code-toolbar">
-          <span class="panel-title">代码编辑器</span>
-          <span class="code-meta">Java · 标准输入输出</span>
-        </div>
-        <div class="editor-shell">
+      <section class="editor-panel">
+        <div class="editor-container">
           <codeEditor ref="defaultCodeRef" @update:value="handleEditorContent" />
         </div>
 
-        <div class="result-panel" :class="{
-          failed: userQuestionResultVO.pass === 0 || userQuestionResultVO.pass === 4,
-          accepted: userQuestionResultVO.pass === 1,
-          pending: userQuestionResultVO.pass === 2 || userQuestionResultVO.pass === 3
-        }">
-          <div class="result-head">
-            <span class="result-title">执行结果</span>
-            <span class="result-status red" v-if="userQuestionResultVO.pass === 0">未通过</span>
-            <span class="result-status success" v-if="userQuestionResultVO.pass === 1">通过</span>
-            <span class="result-status warning" v-if="userQuestionResultVO.pass === 2">等待提交</span>
-            <span class="result-status info" v-if="userQuestionResultVO.pass === 3">判题中</span>
-            <span class="result-status red" v-if="userQuestionResultVO.pass === 4">系统错误</span>
+        <div class="console-panel" :class="{ 'is-expanded': userQuestionResultVO.pass !== 2 }">
+          <div class="console-header">
+            <div class="tabs">
+              <div class="tab active">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="4 17 10 11 4 5"></polyline>
+                  <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+                执行结果
+              </div>
+            </div>
+            <div class="result-badge" v-if="userQuestionResultVO.pass !== 2">
+              <span class="badge red" v-if="userQuestionResultVO.pass === 0 || userQuestionResultVO.pass === 4">
+                {{ userQuestionResultVO.pass === 0 ? '解答错误' : '系统错误' }}
+              </span>
+              <span class="badge green" v-else-if="userQuestionResultVO.pass === 1">通过</span>
+              <span class="badge blue" v-else-if="userQuestionResultVO.pass === 3">判题中...</span>
+            </div>
           </div>
-          <div class="error-text" v-if="userQuestionResultVO.pass === 0">
-            异常信息：{{ userQuestionResultVO.exeMessage }}
+
+          <div class="console-body" v-if="userQuestionResultVO.pass !== 2">
+            <div class="error-box" v-if="userQuestionResultVO.pass === 0 && userQuestionResultVO.exeMessage">
+              <div class="error-title">异常信息</div>
+              <code>{{ userQuestionResultVO.exeMessage }}</code>
+            </div>
+
+            <div class="testcases-wrap" v-if="userQuestionResultVO.userExeResultList && userQuestionResultVO.userExeResultList.length > 0">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>输入</th>
+                    <th>预期输出</th>
+                    <th>实际输出</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, idx) in userQuestionResultVO.userExeResultList" :key="idx">
+                    <td class="code-cell">{{ row.input }}</td>
+                    <td class="code-cell">{{ row.output }}</td>
+                    <td class="code-cell" :class="{'is-wrong': row.output !== row.exeOutput}">{{ row.exeOutput }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <el-table v-if="userQuestionResultVO.userExeResultList && userQuestionResultVO.userExeResultList.length > 0"
-            :data="userQuestionResultVO.userExeResultList">
-            <el-table-column prop="input" label="输入" />
-            <el-table-column prop="output" label="预期结果" />
-            <el-table-column prop="exeOutput" label="实际输出" />
-          </el-table>
+          <div class="console-empty" v-else>
+            请点击右上角「提交运行」测试您的代码
+          </div>
         </div>
       </section>
     </main>
   </div>
 </template>
-  
-  <script setup>
-  import { reactive, ref } from "vue"
-  import codeEditor from "@/components/CodeEditor.vue"
-  import { ArrowLeft, ArrowRight, UploadFilled } from '@element-plus/icons-vue'
-  import { useRoute } from "vue-router"
-  import { getQuestionDetailService, preQuestionService, nextQuestionService, getQuestionResultService } from "@/apis/question"
-  import router from "@/router"
-  import { examNextQuestionService, examPreQuestionService, getExamFirstQuestionService } from "@/apis/exam"
-  import { ElMessage } from "element-plus"
-  import { userSubmitService } from "@/apis/user"
-  import { loadCode,saveCode } from "@/utils/codeStorage"
-  
-  function goBack() {
-    router.go(-1);
+
+<script setup>
+import { reactive, ref } from "vue"
+import codeEditor from "@/components/CodeEditor.vue"
+import { useRoute } from "vue-router"
+import { getQuestionDetailService, preQuestionService, nextQuestionService, getQuestionResultService } from "@/apis/question"
+import router from "@/router"
+import { examNextQuestionService, examPreQuestionService, getExamFirstQuestionService } from "@/apis/exam"
+import { ElMessage } from "element-plus"
+import { userSubmitService } from "@/apis/user"
+import { loadCode, saveCode } from "@/utils/codeStorage"
+
+function goBack() {
+  router.go(-1);
+}
+
+const questionDetail = reactive({})
+const defaultCodeRef = ref()
+
+let questionId = useRoute().query.questionId
+let examId = useRoute().query.examId
+let examTitle = useRoute().query.examTitle
+let examEndTime = useRoute().query.examEndTime
+
+async function getQuestionDetail() {
+  if (examId && (questionId == null || questionId == '')) {
+    const eqrs = await getExamFirstQuestionService(examId)
+    questionId = eqrs.data
   }
-  const questionDetail = reactive({})
-  const defaultCodeRef = ref()
+  const res = await getQuestionDetailService(questionId)
+  Object.assign(questionDetail, res.data)
+  let code = loadCode(examId, questionId)
+  defaultCodeRef.value.setAceCode(code == null ? questionDetail.defaultCode : code)
   
-  let questionId = useRoute().query.questionId
-  let examId = useRoute().query.examId
-  let examTitle = useRoute().query.examTitle
-  let examEndTime = useRoute().query.examEndTime
-  
-  console.log('examTitle: ', examTitle)
-  
-  async function getQuestionDetail() {
-    if (examId && (questionId == null || questionId == '')) {
-      const eqrs = await getExamFirstQuestionService(examId)
-      questionId = eqrs.data
-      console.log('qId: ', questionId)
-    }
-    const res = await getQuestionDetailService(questionId)
-    Object.assign(questionDetail, res.data)
-    let code = loadCode(examId,questionId)
-    defaultCodeRef.value.setAceCode(code == null ? questionDetail.defaultCode: code)
-    // 新增：获取判题结果
+  if(currentTime) {
     const resultRes = await getQuestionResultService(examId, questionDetail.questionId, currentTime);
-    userQuestionResultVO.value = (resultRes.data.pass == 3) ? { pass: 2 } : resultRes.data; // 默认未提交状态
+    userQuestionResultVO.value = (resultRes.data.pass == 3) ? { pass: 2 } : resultRes.data;
   }
-  getQuestionDetail()
-  
-  async function preQuestion() {
-    try {
-        if (examId) {
-            //竞赛中上一题的逻辑  需要提供一个竞赛中获取上一题的接口
-            const res = await examPreQuestionService(examId, questionId)
-            questionId = res.data
-        } else {
-            const res = await preQuestionService(questionId)
-            questionId = res.data
-        }
-        getQuestionDetail()
-    } catch(error) {
-        ElMessage.error(error.message)
-    }
-  }
-  
-  async function nextQuestion() {
-    try{ 
-        if (examId) {
-            //竞赛中下一题的逻辑 需要提供一个竞赛中获取下一题的接口
-            const res = await examNextQuestionService(examId, questionId)
-            questionId = res.data
-        } else {
-            const res = await nextQuestionService(questionId)
-            questionId = res.data
-        }
-        getQuestionDetail()
-    } catch(error) {
-        ElMessage.error(error.message)
-    }
-  }
-  
-  function handleCountdownFinish() {
-    ElMessage.info('竞赛已经结束了哦')
-    router.push('/c-oj/home/exam')
-  }
-  
-  const submitDTO = reactive({
-    examId:'',
-    questionId:'',
-    programType: 0,
-    userCode: ''
-  })
-  
-  function handleEditorContent(content) {
-    submitDTO.userCode = content
-  }
-  
-  const userQuestionResultVO = ref({
-    pass: 2,  //默认值为2，未提交代码
-    exeMessage: '',
-    userExeResultList: [],
-  })
-  
-  const pollingInterval = ref(null);
-  let currentTime
-  let submitTime
-  
-  function startPolling() {
-    stopPolling(); // 停止之前的轮询
-    //定义最大尝试时间
-    const maxPollingTime = 15000; //15s
-    pollingInterval.value = setInterval(() => {
-      if(Date.now()-submitTime >= maxPollingTime) {
-        clearInterval(pollingInterval.value)
-        handlePollingTimeout();
-        return;
-      }
-      getQuestionResult();
-    }, 1000); // 每隔1秒请求一次
-  }
+}
+getQuestionDetail()
 
-  function handlePollingTimeout() {
-    userQuestionResultVO.value.pass = 4;
-    userQuestionResultVO.value.exeMessage = "系统异常，请稍后重试";
-  }
-  
-  function stopPolling() {
-    if (pollingInterval.value) {
-      clearInterval(pollingInterval.value);
-      pollingInterval.value = null;
+async function preQuestion() {
+  try {
+    if (examId) {
+      const res = await examPreQuestionService(examId, questionId)
+      questionId = res.data
+    } else {
+      const res = await preQuestionService(questionId)
+      questionId = res.data
     }
+    getQuestionDetail()
+  } catch (error) {
+    ElMessage.error(error.message)
   }
-  
-  async function submitQuestion() {
-    submitDTO.examId = examId
-    submitDTO.questionId = questionId
-    try {
-      //用户被拉黑之后无法执行接下来的逻辑
-      await userSubmitService(submitDTO)
-      currentTime = formatDateToStandard(new Date());
-      submitTime = new Date();
-      userQuestionResultVO.value.exeMessage = '';
-      userQuestionResultVO.value.userExeResultList = [];
-      userQuestionResultVO.value.pass = 3
-      //提交代码之后 在本地存储中保存代码
-      saveCode(examId,questionId,submitDTO.userCode);
-      startPolling()
-    } catch(error) {
-      ElMessage.error(error.message);
-    }
-  }
+}
 
-  function formatDateToStandard(date) {
-            const year = date.getFullYear();
-            // 月份从0开始，需要+1后补零
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            // 日期补零
-            const day = String(date.getDate()).padStart(2, '0');
-            // 小时补零
-            const hour = String(date.getHours()).padStart(2, '0');
-            // 分钟补零
-            const minute = String(date.getMinutes()).padStart(2, '0');
-            // 秒补零
-            const second = String(date.getSeconds()).padStart(2, '0');
-            
-            return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
-        }
-  
-  async function getQuestionResult() {
-    const res = await getQuestionResultService(submitDTO.examId, submitDTO.questionId, currentTime)
-    userQuestionResultVO.value = res.data
-    if (userQuestionResultVO.value.pass !== 3) {
-      stopPolling();
+async function nextQuestion() {
+  try {
+    if (examId) {
+      const res = await examNextQuestionService(examId, questionId)
+      questionId = res.data
+    } else {
+      const res = await nextQuestionService(questionId)
+      questionId = res.data
     }
+    getQuestionDetail()
+  } catch (error) {
+    ElMessage.error(error.message)
   }
-  
-  </script>
-  
+}
+
+function handleCountdownFinish() {
+  ElMessage.info('竞赛已经结束了哦')
+  router.push('/c-oj/home/exam')
+}
+
+const submitDTO = reactive({
+  examId: '',
+  questionId: '',
+  programType: 0,
+  userCode: ''
+})
+
+function handleEditorContent(content) {
+  submitDTO.userCode = content
+}
+
+const userQuestionResultVO = ref({
+  pass: 2,
+  exeMessage: '',
+  userExeResultList: [],
+})
+
+const pollingInterval = ref(null);
+let currentTime
+let submitTime
+
+function startPolling() {
+  stopPolling();
+  const maxPollingTime = 15000;
+  pollingInterval.value = setInterval(() => {
+    if (Date.now() - submitTime >= maxPollingTime) {
+      clearInterval(pollingInterval.value)
+      handlePollingTimeout();
+      return;
+    }
+    getQuestionResult();
+  }, 1000);
+}
+
+function handlePollingTimeout() {
+  userQuestionResultVO.value.pass = 4;
+  userQuestionResultVO.value.exeMessage = "系统异常，请稍后重试或联系管理员";
+}
+
+function stopPolling() {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value);
+    pollingInterval.value = null;
+  }
+}
+
+async function submitQuestion() {
+  submitDTO.examId = examId || 0; // fallback if no examId
+  submitDTO.questionId = questionId;
+  try {
+    await userSubmitService(submitDTO)
+    currentTime = formatDateToStandard(new Date());
+    submitTime = new Date();
+    userQuestionResultVO.value.exeMessage = '';
+    userQuestionResultVO.value.userExeResultList = [];
+    userQuestionResultVO.value.pass = 3;
+    saveCode(examId, questionId, submitDTO.userCode);
+    startPolling()
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
+}
+
+function formatDateToStandard(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+  return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
+}
+
+async function getQuestionResult() {
+  const res = await getQuestionResultService(submitDTO.examId, submitDTO.questionId, currentTime)
+  userQuestionResultVO.value = res.data
+  if (userQuestionResultVO.value.pass !== 3) {
+    stopPolling();
+  }
+}
+</script>
+
 <style lang="scss" scoped>
-.answer-workbench {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  min-height: 100vh;
-  padding: 18px;
-  background:
-    radial-gradient(circle at 16% 6%, rgba(22, 163, 74, 0.12), transparent 28%),
-    var(--oj-bg);
-  color: var(--oj-ink);
-  box-sizing: border-box;
+.oj-workspace {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  background: #f0f0f0; /* pragmatic background */
+  color: #262626;
+  overflow: hidden;
 }
 
-.answer-topbar {
-  height: 76px;
+.workspace-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 0 22px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--oj-line);
-  border-radius: 18px;
-  box-shadow: var(--oj-shadow-sm);
-}
-
-.answer-context {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  min-width: 0;
-
-  h1 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 800;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-.answer-eyebrow {
-  color: var(--oj-primary-strong);
-  background: var(--oj-primary-soft);
-  border: 1px solid rgba(22, 131, 74, 0.14);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.exam-time-countdown {
-  padding-left: 18px;
-  border-left: 1px solid var(--oj-line);
-}
-
-.answer-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.submit-code-button {
-  --submit-base: #16a34a;
-  --submit-deep: #0f6f3b;
-  position: relative;
-  min-width: 138px;
-  height: 44px;
-  display: inline-grid;
-  grid-template-columns: 26px auto 36px;
-  align-items: center;
-  gap: 9px;
-  padding: 0 9px 0 13px;
-  border: 0;
-  border-radius: 14px;
-  color: #fff;
-  cursor: pointer;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.28), transparent 34%),
-    linear-gradient(135deg, var(--submit-base), var(--submit-deep));
-  box-shadow:
-    0 14px 28px rgba(15, 111, 59, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  isolation: isolate;
-  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -40% auto -40% -70%;
-    width: 56%;
-    transform: rotate(18deg);
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.36), transparent);
-    transition: left 540ms ease;
-    z-index: -1;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 20px 36px rgba(15, 111, 59, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.24);
-
-    &::before {
-      left: 118%;
-    }
-
-    .submit-icon {
-      transform: translateY(-1px) rotate(-8deg);
-      background: rgba(255, 255, 255, 0.25);
-    }
-  }
-
-  &:active {
-    transform: translateY(1px) scale(0.98);
-    filter: saturate(1.08);
-  }
-
-  &:focus-visible {
-    outline: 3px solid rgba(22, 163, 74, 0.22);
-    outline-offset: 3px;
-  }
-
-  &:disabled {
-    cursor: progress;
-    opacity: 1;
-  }
-
-  &.running {
-    animation: submit-breath 1.15s ease-in-out infinite;
-
-    .submit-pulse {
-      opacity: 1;
-      animation: submit-ring 1.2s ease-out infinite;
-    }
-
-    .submit-icon {
-      animation: submit-float 880ms ease-in-out infinite;
-    }
-  }
-}
-
-.submit-pulse {
-  position: absolute;
-  inset: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  border-radius: 12px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.submit-icon {
-  width: 26px;
-  height: 26px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.18);
-  transition: transform 180ms ease, background 180ms ease;
-}
-
-.submit-label {
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: 0;
-  white-space: nowrap;
-}
-
-.submit-key {
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: rgba(8, 55, 31, 0.26);
-  color: rgba(255, 255, 255, 0.84);
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.answer-back {
-  height: 40px;
+  height: 48px;
   padding: 0 16px;
-  border: 1px solid var(--oj-line);
-  border-radius: 14px;
   background: #fff;
-  color: var(--oj-muted);
-  font-weight: 800;
-  cursor: pointer;
-  transition: border-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  border-bottom: 1px solid #e5e5e5;
+  flex-shrink: 0;
 
-  &:hover {
-    color: var(--oj-primary-strong);
-    border-color: rgba(22, 131, 74, 0.24);
-    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.06);
-    transform: translateY(-1px);
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 100%;
+
+    .back-btn {
+      color: #595959;
+      &:hover { color: #1a1a1a; background: #f0f0f0; }
+    }
+
+    .divider {
+      width: 1px;
+      height: 16px;
+      background: #e5e5e5;
+    }
+
+    .exam-tag {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1890ff;
+      background: #e6f7ff;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .problem-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0;
+      color: #262626;
+    }
+
+    .countdown-wrap {
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid #e5e5e5;
+      
+      :deep(.el-statistic__content) {
+        font-size: 14px;
+        font-family: monospace;
+        color: #cf1322;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+
+    .submit-code-button {
+      --submit-base: #16a34a;
+      --submit-deep: #0f6f3b;
+      position: relative;
+      min-width: 138px;
+      height: 38px;
+      display: inline-grid;
+      grid-template-columns: 24px auto 32px;
+      align-items: center;
+      gap: 8px;
+      padding: 0 8px 0 10px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      cursor: pointer;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.28), transparent 34%),
+        linear-gradient(135deg, var(--submit-base), var(--submit-deep));
+      box-shadow:
+        0 8px 16px rgba(15, 111, 59, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      isolation: isolate;
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: -40% auto -40% -70%;
+        width: 56%;
+        transform: rotate(18deg);
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.36), transparent);
+        transition: left 540ms ease;
+        z-index: -1;
+      }
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          0 12px 24px rgba(15, 111, 59, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.24);
+
+        &::before {
+          left: 118%;
+        }
+
+        .submit-icon {
+          transform: translateY(-1px) rotate(-8deg);
+          background: rgba(255, 255, 255, 0.25);
+        }
+      }
+
+      &:active {
+        transform: translateY(1px) scale(0.98);
+        filter: saturate(1.08);
+      }
+
+      &:disabled {
+        cursor: progress;
+        opacity: 0.9;
+      }
+
+      &.running {
+        animation: submit-breath 1.15s ease-in-out infinite;
+
+        .submit-pulse {
+          opacity: 1;
+          animation: submit-ring 1.2s ease-out infinite;
+        }
+
+        .submit-icon {
+          animation: submit-float 880ms ease-in-out infinite;
+        }
+      }
+
+      .submit-pulse {
+        position: absolute;
+        inset: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.38);
+        border-radius: 10px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .submit-icon {
+        width: 24px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.18);
+        transition: transform 180ms ease, background 180ms ease;
+      }
+
+      .submit-label {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0;
+        white-space: nowrap;
+      }
+
+      .submit-key {
+        height: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: rgba(8, 55, 31, 0.26);
+        color: rgba(255, 255, 255, 0.84);
+        font-size: 11px;
+        font-weight: 800;
+      }
+    }
   }
 }
 
-.answer-grid {
-  display: grid;
-  grid-template-columns: minmax(360px, 42%) minmax(460px, 1fr);
-  gap: 14px;
-  height: calc(100vh - 112px);
-  margin-top: 14px;
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #8c8c8c;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #262626;
+  }
 }
 
-.problem-panel,
-.code-panel {
+.workspace-main {
+  display: flex;
+  flex: 1;
   min-height: 0;
+  gap: 8px;
+  padding: 8px;
+}
+
+/* Panel Common */
+.problem-panel,
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
   overflow: hidden;
-  border: 1px solid var(--oj-line);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: var(--oj-shadow-sm);
 }
 
-.code-panel {
-  display: grid;
-  grid-template-rows: 58px minmax(320px, 1fr) minmax(164px, 25vh);
-  background: #111a24;
+.problem-panel {
+  flex: 1;
+  max-width: 50%;
 }
 
-.panel-toolbar {
-  height: 58px;
+.editor-panel {
+  flex: 1;
+}
+
+.panel-header, .console-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 0 18px;
-  border-bottom: 1px solid var(--oj-line);
-  background: #fff;
+  height: 40px;
+  background: #fafafa;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 0 12px;
 }
 
-.panel-title {
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.problem-nav {
+.tabs {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  height: 100%;
 
-  button {
-    height: 34px;
-    display: inline-flex;
+  .tab {
+    display: flex;
     align-items: center;
     gap: 6px;
-    border: 1px solid var(--oj-line);
-    border-radius: 999px;
-    background: #fff;
-    color: var(--oj-ink);
-    cursor: pointer;
+    height: 100%;
     padding: 0 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #595959;
+    position: relative;
 
-    &:hover {
-      border-color: rgba(22, 131, 74, 0.24);
-      color: var(--oj-primary-strong);
-      background: var(--oj-primary-soft);
+    &.active {
+      color: #262626;
+      font-weight: 600;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #1890ff;
+      }
     }
   }
 }
 
-.code-toolbar {
-  border-bottom-color: rgba(148, 163, 184, 0.16);
-  background:
-    linear-gradient(90deg, rgba(22, 163, 74, 0.16), rgba(17, 26, 36, 0)),
-    #111a24;
-
-  .panel-title {
-    color: #f8fafc;
-  }
-}
-
-.code-meta {
-  color: #95a3b8;
-  font-size: 13px;
-}
-
-.problem-content {
-  height: calc(100% - 58px);
-  overflow: auto;
-  padding: 26px;
-  box-sizing: border-box;
-}
-
-.problem-title-row {
+.nav-controls {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-
-  h2 {
-    margin: 0;
-    font-size: 28px;
-    line-height: 1.25;
-  }
+  gap: 4px;
 }
 
-.difficulty-tag {
-  flex-shrink: 0;
-  border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-weight: 800;
-
-  &.level-1 {
-    color: var(--oj-primary-strong);
-    background: var(--oj-primary-soft);
-  }
-
-  &.level-2 {
-    color: #9a5b00;
-    background: #fff4d7;
-  }
-
-  &.level-3 {
-    color: #b91c1c;
-    background: #fee2e2;
-  }
+/* Problem Area */
+.problem-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
 }
 
-.limit-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 16px 0 24px;
+.problem-meta {
+  margin-bottom: 24px;
+  
+  .problem-h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+  }
 
-  span {
-    padding: 8px 10px;
-    border: 1px solid var(--oj-line);
-    border-radius: 10px;
-    color: var(--oj-muted);
-    background: #fafaf8;
+  .meta-tags {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 13px;
+
+    .difficulty {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+
+      &.level-1 { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+      &.level-2 { background: #fffbe6; color: #d46b08; border: 1px solid #ffe58f; }
+      &.level-3 { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+    }
+
+    .meta-item {
+      color: #8c8c8c;
+      background: #f5f5f5;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
   }
 }
 
-.question-content {
-  color: #263128;
-  font-size: 16px;
-  line-height: 1.75;
+.html-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #262626;
+
+  :deep(p) {
+    margin-bottom: 16px;
+  }
 
   :deep(pre) {
-    padding: 16px;
-    border-radius: 12px;
-    background: #101b15;
-    color: #d9fbe7;
-    overflow: auto;
-  }
-}
-
-.editor-shell {
-  min-height: 0;
-  overflow: hidden;
-  background: #111a24;
-}
-
-.result-panel {
-  min-height: 0;
-  overflow: auto;
-  border-top: 1px solid rgba(148, 163, 184, 0.16);
-  background: #f9faf7;
-  padding: 16px 18px;
-  box-sizing: border-box;
-
-  &.accepted {
-    border-top-color: rgba(22, 131, 74, 0.28);
-  }
-
-  &.failed {
-    border-top-color: rgba(220, 38, 38, 0.28);
-  }
-}
-
-.result-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.result-title {
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.result-status {
-  border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-weight: 800;
-
-  &.red {
-    color: #b91c1c;
-    background: #fee2e2;
-  }
-
-  &.success {
-    color: var(--oj-primary-strong);
-    background: var(--oj-primary-soft);
-  }
-
-  &.warning {
-    color: #9a5b00;
-    background: #fff4d7;
-  }
-
-  &.info {
-    color: #1d4ed8;
-    background: #dbeafe;
-  }
-}
-
-.error-text {
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  border-left: 3px solid #dc2626;
-  border-radius: 10px;
-  background: #fff1f2;
-  color: #991b1b;
-  font-size: 14px;
-}
-
-@media (max-width: 980px) {
-  .answer-workbench {
+    background: #f5f5f5;
     padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 13px;
+    border: 1px solid #e5e5e5;
+  }
+  
+  :deep(code) {
+    background: #f5f5f5;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 13px;
+    color: #c41d7f;
+  }
+}
+
+/* Editor Area */
+.editor-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Console Panel */
+.console-panel {
+  position: relative;
+  z-index: 10;
+  height: 40px;
+  border-top: 1px solid #e5e5e5;
+  background: #fff;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+
+  &.is-expanded {
+    height: 30vh;
+  }
+}
+
+.result-badge {
+  .badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+
+    &.red { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+    &.green { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    &.blue { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+  }
+}
+
+.console-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #fafafa;
+}
+
+.console-empty {
+  display: none;
+}
+
+.error-box {
+  background: #fff1f0;
+  border: 1px solid #ffa39e;
+  border-radius: 6px;
+  padding: 12px;
+  
+  .error-title {
+    color: #cf1322;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 8px;
   }
 
-  .answer-topbar {
-    height: auto;
-    align-items: flex-start;
-    flex-direction: column;
-    padding: 16px;
+  code {
+    display: block;
+    font-family: monospace;
+    font-size: 13px;
+    color: #a8071a;
+    white-space: pre-wrap;
+  }
+}
+
+.testcases-wrap {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  border-radius: 6px;
+  border-style: hidden; /* hide outer border */
+  box-shadow: 0 0 0 1px #e5e5e5;
+
+  th, td {
+    padding: 12px 14px;
+    border: 1px solid #e5e5e5;
+    font-size: 13px;
+    vertical-align: top;
   }
 
-  .answer-context {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
+  th {
+    background: #fafafa;
+    color: #595959;
+    font-weight: 600;
+  }
 
-    h1 {
-      white-space: normal;
+  .code-cell {
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    color: #262626;
+    background: #fafafa;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.5;
+
+    &.is-wrong {
+      color: #cf1322;
+      background: #fff1f0;
+      font-weight: 600;
     }
-  }
-
-  .exam-time-countdown {
-    padding-left: 0;
-    border-left: 0;
-  }
-
-  .answer-grid {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .problem-panel {
-    height: 56vh;
-  }
-
-  .code-panel {
-    min-height: 720px;
   }
 }
 
@@ -740,13 +768,13 @@
   0%,
   100% {
     box-shadow:
-      0 14px 28px rgba(15, 111, 59, 0.24),
+      0 8px 16px rgba(15, 111, 59, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.22);
   }
 
   50% {
     box-shadow:
-      0 22px 42px rgba(15, 111, 59, 0.36),
+      0 12px 28px rgba(15, 111, 59, 0.32),
       inset 0 1px 0 rgba(255, 255, 255, 0.26);
   }
 }
@@ -771,6 +799,26 @@
 
   50% {
     transform: translateY(-2px);
+  }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .workspace-main {
+    flex-direction: column;
+  }
+
+  .problem-panel {
+    max-width: 100%;
+    height: 40vh;
+  }
+
+  .editor-panel {
+    height: 60vh;
   }
 }
 </style>

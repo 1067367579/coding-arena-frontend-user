@@ -1,575 +1,592 @@
-  <template>
-    <div class="index-question">
-      <div class="index-question-table-box">
-        <div class="left problem-workbench">
-          <div class="problem-header">
-            <div>
-              <span class="section-kicker">Problem Set</span>
-              <h1>精选题库</h1>
-              <p>按难度和关键词快速筛题，进入答题后专注代码和执行结果。</p>
+<template>
+  <div class="apple-question-page">
+    <div class="page-container">
+      <div class="content-grid">
+        
+        <!-- Left: Main Problem List -->
+        <div class="main-column">
+          <div class="floating-card problem-workbench">
+            <div class="workbench-header">
+              <div class="header-titles">
+                <span class="kicker">Problem Set</span>
+                <h1 class="title">精选题库</h1>
+                <p class="subtitle">优雅地筛选题目，专注代码本身。</p>
+              </div>
+              <div class="progress-pill">
+                <span class="value">{{ questionList.length }} / {{ total }}</span>
+                <span class="label">当前结果</span>
+              </div>
             </div>
-            <div class="progress-card">
-              <strong>{{ questionList.length }}/{{ total }}</strong>
-              <span>当前结果</span>
+
+            <div class="workbench-toolbar">
+              <div class="search-box">
+                <el-input v-model="params.keyword" placeholder="搜索题目标题或内容" class="apple-input">
+                  <template #prefix>
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </template>
+                </el-input>
+              </div>
+              <div class="filter-box">
+                <selector v-model="params.difficulty"></selector>
+              </div>
+              <div class="action-box">
+                <button class="apple-btn" @click="onSearch">筛选</button>
+                <button class="apple-btn-subtle" @click="onReset">重置</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <el-table :data="questionList" class="apple-table" :show-header="false">
+                <el-table-column width="60" align="center">
+                  <template #default="{ $index }">
+                    <span class="row-index">{{ (params.pageNum - 1) * params.pageSize + $index + 1 }}</span>
+                  </template>
+                </el-table-column>
+                
+                <el-table-column prop="title" min-width="300">
+                  <template #default="{ row }">
+                    <div class="question-title-cell">
+                      <span class="title-text">{{ row.title }}</span>
+                      <span class="difficulty-indicator" :class="getDifficultyClass(row.difficulty)"></span>
+                    </div>
+                  </template>
+                </el-table-column>
+
+                <el-table-column width="140" align="right">
+                  <template #default="{ row }">
+                    <button class="solve-btn" v-if="isLogin" @click="goQuestTest(row.questionId)">
+                      开始答题
+                      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </button>
+                    <span class="login-prompt" v-else>需登录</span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+
+            <div class="pagination-container">
+              <el-pagination 
+                background 
+                layout="prev, pager, next" 
+                :total="total"
+                v-model:current-page="params.pageNum" 
+                v-model:page-size="params.pageSize" 
+                @current-change="handleCurrentChange"
+                class="apple-pagination" 
+              />
             </div>
           </div>
-          <el-form :inline="true" ref="formModel" :model="params" class="problem-toolbar">
-            <el-form-item class="keyword-field">
-              <el-input v-model="params.keyword" placeholder="搜索题目标题或内容" />
-            </el-form-item>
-            <el-form-item class="difficulty-field">
-              <selector v-model="params.difficulty"></selector>
-            </el-form-item>
-            <el-form-item class="toolbar-actions">
-              <el-button type="primary" plain @click="onSearch">搜索</el-button>
-              <el-button type="info" plain @click="onReset">重置</el-button>
-            </el-form-item>
-          </el-form>
-          <el-table :data="questionList" height="560px" class="problem-table">
-            <el-table-column align="center" width="64px" label="#">
-              <template #default="{ $index }">
-                {{ (params.pageNum - 1) * params.pageSize + $index + 1 }}
-              </template>
-            </el-table-column>
-            <el-table-column align="left" prop="title" :show-overflow-tooltip="true" label="题目标题" />
-            <el-table-column align="center" width="108px" prop="difficulty" label="难度">
-              <template #default="{ row }">
-                <span class="difficulty-tag easy" v-if="row.difficulty === 1">简单</span>
-                <span class="difficulty-tag medium" v-if="row.difficulty === 2">中等</span>
-                <span class="difficulty-tag hard" v-if="row.difficulty === 3">困难</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="训练入口" align="center" width="122px">
-              <template #default="{ row }">
-                <el-button class="solve-button" type="text" plain v-if="isLogin" @click="goQuestTest(row.questionId)">
-                  开始答题
-                </el-button>
-                <span style="color:#9E9E9E;" v-else>请登录后参与答题</span>
-              </template>
-            </el-table-column>
-          </el-table>
-          <!-- 分页区域 -->
-          <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="total"
-            v-model:current-page="params.pageNum" v-model:page-size="params.pageSize" :page-sizes="[5, 10, 15, 20]"
-            @size-change="handleSizeChange" @current-change="handleCurrentChange"
-            class="problem-pagination" />
         </div>
-        <div class="right">
-          <div class="training-card">
-            <span class="side-title">今日训练</span>
-            <strong>建议完成 3 题</strong>
-            <p>优先选择中等难度，保持连续训练节奏。</p>
+
+        <!-- Right: Sidebar -->
+        <div class="side-column">
+          <div class="floating-card heatmap-card">
+            <h3 class="card-title">学习足迹</h3>
+            <div class="heatmap-container">
+              <div class="heatmap-grid">
+                <div v-for="week in 52" :key="week" class="heatmap-col">
+                  <div v-for="day in 7" :key="day" 
+                       class="heatmap-cell" 
+                       :class="'level-' + Math.floor(Math.random() * 5)"
+                       :title="`AC ` + Math.floor(Math.random() * 10) + ` 题`">
+                  </div>
+                </div>
+              </div>
+              <div class="heatmap-legend">
+                <span>少</span>
+                <div class="heatmap-cell level-0"></div>
+                <div class="heatmap-cell level-1"></div>
+                <div class="heatmap-cell level-2"></div>
+                <div class="heatmap-cell level-3"></div>
+                <div class="heatmap-cell level-4"></div>
+                <span>多</span>
+              </div>
+            </div>
           </div>
-          <div class="top-box">
-            <el-calendar v-model="today"> </el-calendar>
-          </div>
-          <div class="bot-box">
-            <div class="title">热门题目</div>
+
+          <div class="floating-card hot-card">
+            <h3 class="card-title">热门题目</h3>
             <div class="hot-list">
-              <div class="list-item" v-for="(item, index) in hotQuestionList" :key="'hot_' + index">
-                <img class="index-box" v-if="index == 0" src="@/assets/images/icon_1.png" alt="">
-                <img class="index-box" v-if="index == 1" src="@/assets/images/icon_2.png" alt="">
-                <img class="index-box" v-if="index == 2" src="@/assets/images/icon_3.png" alt="">
-                <span class="index-box" v-if="index > 2">{{ index + 1 }}</span>
-                <span class="txt" :title="item.title">{{ item.title }}</span>
+              <div class="hot-item" v-for="(item, index) in hotQuestionList" :key="'hot_' + index" @click="goQuestTest(item.questionId)">
+                <span class="hot-rank" :class="{'top-3': index < 3}">{{ index + 1 }}</span>
+                <span class="hot-title">{{ item.title }}</span>
               </div>
             </div>
           </div>
         </div>
+        
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { reactive, ref } from "vue"
-  import Selector from "@/components/QuestionSelector.vue"
-  import { getQuestionListService,getHotQuestionListService } from '@/apis/question'
-  import { getToken } from "@/utils/cookie"
-  import router from "@/router"
-  import { getUserInfoService } from "@/apis/user"
-  
-  const params = reactive({
-    pageNum: 1,
-    pageSize: 10,
-    difficulty: '',
-    keyword: ''
-  })
-  let today = ref(new Date()) //日历默认今天
-  const questionList = ref([]) //题目列表
-  const total = ref(0)
-  const isLogin = ref(false)
-  
-  async function checkLogin() {
-    if (getToken()) {
+  </div>
+</template>
+
+<script setup>
+import { reactive, ref } from "vue"
+import Selector from "@/components/QuestionSelector.vue"
+import { getQuestionListService, getHotQuestionListService } from '@/apis/question'
+import { getToken } from "@/utils/cookie"
+import router from "@/router"
+import { getUserInfoService } from "@/apis/user"
+
+const params = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  difficulty: '',
+  keyword: ''
+})
+const questionList = ref([])
+const total = ref(0)
+const isLogin = ref(false)
+
+async function checkLogin() {
+  if (getToken()) {
+    try {
       await getUserInfoService()
       isLogin.value = true
-    }
+    } catch (e) {}
   }
-  checkLogin()
-  
-  async function getQuestionList() {
+}
+checkLogin()
+
+async function getQuestionList() {
+  try {
     const result = await getQuestionListService(params)
     questionList.value = result.rows
     total.value = result.total
-  }
-  getQuestionList()
-  
-  const hotQuestionList = ref([])
-  async function getHotQuestionList(params) {
+  } catch (e) {}
+}
+getQuestionList()
+
+const hotQuestionList = ref([])
+async function getHotQuestionList() {
+  try {
     const hotRef = await getHotQuestionListService(8)
     hotQuestionList.value = hotRef.data
+  } catch (e) {}
+}
+getHotQuestionList()
+
+function onSearch() {
+  params.pageNum = 1
+  getQuestionList()
+}
+
+function onReset() {
+  params.pageNum = 1
+  params.pageSize = 10
+  params.difficulty = ''
+  params.keyword = ''
+  getQuestionList()
+}
+
+function handleCurrentChange(newPage) {
+  getQuestionList()
+}
+
+function goQuestTest(questionId) {
+  if (!isLogin.value) {
+    router.push('/c-oj/login');
+    return;
   }
-  
-  getHotQuestionList()
-  
-  // 搜索/重置
-  function onSearch() {
-    params.pageNum = 1
-    getQuestionList()
-  }
-  
-  function onReset() {
-    params.pageNum = 1
-    params.pageSize = 9
-    params.difficulty = ''
-    params.keyword = ''
-    getQuestionList()
-  }
-  
-  // 分页
-  function handleSizeChange(newSize) {
-    console.log(params.pageSize)
-    params.pageNum = 1
-    getQuestionList()
-  }
-  
-  function handleCurrentChange(newPage) {
-    getQuestionList()
-  }
-  
-  function goQuestTest(questionId) {
-    router.push(`/c-oj/answer?questionId=${questionId}`)
-  }
-  </script>
-  
-  <style lang="scss" scoped>
-  .index-question-table-box {
-    display: flex;
-    max-width: 1520px;
-    width: min(1520px, calc(100% - 48px));
-    justify-content: space-between;
-    gap: 20px;
-  
-    :deep(.el-pagination) {
-  
-      .el-select .el-select__wrapper,
-      .el-input .el-input__wrapper {
-        height: 24px;
-      }
+  router.push(`/c-oj/answer?questionId=${questionId}`)
+}
+
+function getDifficultyClass(difficulty) {
+  if (difficulty === 1) return 'easy';
+  if (difficulty === 2) return 'medium';
+  if (difficulty === 3) return 'hard';
+  return '';
+}
+</script>
+
+<style lang="scss" scoped>
+.apple-question-page {
+  padding: 40px 0 80px;
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Left Column */
+.problem-workbench {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.workbench-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  .header-titles {
+    .kicker {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--oj-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-  
-    .right {
-      width: 342px;
-      flex-shrink: 0;
-
-      .training-card {
-        width: 100%;
-        margin-bottom: 20px;
-        padding: 22px;
-        border: 1px solid rgba(22, 131, 74, 0.14);
-        border-radius: 18px;
-        background:
-          linear-gradient(135deg, rgba(22, 131, 74, 0.12), rgba(245, 158, 11, 0.08)),
-          #fff;
-        box-shadow: var(--oj-shadow-sm);
-
-        .side-title {
-          color: var(--oj-primary-strong);
-          font-size: 13px;
-          font-weight: 800;
-        }
-
-        strong {
-          display: block;
-          margin-top: 12px;
-          color: var(--oj-ink);
-          font-size: 22px;
-        }
-
-        p {
-          margin: 10px 0 0;
-          color: var(--oj-muted);
-          font-size: 14px;
-          line-height: 1.7;
-        }
-      }
-  
-      :deep(.top-box) {
-        width: 100%;
-        height: 330px;
-        padding-bottom: 16px;
-        margin-bottom: 20px;
-        border: 1px solid var(--oj-line);
-        border-radius: 18px;
-        background: #fff;
-        box-shadow: var(--oj-shadow-sm);
-  
-        .el-calendar,
-        .el-calendar__body {
-          background: transparent;
-        }
-  
-        .el-calendar {
-          position: relative;
-  
-          .el-calendar__title {
-            font-weight: bold;
-          }
-  
-          .el-calendar__header {
-            border: none;
-            padding-bottom: 0;
-          }
-  
-          .el-calendar__button-group {
-            text-align: center;
-            background: transparent;
-  
-            .el-button-group>.el-button {
-              color: #1f2122;
-              border: none;
-              background: rgba(255, 255, 255, .1);
-            }
-          }
-  
-          .el-calendar-table {
-            thead th {
-              color: var(--oj-primary);
-              font-size: 12px;
-              font-weight: bold;
-            }
-  
-            .el-calendar-day {
-              height: 40px;
-              text-align: center;
-            }
-  
-            td {
-              border: none;
-            }
-          }
-        }
-  
-      }
-  
-      .bot-box {
-        width: 342px;
-        border: 1px solid var(--oj-line);
-        border-radius: 18px;
-        padding-top: 0;
-        box-sizing: border-box;
-        background: #fff;
-        position: relative;
-        overflow: hidden;
-        box-shadow: var(--oj-shadow-sm);
-  
-        .title {
-          font-weight: bold;
-          color: var(--oj-ink);
-          position: relative;
-          width: 100%;
-          height: 58px;
-          padding: 20px 20px 0;
-          background: #f8faf5;
-  
-          span {
-            position: absolute;
-            display: flex;
-            right: 20px;
-            font-family: PingFangSC, PingFang SC;
-            font-weight: 400;
-            font-size: 14px;
-            color: var(--oj-primary);
-            bottom: 20px;
-            cursor: pointer;
-          }
-        }
-  
-        .hot-list {
-          width: calc(100% - 40px);
-          margin: 0 auto;
-          padding-top: 20px;
-          padding-bottom: 20px;
-  
-          .list-item {
-            margin-bottom: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-  
-            .index-box {
-              display: inline-block;
-              text-align: center;
-              width: 20px;
-              font-family: Tensentype-RuiHeiJ, Tensentype-RuiHeiJ;
-              font-weight: normal;
-              font-size: 18px;
-              color: #999999;
-              font-weight: bold;
-            }
-  
-            .txt {
-              max-width: calc(100% - 34px);
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              margin-left: 10px;
-              font-family: PingFangSC, PingFang SC;
-              font-weight: 400;
-              font-size: 16px;
-              color: var(--oj-ink);
-              line-height: 22px;
-              text-align: left;
-              font-style: normal;
-            }
-  
-            &:hover {
-              .txt {
-                color: var(--oj-primary);
-              }
-            }
-          }
-        }
-      }
-    }
-  
-    .problem-workbench {
-      flex: 1 1 680px;
-      min-width: 0;
-      border: 1px solid var(--oj-line);
-      border-radius: 20px;
-      overflow: hidden;
-      background: #fff;
-      box-shadow: var(--oj-shadow-sm);
-
-      .problem-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 28px 28px 18px;
-
-        .section-kicker {
-          color: var(--oj-primary-strong);
-          font-size: 13px;
-          font-weight: 800;
-        }
-
-        h1 {
-          margin: 8px 0 8px;
-          color: var(--oj-ink);
-          font-size: 28px;
-          line-height: 1.2;
-        }
-
-        p {
-          margin: 0;
-          color: var(--oj-muted);
-          font-size: 14px;
-        }
-
-        .progress-card {
-          min-width: 112px;
-          padding: 14px 16px;
-          border: 1px solid var(--oj-line);
-          border-radius: 14px;
-          background: var(--oj-surface-soft);
-          text-align: right;
-
-          strong,
-          span {
-            display: block;
-          }
-
-          strong {
-            color: var(--oj-primary-strong);
-            font-size: 22px;
-          }
-
-          span {
-            margin-top: 4px;
-            color: var(--oj-muted);
-            font-size: 12px;
-          }
-        }
-      }
-
-      .problem-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 12px;
-        padding: 18px 28px;
-
-        :deep(.el-form-item) {
-          margin: 0;
-        }
-
-        .keyword-field {
-          flex: 1 1 240px;
-          min-width: 0;
-        }
-
-        .difficulty-field {
-          flex: 0 0 180px;
-        }
-
-        .toolbar-actions {
-          flex: 0 0 auto;
-        }
-      }
-  
-      .el-table {
-        width: 100%;
-
-        th.el-table__cell {
-          background-color: transparent !important;
-          color: var(--oj-muted);
-          font-size: 13px;
-          font-weight: 800;
-          border-bottom: none !important;
-        }
-  
-        td {
-          height: 58px;
-          color: var(--oj-ink);
-          border-bottom: 1px dashed var(--oj-line);
-        }
-      }
-
-      .difficulty-tag {
-        display: inline-flex;
-        justify-content: center;
-        min-width: 54px;
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-size: 13px;
-        font-weight: 700;
-
-        &.easy {
-          background: var(--oj-primary-soft);
-          color: var(--oj-primary-strong);
-        }
-
-        &.medium {
-          background: var(--oj-accent-soft);
-          color: #a16207;
-        }
-
-        &.hard {
-          background: var(--oj-danger-soft);
-          color: var(--oj-danger);
-        }
-      }
-
-      .solve-button {
-        color: var(--oj-primary-strong);
-        font-weight: 800;
-      }
-
-      .problem-pagination {
-        margin: 30px 28px 30px 0;
-        justify-content: flex-end;
-      }
-
-      .el-card__header {
-        font-family: PingFangSC, PingFang SC;
-        font-weight: 600;
-        font-size: 20px;
-        color: #222222;
-        line-height: 28px;
-        text-align: left;
-        font-style: normal;
-        border: none;
-        padding-bottom: 0;
-      }
-    }
-  }
-  
-  .el-input__wrapper {
-    background-color: #fff;
-  }
-  
-  .index-question {
-    display: flex;
-    justify-content: center;
-    margin-top: 22px;
-  
-    .no-border {
-      border: none;
-    }
-  }
-  
-  .el-table {
-    th {
-      word-break: break-word;
-      height: 40px;
+    .title {
+      font-size: 32px;
       font-weight: 700;
-      font-size: 14px;
+      color: var(--oj-ink);
+      margin: 8px 0;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: var(--oj-muted);
+      margin: 0;
     }
   }
 
-  @media (max-width: 1180px) {
-    .index-question-table-box {
-      flex-direction: column;
+  .progress-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    background: var(--oj-surface-soft);
+    padding: 12px 20px;
+    border-radius: 20px;
 
-      .right {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(280px, 342px);
-        gap: 20px;
-        width: 100%;
+    .value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--oj-ink);
+    }
+    .label {
+      font-size: 12px;
+      color: var(--oj-muted);
+      margin-top: 2px;
+    }
+  }
+}
 
-        .training-card {
-          grid-column: 1 / -1;
-          box-sizing: border-box;
-        }
+.workbench-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: var(--oj-surface-soft);
+  padding: 12px;
+  border-radius: 20px;
 
-        .bot-box {
-          width: 100%;
-        }
-      }
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+  }
+  .filter-box {
+    width: 140px;
+  }
+  .action-box {
+    display: flex;
+    gap: 8px;
+  }
 
-      .problem-workbench {
-        flex-basis: auto;
-        width: 100%;
+  .apple-input {
+    :deep(.el-input__wrapper) {
+      background: var(--oj-surface);
+      box-shadow: none !important;
+      border-radius: 12px;
+      height: 40px;
+    }
+  }
+
+  .apple-btn {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 12px;
+    background: var(--oj-ink);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .apple-btn-subtle {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--oj-ink);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    &:hover {
+      background: var(--oj-line);
+    }
+  }
+}
+
+.table-container {
+  margin-top: 8px;
+
+  .apple-table {
+    :deep(td.el-table__cell) {
+      padding: 24px 0 !important;
+      border-bottom: 1px solid var(--oj-line) !important;
+      background: transparent !important;
+    }
+    :deep(.el-table__row:last-child td.el-table__cell) {
+      border-bottom: none !important;
+    }
+    :deep(.el-table__row:hover td.el-table__cell) {
+      background: transparent !important;
+    }
+  }
+
+  .row-index {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--oj-subtle);
+  }
+
+  .question-title-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .title-text {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--oj-ink);
+    }
+
+    .difficulty-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      &.easy { background: var(--oj-success); }
+      &.medium { background: var(--oj-accent); }
+      &.hard { background: var(--oj-danger); }
+    }
+  }
+
+  .solve-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--oj-primary);
+    font-size: 15px;
+    font-weight: 500;
+    background: transparent;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 16px;
+    transition: background 0.2s;
+
+    svg {
+      transition: transform 0.2s;
+    }
+
+    &:hover {
+      background: var(--oj-primary-soft);
+      svg {
+        transform: translateX(4px);
       }
     }
   }
 
-  @media (max-width: 760px) {
-    .index-question-table-box {
-      width: calc(100% - 24px);
-
-      .right {
-        display: block;
-      }
-
-      .problem-workbench {
-        .problem-header {
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .problem-toolbar {
-          padding: 16px;
-
-          .difficulty-field,
-          .toolbar-actions {
-            flex-basis: 100%;
-          }
-        }
-      }
-    }
+  .login-prompt {
+    font-size: 14px;
+    color: var(--oj-subtle);
   }
-  </style>
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+/* Right Column */
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.training-card {
+  padding: 32px;
+  background: linear-gradient(145deg, var(--oj-surface), var(--oj-surface-soft));
   
-  <!-- npm install ace-builds@1.4.13 -->
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: var(--oj-primary-soft);
+    color: var(--oj-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .side-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--oj-muted);
+    text-transform: uppercase;
+  }
+
+  .side-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--oj-ink);
+    margin: 8px 0;
+  }
+
+  .side-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--oj-muted);
+    margin: 0;
+  }
+}
+
+.heatmap-card {
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+.heatmap-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.heatmap-grid {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+}
+
+.heatmap-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.heatmap-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background-color: #ebedf0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &.level-0 { background-color: #ebedf0; }
+  &.level-1 { background-color: #9be9a8; }
+  &.level-2 { background-color: #40c463; }
+  &.level-3 { background-color: #30a14e; }
+  &.level-4 { background-color: #216e39; }
+
+  &:hover {
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+  }
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--oj-muted);
+
+  span {
+    margin: 0 4px;
+  }
+}
+
+.hot-card {
+  padding: 32px;
+
+  .card-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--oj-ink);
+    margin: 0 0 24px 0;
+  }
+
+  .hot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .hot-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 12px;
+    transition: background 0.2s;
+    margin: -8px;
+
+    &:hover {
+      background: var(--oj-surface-soft);
+    }
+
+    .hot-rank {
+      width: 24px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--oj-subtle);
+      text-align: center;
+
+      &.top-3 {
+        color: var(--oj-primary);
+      }
+    }
+
+    .hot-title {
+      font-size: 15px;
+      color: var(--oj-ink);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  .problem-workbench {
+    padding: 24px;
+  }
+}
+</style>

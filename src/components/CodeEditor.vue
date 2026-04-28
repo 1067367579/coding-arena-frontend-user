@@ -6,76 +6,111 @@
         <span></span>
         <span></span>
       </div>
-      <el-select v-model="laguage" placeholder="java" class="language-select">
-        <el-option v-for="item in languages" :key="item" :label="item" :value="item" />
-      </el-select>
-      <span class="file-chip">Main.java</span>
+      
+      <div class="language-selector" ref="langSelectorRef">
+        <div class="apple-dropdown-trigger" @click="langDropdownOpen = !langDropdownOpen">
+          <span class="selected-lang">{{ laguage }}</span>
+          <svg class="select-chevron" :class="{'is-open': langDropdownOpen}" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        
+        <transition name="dropdown-fade">
+          <ul class="apple-dropdown-menu" v-if="langDropdownOpen">
+            <li v-for="item in languages" :key="item" 
+                class="dropdown-item" 
+                :class="{'is-active': laguage === item}"
+                @click="selectLanguage(item)">
+              {{ item }}
+              <svg v-if="laguage === item" class="check-icon" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </li>
+          </ul>
+        </transition>
+      </div>
+
+      <span class="file-chip">Main.{{ laguage === 'java' ? 'java' : 'cpp' }}</span>
     </div>
     <div ref="editorForm" class="ace-editor">
     </div>
   </div>
-  </template>
-  
-  <script setup>
-  import { ref, onMounted, onBeforeUnmount } from "vue";
-  import ace from "ace-builds";
-  import "ace-builds/src-noconflict/mode-java"
-  import "ace-builds/src-noconflict/theme-one_dark"
-  import "ace-builds/src-noconflict/ext-language_tools";
-  
-  const languages = ref([
-    "java",
-    // "cpp"
-  ])
-  
-  // 创建响应式引用
-  const laguage = ref('java')
-  const editorForm = ref(null);
-  let editor = null;
-  const emit = defineEmits(['update:value']);
-  
-  const options = {
-    theme: `ace/theme/one_dark`,
-    mode: `ace/mode/java`,
-    maxLines: Infinity,
-    minLines: 25,
-    fontSize: 15,
-    showPrintMargin: false,
-    highlightActiveLine: true,
-    tabSize: 4,
-    useSoftTabs: true,
-  };
-  
-  // 初始化编辑器
-  onMounted(() => {
-    editor = ace.edit(editorForm.value, options);
-    editor.setOptions({
-      enableBasicAutocompletion: true,
-      enableLiveAutocompletion: true,
-    });
-    editor.getSession().on('change', () => {
-      // 当编辑器内容变化时，触发自定义事件并传递编辑器的内容
-      emit('update:value', editor.getValue());
-    });
-  });
-  
-  // 销毁编辑器实例
-  onBeforeUnmount(() => {
-    if (editor) {
-      editor.destroy();
-      editor = null;
-    }
-  });
-  
-  function setAceCode(content) {
-    editor.setValue(content, -1)
+</template>
+
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import ace from "ace-builds";
+import "ace-builds/src-noconflict/mode-java"
+import "ace-builds/src-noconflict/theme-one_dark"
+import "ace-builds/src-noconflict/ext-language_tools";
+
+const languages = ref([
+  "java",
+  // "cpp"
+])
+
+const laguage = ref('java')
+const langDropdownOpen = ref(false)
+const langSelectorRef = ref(null)
+
+const editorForm = ref(null);
+let editor = null;
+const emit = defineEmits(['update:value']);
+
+function selectLanguage(lang) {
+  laguage.value = lang;
+  langDropdownOpen.value = false;
+  // TODO: Add logic to switch editor mode if cpp is added in the future
+}
+
+// Close dropdown on outside click
+function handleClickOutside(event) {
+  if (langSelectorRef.value && !langSelectorRef.value.contains(event.target)) {
+    langDropdownOpen.value = false;
   }
-  
-  defineExpose({
-    setAceCode
-  })
-  </script>
-  
+}
+
+const options = {
+  theme: `ace/theme/one_dark`,
+  mode: `ace/mode/java`,
+  maxLines: Infinity,
+  minLines: 25,
+  fontSize: 15,
+  showPrintMargin: false,
+  highlightActiveLine: true,
+  tabSize: 4,
+  useSoftTabs: true,
+};
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside);
+  editor = ace.edit(editorForm.value, options);
+  editor.setOptions({
+    enableBasicAutocompletion: true,
+    enableLiveAutocompletion: true,
+  });
+  editor.getSession().on('change', () => {
+    emit('update:value', editor.getValue());
+  });
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', handleClickOutside);
+  if (editor) {
+    editor.destroy();
+    editor = null;
+  }
+});
+
+function setAceCode(content) {
+  editor.setValue(content, -1)
+}
+
+defineExpose({
+  setAceCode
+})
+</script>
+
 <style lang="scss" scoped>
 .code-editor-shell {
   height: 100%;
@@ -100,6 +135,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-right: 8px;
 
   span {
     width: 10px;
@@ -117,38 +153,108 @@
   }
 }
 
-.language-select {
-  width: 118px;
+.language-selector {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 
-  :deep(.el-select__wrapper) {
-    min-height: 34px;
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    border-radius: 10px;
-    background: rgba(15, 23, 32, 0.9);
-    box-shadow: none;
-  }
-
-  :deep(.el-select__placeholder),
-  :deep(.el-select__selected-item) {
+  .apple-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 6px 12px;
     color: #d8e3ea;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .select-chevron {
+      color: #95a3b8;
+      transition: transform 0.2s ease;
+      
+      &.is-open {
+        transform: rotate(180deg);
+      }
+    }
   }
 
-  :deep(.el-select__caret) {
-    color: #95a3b8;
+  .apple-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 140px;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: rgba(20, 28, 40, 0.85);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    color: #d8e3ea;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.is-active {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .check-icon {
+      color: #38bdf8;
+    }
   }
 }
 
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top left;
+}
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.96) translateY(-4px);
+}
+
 .file-chip {
-  height: 30px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   padding: 0 10px;
-  border-radius: 999px;
-  background: rgba(22, 163, 74, 0.12);
+  border-radius: 8px;
+  background: rgba(22, 163, 74, 0.15);
   color: #b8f2cd;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", monospace;
+  letter-spacing: -0.02em;
 }
 
 .ace-editor {

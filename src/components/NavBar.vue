@@ -1,282 +1,304 @@
 <template>
-    <div class="oj-navbar">
-      <div class="oj-navbar-menus">
-        <div class="oj-navbar-brand">
-          <img class="oj-navbar-logo" src="@/assets/logo.png" />
-          <div>
-            <strong>DevKnight OJ</strong>
-            <span>Practice Workbench</span>
-          </div>
-        </div>
-        <el-menu router class="oj-navbar-menu" mode="horizontal">
-          <el-menu-item index="/c-oj/home/question">题库</el-menu-item>
-          <el-menu-item index="/c-oj/home/exam">竞赛</el-menu-item>
-        </el-menu>
+  <div class="apple-dock-wrapper">
+    <div class="apple-dock">
+      <!-- Logo & Brand -->
+      <div class="dock-brand" @click="goHome">
+        <img class="dock-logo" src="@/assets/logo.png" alt="DevKnight" />
+        <span class="dock-title">DevKnight</span>
       </div>
-      <div class="oj-navbar-users">
-        <img v-if="isLogin" class="oj-message" @click="goMessage" src="@/assets/message/message.png" />
-        <el-dropdown v-if="isLogin">
-          <div class="oj-navbar-name">
-            <img class="oj-head-image" v-if="isLogin" :src="userInfo.avatar" />
-            <span>{{ userInfo.nickName }}</span>
+
+      <!-- Navigation Links -->
+      <div class="dock-nav">
+        <router-link to="/c-oj/home/question" class="dock-item" active-class="is-active">
+          题库
+        </router-link>
+        <router-link to="/c-oj/home/exam" class="dock-item" active-class="is-active">
+          竞赛
+        </router-link>
+      </div>
+
+      <!-- User Actions -->
+      <div class="dock-actions">
+        <template v-if="isLogin">
+          <div class="dock-icon-btn" @click="goMessage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
           </div>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="goUserDetail">
-                <div class="oj-navabar-item">
-                  <span>个人中心</span>
-                </div>
-              </el-dropdown-item>
-              <el-dropdown-item @click="goMyExam">
-                <div class="oj-navabar-item">
-                  <span>我的竞赛</span>
-                </div>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <div class="oj-navabar-item">
-                  <span @click="handleLogout">退出登录</span>
-                </div>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-        <span class="oj-navbar-login-btn" v-if="!isLogin" @click="goLogin">登录</span>
+          
+          <el-dropdown trigger="click">
+            <div class="dock-user">
+              <img :src="userInfo.avatar" class="user-avatar" />
+              <span class="user-name">{{ userInfo.nickName }}</span>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu class="apple-dropdown">
+                <el-dropdown-item @click="goUserDetail">个人中心</el-dropdown-item>
+                <el-dropdown-item @click="goMyExam">我的竞赛</el-dropdown-item>
+                <el-dropdown-item divided @click="handleLogout" class="danger-item">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </template>
+        <template v-else>
+          <button class="apple-btn-primary" @click="goLogin">登录</button>
+        </template>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { reactive, ref } from 'vue';
-  import router from '@/router';
-  import { getToken, removeToken } from '@/utils/cookie';
-  import { logoutService, getUserInfoService } from '@/apis/user';
-  import { onMounted } from 'vue';
-  import { onUnmounted } from 'vue';
-  import { eventBus } from '@/utils/eventBus';
+  </div>
+</template>
+
+<script setup>
+import { reactive, ref, onMounted, onUnmounted } from 'vue';
+import router from '@/router';
+import { getToken, removeToken } from '@/utils/cookie';
+import { logoutService, getUserInfoService } from '@/apis/user';
+import { eventBus } from '@/utils/eventBus';
 import { clearAllStorage } from '@/utils/codeStorage';
-  
-  const isLogin = ref(false)
-  const userInfo = reactive({
-    nickName: '',
-    avatar: ''
-  })
+import { ElMessageBox, ElMessage } from 'element-plus';
 
-  // 监听全局事件：用户信息更新时重新获取数据
-  onMounted(() => {
-    eventBus.$on('user-info-updated', checkLogin);
-  });
+const isLogin = ref(false);
+const userInfo = reactive({
+  nickName: '',
+  avatar: ''
+});
 
-  // 组件卸载时移除监听（避免内存泄漏）
-  onUnmounted(() => {
-    eventBus.$off('user-info-updated', checkLogin);
-  });
-  
-  async function checkLogin() {
-    if (getToken()) {
-      //  后端是需要提供一个接口完成，这两件事情的
-      //  1. 判断当前token是否过期（判断当前用户是否还处于登录状态）
-      //  2. 将当前用户的头像、昵称返回
-      const userInfoRes = await getUserInfoService()
-      Object.assign(userInfo, userInfoRes.data)
-      isLogin.value = true
-    }
-  }
-  checkLogin()
-  
-  function goLogin() {
-    router.push('/c-oj/login')
-  }
-  
-  function goMyExam() {
-    router.push('/c-oj/home/user/exam')
-  }
-  
-  function goUserDetail() {
-    router.push('/c-oj/home/user/detail')
-  }
-  
-  function goMessage() {
-    router.push('/c-oj/home/user/message')
-  }
-  
-  async function handleLogout() {
-    await ElMessageBox.confirm(
-      '确认退出',
-      '温馨提示',
-      {
-        confirmButtonText: '确认',
-        cancelButtonText: '退出',
-        type: 'warning',
-      }
-    )
+onMounted(() => {
+  eventBus.$on('user-info-updated', checkLogin);
+});
+
+onUnmounted(() => {
+  eventBus.$off('user-info-updated', checkLogin);
+});
+
+async function checkLogin() {
+  if (getToken()) {
     try {
-        await logoutService();
-        removeToken();
-        clearAllStorage();
-        isLogin.value = false;
-        //不需要退回到登录页 因为能够进行一部分的操作
-    } catch(error) {
-        ElMessage.error(error.message);
+      const userInfoRes = await getUserInfoService();
+      Object.assign(userInfo, userInfoRes.data);
+      isLogin.value = true;
+    } catch (e) {
+      console.error(e);
     }
   }
-  
-  
-  </script>
-  
-  <style lang="scss" scoped>
-  .oj-navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 64px;
-    padding: 0 28px;
-    box-sizing: border-box;
-    max-width: 1520px;
-    margin: 0 auto;
-    border: 1px solid rgba(229, 231, 220, 0.9);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.88);
-    box-shadow: 0 10px 34px rgba(17, 24, 39, 0.06);
-    backdrop-filter: blur(16px);
-  
-    .oj-navbar-menus {
-      display: flex;
-      align-items: center;
+}
+checkLogin();
 
-      .oj-navbar-brand {
-        display: flex;
-        align-items: center;
-        min-width: 246px;
-        margin-right: 30px;
+function goHome() {
+  router.push('/c-oj/home');
+}
+function goLogin() {
+  router.push('/c-oj/login');
+}
+function goMyExam() {
+  router.push('/c-oj/home/user/exam');
+}
+function goUserDetail() {
+  router.push('/c-oj/home/user/detail');
+}
+function goMessage() {
+  router.push('/c-oj/home/user/message');
+}
 
-        strong,
-        span {
-          display: block;
-        }
+async function handleLogout() {
+  await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+    confirmButtonText: '退出',
+    cancelButtonText: '取消',
+    type: 'warning',
+    customClass: 'apple-message-box'
+  });
+  try {
+    await logoutService();
+    removeToken();
+    clearAllStorage();
+    isLogin.value = false;
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
+}
+</script>
 
-        strong {
-          color: var(--oj-ink);
-          font-size: 16px;
-          line-height: 20px;
-        }
+<style lang="scss" scoped>
+.apple-dock-wrapper {
+  position: fixed;
+  top: 24px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none; /* Let clicks pass through the wrapper */
+}
 
-        span {
-          margin-top: 2px;
-          color: var(--oj-muted);
-          font-size: 12px;
-        }
-      }
-  
-      .el-menu-item {
-        font-family: PingFangSC, PingFang SC;
-        font-weight: 600;
-        font-size: 15px;
-        color: var(--oj-muted);
-        line-height: 40px;
-        text-align: center;
-        min-width: 68px;
-        height: 40px;
-        margin-right: 8px;
-        border-radius: 999px;
-      }
-    }
-  
-    .oj-navbar-logo {
-      width: 40px;
-      height: 40px;
-      background: var(--oj-primary);
-      border-radius: 12px;
-      cursor: pointer;
-      object-fit: contain;
-      margin-right: 12px;
-    }
-  
-    .oj-navbar-menu {
-      width: 280px;
-      border: none;
-      background: transparent;
-      display: flex;
-      align-items: center;
-  
-      .el-menu-item {
-        font-size: 15px;
-        font-weight: 700;
-        background-color: transparent !important;
-        transition: none;
-        border: none;
-        line-height: 40px;
+.apple-dock {
+  pointer-events: auto; /* Re-enable clicks for the dock */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  gap: 32px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-        &:hover,
-        &.is-active {
-          background: var(--oj-primary-soft) !important;
-          color: var(--oj-primary-strong) !important;
-        }
-      }
-    }
-  
-    .oj-navbar-users {
-      display: flex;
-      align-items: center;
-    }
-  
-    .oj-navbar-login-btn {
-      line-height: 36px;
-      margin-right: 0;
-      padding: 0 18px;
-      border-radius: 999px;
-      background: var(--oj-primary);
-      display: inline-block;
-      font-family: PingFangSC, PingFang SC;
-      font-weight: 700;
-      font-size: 14px;
-      color: #fff;
-      text-align: center;
-      cursor: pointer;
-  
-      .line {
-        display: inline-block;
-        width: 25px;
-      }
-    }
-  
-    .oj-message {
-      cursor: pointer;
-      width: 22px;
-      height: 22px;
-      opacity: 0.72;
-    }
-  
-    .oj-head-image {
-      width: 34px;
-      height: 34px;
-      border-radius: 30px;
-      margin-right: 10px;
-      border: 2px solid #fff;
-      box-shadow: 0 0 0 1px var(--oj-line);
-    }
-  
-    .oj-navbar-name {
-      cursor: pointer;
-      margin-right: 0;
-      font-weight: 700;
+.dock-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding-left: 8px;
+
+  .dock-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .dock-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--oj-ink);
+    letter-spacing: -0.02em;
+  }
+}
+
+.dock-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .dock-item {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--oj-muted);
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    &:hover {
       color: var(--oj-ink);
-      margin-left: 15px;
-      font-size: 14px;
-      width: 132px;
-      height: 42px;
-      padding: 4px 10px 4px 4px;
-      border: 1px solid var(--oj-line);
-      border-radius: 999px;
-      background: #fff;
-      display: flex;
-      align-items: center;
+      background: rgba(0, 0, 0, 0.04);
     }
-  
-    .oj-navabar-item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 32px;
+
+    &.is-active {
+      color: var(--oj-ink);
+      background: var(--oj-surface);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
   }
-  </style>
+}
+
+.dock-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-right: 8px;
+
+  .dock-icon-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--oj-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--oj-ink);
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .dock-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px 4px 4px;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--oj-ink);
+    }
+  }
+
+  .apple-btn-primary {
+    padding: 8px 20px;
+    border-radius: 20px;
+    background: var(--oj-ink);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+/* Global overrides for Apple-style dropdowns */
+.apple-dropdown {
+  border-radius: 16px !important;
+  padding: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+
+  .el-dropdown-menu__item {
+    border-radius: 8px;
+    margin: 2px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--oj-ink);
+
+    &:hover {
+      background: var(--oj-primary-soft);
+      color: var(--oj-primary);
+    }
+  }
+
+  .danger-item {
+    color: var(--oj-danger) !important;
+    &:hover {
+      background: var(--oj-danger-soft) !important;
+      color: var(--oj-danger) !important;
+    }
+  }
+}
+</style>
