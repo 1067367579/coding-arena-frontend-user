@@ -1,8 +1,28 @@
 <template>
     <div class="login-page">
-      <div class="orange"> </div>
-      <div class="blue"></div>
-      <div class="blue small"></div>
+      <div class="login-shell">
+        <section class="brand-panel">
+          <div class="brand-mark">
+            <img src="@/assets/logo.png">
+            <span>DevKnight OJ</span>
+          </div>
+          <h1>把每一次提交，变成可复盘的训练。</h1>
+          <p>面向算法练习、竞赛组织和代码评测的专注型工作台。减少干扰，突出题目、竞赛、代码和结果。</p>
+          <div class="brand-metrics">
+            <div>
+              <strong>128</strong>
+              <span>精选题目</span>
+            </div>
+            <div>
+              <strong>24/7</strong>
+              <span>在线评测</span>
+            </div>
+            <div>
+              <strong>5ms</strong>
+              <span>结果反馈</span>
+            </div>
+          </div>
+        </section>
       <div class="login-box">
         <div class="logo-box">
           <img src="@/assets/logo.png">
@@ -33,6 +53,7 @@
         <div class="gray-bot">
           <p>注册或点击登录代表您同意 <span>服务条款</span> 和 <span>隐私协议</span></p>
         </div>
+      </div>
       </div>
     </div>
   </template>
@@ -82,27 +103,122 @@
   </script>
   <style lang="scss" scoped>
   .login-page {
-    width: 100vw;
-    height: 100vh;
+    width: calc(100vw - 48px);
+    min-height: calc(100vh - 72px);
     position: relative;
-    margin-top: -60px;
-    margin-left: -20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-  
-    .login-box {
-      width: 600px;
-      height: 559px;
-      background: #FFFFFF;
-      box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
-      opacity: 0.9;
+
+    &::before {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 2;
-      padding: 0 72px;
-      padding-top: 50px;
+      inset: 6% 8% auto auto;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: rgba(22, 131, 74, 0.08);
+      content: '';
+    }
+
+    .login-shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(360px, 440px);
+      gap: 28px;
+      align-items: center;
+      width: min(1080px, calc(100vw - 48px));
+    }
+
+    .brand-panel {
+      min-height: 520px;
+      padding: 44px 44px 38px;
+      border: 1px solid rgba(22, 131, 74, 0.14);
+      border-radius: 28px;
+      background:
+        linear-gradient(135deg, rgba(22, 131, 74, 0.12), transparent 48%),
+        linear-gradient(180deg, #ffffff 0%, #f6f8f1 100%);
+      box-shadow: var(--oj-shadow);
+
+      .brand-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        height: 44px;
+        padding: 6px 14px 6px 6px;
+        border: 1px solid var(--oj-line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+        color: var(--oj-primary-strong);
+        font-weight: 700;
+
+        img {
+          width: 32px;
+          height: 32px;
+          border-radius: 10px;
+          background: var(--oj-primary);
+        }
+      }
+
+      h1 {
+        max-width: 460px;
+        margin: 64px 0 22px;
+        color: var(--oj-ink);
+        font-size: clamp(36px, 4vw, 48px);
+        line-height: 1.14;
+        letter-spacing: 0;
+      }
+
+      p {
+        max-width: 460px;
+        margin: 0;
+        color: var(--oj-muted);
+        font-size: 17px;
+        line-height: 1.9;
+      }
+
+      .brand-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 58px;
+
+        div {
+          padding: 18px 16px;
+          border: 1px solid var(--oj-line);
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.76);
+        }
+
+        strong,
+        span {
+          display: block;
+        }
+
+        strong {
+          color: var(--oj-primary-strong);
+          font-size: 24px;
+          line-height: 1;
+        }
+
+        span {
+          margin-top: 10px;
+          color: var(--oj-muted);
+          font-size: 13px;
+        }
+      }
+    }
+
+    .login-box {
+      width: 100%;
+      height: auto;
+      min-height: 560px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--oj-shadow);
+      border: 1px solid rgba(229, 231, 220, 0.92);
+      border-radius: 24px;
+      padding: 48px 48px 0;
       overflow: hidden;
   
       .logo-box {
@@ -114,44 +230,42 @@
         }
   
         img {
-          width: 68px;
-          height: 68px;
-          margin-right: 16px;
+          width: 56px;
+          height: 56px;
+          margin-right: 14px;
+          border-radius: 14px;
+          background: var(--oj-primary);
         }
   
         .sys-name {
-          height: 33px;
           font-family: PingFangSC, PingFang SC;
-          font-weight: 600;
-          font-size: 24px;
-          color: #222222;
-          line-height: 33px;
-          margin-bottom: 13px;
-          margin-left: 16px;
+          font-weight: 700;
+          font-size: 22px;
+          color: var(--oj-ink);
+          line-height: 30px;
+          margin-bottom: 8px;
         }
   
         .sys-sub-name {
-          height: 22px;
           font-family: PingFangSC, PingFang SC;
           font-weight: 400;
-          font-size: 16px;
-          color: gray;
-          line-height: 22px;
+          font-size: 14px;
+          color: var(--oj-muted);
+          line-height: 20px;
           font-style: italic;
-          margin-left: 16px;
         }
       }
   
       .form-box-title {
-        height: 100px;
+        height: 92px;
         display: flex;
         align-items: center;
   
         span {
           font-family: PingFangSC, PingFang SC;
-          font-weight: 400;
-          font-size: 24px;
-          color: #000000;
+          font-weight: 700;
+          font-size: 26px;
+          color: var(--oj-ink);
           line-height: 33px;
           display: block;
           height: 33px;
@@ -178,13 +292,11 @@
       }
   
       .gray-bot {
-        position: absolute;
-        left: 0;
+        margin: 48px -48px 0;
         text-align: center;
-        margin-top: 56px;
-        width: 100%;
+        width: calc(100% + 96px);
         height: 50px;
-        background: #FAFAFA;
+        background: #fafaf7;
         font-family: PingFangSC, PingFang SC;
         font-weight: 400;
         font-size: 14px;
@@ -196,18 +308,18 @@
         }
   
         span {
-          color: #32C5FF;
+          color: var(--oj-primary);
           cursor: pointer;
         }
       }
   
       :deep(.form-box) {
         .submit-box {
-          margin-top: 60px;
-          width: 456px;
-          height: 48px;
-          background: #96E1FE;
-          border-radius: 8px;
+          margin-top: 52px;
+          width: 100%;
+          height: 50px;
+          background: var(--oj-primary);
+          border-radius: 10px;
           cursor: pointer;
           display: flex;
           justify-content: center;
@@ -216,34 +328,36 @@
           font-weight: 600;
           font-size: 16px;
           color: #FFFFFF;
-          letter-spacing: 1px;
+          letter-spacing: 0;
+          box-shadow: 0 12px 24px rgba(22, 131, 74, 0.22);
   
           &.refister-submit {
             margin-top: 72px;
           }
   
           &:hover {
-            background: #32C5FF;
+            background: var(--oj-primary-strong);
           }
         }
   
         .form-item {
           display: flex;
           align-items: center;
-          width: 456px;
-          height: 48px;
-          background: #F8F8F8;
-          border-radius: 8px;
-          margin-bottom: 30px;
+          width: 100%;
+          height: 52px;
+          background: #f7f8f3;
+          border: 1px solid var(--oj-line);
+          border-radius: 10px;
+          margin-bottom: 22px;
           position: relative;
   
           .code-btn-box {
             position: absolute;
             right: 0;
-            width: 151px;
-            height: 48px;
-            background: #32C5FF;
-            border-radius: 8px;
+            width: 148px;
+            height: 52px;
+            background: var(--oj-primary);
+            border-radius: 10px;
             top: 0;
             display: flex;
             align-items: center;
@@ -277,11 +391,11 @@
           }
   
           .el-input {
-            width: 380px;
+            width: 360px;
             font-family: PingFangSC, PingFang SC;
             font-weight: 400;
             font-size: 16px;
-            color: #222222;
+            color: var(--oj-ink);
           }
   
           .el-input__wrapper {
@@ -293,56 +407,46 @@
           }
   
           img {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             margin: 0 18px;
+            opacity: 0.7;
           }
         }
       }
     }
-  
-    &::after {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      bottom: 0;
-      right: 0;
-      background: rgba(255, 255, 255, .8);
-      z-index: 1;
-      content: '';
-    }
-  
-    .orange {
-      background: #F0714A;
-      width: 498px;
-      height: 498px;
-      border-radius: 50%;
-      background: #F0714A;
-      opacity: 0.67;
-      filter: blur(50px);
-      left: 14.2%;
-      top: 41%;
-      position: absolute;
-    }
-  
-    .blue {
-      width: 334px;
-      height: 334px;
-      background: #32C5FF;
-      opacity: 0.67;
-      filter: blur(50px);
-      left: 14.2%;
-      top: 42%;
-      position: absolute;
-      top: 16.3%;
-      left: 80.7%;
-  
-      &.small {
-        width: 186px;
-        height: 186px;
-        top: 8.2%;
-        left: 58.2%;
+  }
+
+  @media (max-width: 720px) {
+    .login-page {
+      min-height: calc(100vh - 72px);
+
+      .login-shell {
+        grid-template-columns: 1fr;
+        width: min(520px, calc(100vw - 48px));
+        padding: 24px 0;
+      }
+
+      .brand-panel {
+        min-height: auto;
+        padding: 26px;
+
+        h1 {
+          margin-top: 28px;
+          font-size: 32px;
+        }
+
+        p {
+          font-size: 15px;
+        }
+
+        .brand-metrics {
+          margin-top: 28px;
+        }
+      }
+
+      .login-box {
+        min-height: auto;
       }
     }
   }

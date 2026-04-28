@@ -1,7 +1,13 @@
 <template>
     <div class="oj-navbar">
       <div class="oj-navbar-menus">
-        <img class="oj-navbar-logo" src="@/assets/logo.png" />
+        <div class="oj-navbar-brand">
+          <img class="oj-navbar-logo" src="@/assets/logo.png" />
+          <div>
+            <strong>DevKnight OJ</strong>
+            <span>Practice Workbench</span>
+          </div>
+        </div>
         <el-menu router class="oj-navbar-menu" mode="horizontal">
           <el-menu-item index="/c-oj/home/question">题库</el-menu-item>
           <el-menu-item index="/c-oj/home/exam">竞赛</el-menu-item>
@@ -122,51 +128,87 @@ import { clearAllStorage } from '@/utils/codeStorage';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
+    height: 64px;
+    padding: 0 28px;
     box-sizing: border-box;
-  
     max-width: 1520px;
     margin: 0 auto;
+    border: 1px solid rgba(229, 231, 220, 0.9);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 10px 34px rgba(17, 24, 39, 0.06);
+    backdrop-filter: blur(16px);
   
     .oj-navbar-menus {
       display: flex;
       align-items: center;
+
+      .oj-navbar-brand {
+        display: flex;
+        align-items: center;
+        min-width: 246px;
+        margin-right: 30px;
+
+        strong,
+        span {
+          display: block;
+        }
+
+        strong {
+          color: var(--oj-ink);
+          font-size: 16px;
+          line-height: 20px;
+        }
+
+        span {
+          margin-top: 2px;
+          color: var(--oj-muted);
+          font-size: 12px;
+        }
+      }
   
       .el-menu-item {
         font-family: PingFangSC, PingFang SC;
-        font-weight: 400;
-        font-size: 20px;
-        color: #222222;
-        line-height: 28px;
+        font-weight: 600;
+        font-size: 15px;
+        color: var(--oj-muted);
+        line-height: 40px;
         text-align: center;
-        width: 42px;
-        text-align: left;
-        margin-right: 25px;
+        min-width: 68px;
+        height: 40px;
+        margin-right: 8px;
+        border-radius: 999px;
       }
     }
   
     .oj-navbar-logo {
-      width: 38px;
-      height: 38px;
-      background: #32C5FF;
-      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      background: var(--oj-primary);
+      border-radius: 12px;
       cursor: pointer;
       object-fit: contain;
-      margin-right: 59px;
+      margin-right: 12px;
     }
   
     .oj-navbar-menu {
-      // margin-left: 18px;
-      width: 600px;
+      width: 280px;
       border: none;
+      background: transparent;
   
       .el-menu-item {
-        font-size: 16px;
-        font-weight: 500;
+        font-size: 15px;
+        font-weight: 700;
         background-color: transparent !important;
         transition: none;
         border: none;
-        line-height: 60px;
+        line-height: 40px;
+
+        &:hover,
+        &.is-active {
+          background: var(--oj-primary-soft) !important;
+          color: var(--oj-primary-strong) !important;
+        }
       }
     }
   
@@ -176,13 +218,16 @@ import { clearAllStorage } from '@/utils/codeStorage';
     }
   
     .oj-navbar-login-btn {
-      line-height: 60px;
-      margin-right: 15px;
+      line-height: 36px;
+      margin-right: 0;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: var(--oj-primary);
       display: inline-block;
       font-family: PingFangSC, PingFang SC;
-      font-weight: 400;
-      font-size: 16px;
-      color: #222222;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
       text-align: center;
       cursor: pointer;
   
@@ -194,23 +239,33 @@ import { clearAllStorage } from '@/utils/codeStorage';
   
     .oj-message {
       cursor: pointer;
+      width: 22px;
+      height: 22px;
+      opacity: 0.72;
     }
   
     .oj-head-image {
-      width: 30px;
-      height: 30px;
+      width: 34px;
+      height: 34px;
       border-radius: 30px;
       margin-right: 10px;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px var(--oj-line);
     }
   
     .oj-navbar-name {
       cursor: pointer;
-      margin-right: 15px;
-      font-weight: 400;
-      color: #000;
+      margin-right: 0;
+      font-weight: 700;
+      color: var(--oj-ink);
       margin-left: 15px;
-      font-size: 16px;
-      width: 100px;
+      font-size: 14px;
+      width: 132px;
+      height: 42px;
+      padding: 4px 10px 4px 4px;
+      border: 1px solid var(--oj-line);
+      border-radius: 999px;
+      background: #fff;
       display: flex;
       align-items: center;
     }
