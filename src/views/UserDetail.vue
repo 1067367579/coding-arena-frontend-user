@@ -1,117 +1,119 @@
 <template>
-    <div class="user-info-page">
-      <div class="oj-user-info oj-user-info-page">
-        <div class="oj-user-info-body">
-          <el-form :model="userDetailForm" label-position="top" status-icon label-width="100px" class="demo-ruleForm">
-            <div class="oj-user-info-subtitle-box">
-              <div class="oj-user-info-subtitle">
-                <span class="oj-user-info-dot">
-                  基本信息
-                </span>
-                <div class="opt-box">
-                  <el-button class="user-info-edit" v-if="isDisabled()" type="text" @click="changeState('updating')">
-                    编辑
-                  </el-button>
-                  <el-button class="user-info-edit" v-if="!isDisabled()" type="text" @click="changeState('normal')">
-                    取消
-                  </el-button>
-                  <el-button class="user-info-back" type="text" @click="goBack()">
-                    返回
-                  </el-button>
-                </div>
-              </div>
-  
-            </div>
-            <div class="ku-user-section">
-              <el-form-item prop="nickName">
-                <div class="photo-image-box">
-                  <div class="photo-image">
-                    <div class="left">
-                      <img width="80px" v-if="!userDetailForm.avatar" height="80px" src="@/assets/user/head_image.png">
-                      <img width="80px" v-else height="80px" :src="userDetailForm.avatar">
-                    </div>
-                    <div class="right" v-if="!userDetailForm.avatar">
-                      <div class="bold">上传你的个人头像</div>
-                      <div class="normal">上传你的个性头像展示你的个人风格</div>
-                    </div>
-                  </div>
-                  <div v-if="!isDisabled()">
-                    <el-upload :action="uploadUrl" :headers="headers"
-                      :on-error="handleUploadError" :on-success="handleUploadSuccess" :show-file-list="false">
-                      <el-button type="info">{{ userDetailForm.avatar ? '更换头像' : '上传头像' }}</el-button>
-                      <template #tip> </template>
-                    </el-upload>
-                  </div>
-                </div>
-              </el-form-item>
-              <el-form-item label="昵称" prop="nickName">
-                <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.nickName" autocomplete="off"
-                  placeholder="请填写您的昵称" maxlength="8"></el-input>
-                <span :class="userDetailForm.nickName ? 'right-info' : 'right-info gray'" v-else>
-                  {{ userDetailForm.nickName || "请填写您的昵称" }}
-                </span>
-              </el-form-item>
-              <el-form-item label="性别" prop="gender">
-                <el-radio-group v-model="userDetailForm.gender" v-if="!isDisabled()">
-                  <el-radio :label="0">女</el-radio>
-                  <el-radio :label="1">男</el-radio>
-                  <el-radio :label="2">未知</el-radio>
-                </el-radio-group>
-                <span :class="userDetailForm.gender ? 'right-info' : 'right-info gray'" v-else>
-                  {{ userDetailForm.gender == null ? "请选择您的性别" : getGender(userDetailForm.gender)}}
-                </span>
-              </el-form-item>
-              <el-form-item label="学校" prop="school">
-                <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.school" autocomplete="off"
-                  placeholder="请填写您的学校名称"></el-input>
-                <span :class="userDetailForm.school ? 'right-info' : 'right-info gray'" v-else>
-                  {{ userDetailForm.school || "请填写您的学校名称" }}
-                </span>
-              </el-form-item>
-              <el-form-item label="专业" prop="major">
-                <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.major" autocomplete="off"
-                  placeholder="请填写您的专业名称"></el-input>
-                <span :class="userDetailForm.major ? 'right-info' : 'right-info gray'" v-else>
-                  {{ userDetailForm.major || "请填写您的专业名称" }}
-                </span>
-              </el-form-item>
-              <el-form-item label="手机" prop="phone">
-                <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.phone" autocomplete="off"
-                  placeholder="请填写常用手机号"></el-input>
-                <span :class="userDetailForm.phone ? 'right-info' : 'right-info gray'" v-else>
-                  {{ userDetailForm.phone || "请填写常用手机号" }}
-                </span>
-              </el-form-item>
-              <el-form-item label="常用邮箱" prop="email">
-                <span :class="userDetailForm.email ? 'right-info' : 'right-info gray'">
-                  {{ userDetailForm.email }}
-                </span>
-              </el-form-item>
-              <el-form-item label="微信号码" prop="wechat">
-                <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.wechat" autocomplete="off"
-                  placeholder="请填写微信号码"></el-input>
-                <span :class="userDetailForm.wechat ? 'right-info' : 'right-info gray'" v-else>
-                  {{ userDetailForm.wechat || "请填写微信号" }}
-                </span>
-              </el-form-item>
-  
-              <el-form-item label="个人介绍" prop="introduce">
-                <el-input v-if="!isDisabled()" :rows="5" type="textarea" v-model="userDetailForm.introduce"
-                  autocomplete="off" placeholder="请填写个人介绍" maxlength="80" show-word-limit></el-input>
-                <span :class="userDetailForm.introduce ? 'right-info intro' : 'right-info intro gray'" v-else>
-                  {{ userDetailForm.introduce || "请用一段话介绍自己,该简介将会在您的个人主页展示" }}
-                </span>
-              </el-form-item>
-            </div>
-            <div class="ku-login-footer" v-if="!isDisabled()">
-              <el-button class="ku-login-footer-btn" type="info" plain @click="changeState('normal')">取消</el-button>
-              <el-button class="ku-login-footer-btn blue" type="primary" plain @click="editUser()">保存</el-button>
-            </div>
-          </el-form>
+  <div class="user-info-page">
+    <section class="profile-shell">
+      <header class="profile-header">
+        <div>
+          <span class="profile-eyebrow">Account Settings</span>
+          <h1>个人资料</h1>
         </div>
+        <div class="profile-actions">
+          <el-button v-if="isDisabled()" type="primary" plain @click="changeState('updating')">编辑资料</el-button>
+          <el-button v-if="!isDisabled()" type="info" plain @click="changeState('normal')">取消</el-button>
+          <el-button type="info" plain @click="goBack()">返回</el-button>
+        </div>
+      </header>
+
+      <div class="profile-layout">
+        <aside class="profile-card">
+          <div class="avatar-frame">
+            <img v-if="!userDetailForm.avatar" src="@/assets/user/head_image.png">
+            <img v-else :src="userDetailForm.avatar">
+          </div>
+          <h2>{{ userDetailForm.nickName || '未设置昵称' }}</h2>
+          <p>{{ userDetailForm.introduce || '完善个人信息后，这里会成为你的训练名片。' }}</p>
+          <div class="profile-chips">
+            <span>{{ getGender(userDetailForm.gender) }}</span>
+            <span>{{ userDetailForm.major || '专业未填' }}</span>
+          </div>
+          <el-upload v-if="!isDisabled()" :action="uploadUrl" :headers="headers"
+            :on-error="handleUploadError" :on-success="handleUploadSuccess" :show-file-list="false">
+            <el-button type="primary">{{ userDetailForm.avatar ? '更换头像' : '上传头像' }}</el-button>
+            <template #tip> </template>
+          </el-upload>
+        </aside>
+
+        <el-form :model="userDetailForm" label-position="top" status-icon class="profile-form">
+          <div class="form-section-title">
+            <span>基础信息</span>
+            <small>这些信息会用于竞赛报名和个人身份展示</small>
+          </div>
+
+          <div class="form-grid">
+            <el-form-item label="昵称" prop="nickName">
+              <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.nickName" autocomplete="off"
+                placeholder="请填写您的昵称" maxlength="8"></el-input>
+              <span :class="userDetailForm.nickName ? 'right-info' : 'right-info gray'" v-else>
+                {{ userDetailForm.nickName || "请填写您的昵称" }}
+              </span>
+            </el-form-item>
+
+            <el-form-item label="性别" prop="gender">
+              <el-radio-group v-model="userDetailForm.gender" v-if="!isDisabled()">
+                <el-radio :label="0">女</el-radio>
+                <el-radio :label="1">男</el-radio>
+                <el-radio :label="2">未知</el-radio>
+              </el-radio-group>
+              <span :class="userDetailForm.gender != null ? 'right-info' : 'right-info gray'" v-else>
+                {{ userDetailForm.gender == null ? "请选择您的性别" : getGender(userDetailForm.gender)}}
+              </span>
+            </el-form-item>
+
+            <el-form-item label="学校" prop="school">
+              <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.school" autocomplete="off"
+                placeholder="请填写您的学校名称"></el-input>
+              <span :class="userDetailForm.school ? 'right-info' : 'right-info gray'" v-else>
+                {{ userDetailForm.school || "请填写您的学校名称" }}
+              </span>
+            </el-form-item>
+
+            <el-form-item label="专业" prop="major">
+              <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.major" autocomplete="off"
+                placeholder="请填写您的专业名称"></el-input>
+              <span :class="userDetailForm.major ? 'right-info' : 'right-info gray'" v-else>
+                {{ userDetailForm.major || "请填写您的专业名称" }}
+              </span>
+            </el-form-item>
+
+            <el-form-item label="手机" prop="phone">
+              <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.phone" autocomplete="off"
+                placeholder="请填写常用手机号"></el-input>
+              <span :class="userDetailForm.phone ? 'right-info' : 'right-info gray'" v-else>
+                {{ userDetailForm.phone || "请填写常用手机号" }}
+              </span>
+            </el-form-item>
+
+            <el-form-item label="常用邮箱" prop="email">
+              <span :class="userDetailForm.email ? 'right-info' : 'right-info gray'">
+                {{ userDetailForm.email || "邮箱未绑定" }}
+              </span>
+            </el-form-item>
+
+            <el-form-item label="微信号码" prop="wechat">
+              <el-input v-if="!isDisabled()" type="text" v-model="userDetailForm.wechat" autocomplete="off"
+                placeholder="请填写微信号码"></el-input>
+              <span :class="userDetailForm.wechat ? 'right-info' : 'right-info gray'" v-else>
+                {{ userDetailForm.wechat || "请填写微信号" }}
+              </span>
+            </el-form-item>
+
+            <el-form-item class="intro-item" label="个人介绍" prop="introduce">
+              <el-input v-if="!isDisabled()" :rows="5" type="textarea" v-model="userDetailForm.introduce"
+                autocomplete="off" placeholder="请填写个人介绍" maxlength="80" show-word-limit></el-input>
+              <span :class="userDetailForm.introduce ? 'right-info intro' : 'right-info intro gray'" v-else>
+                {{ userDetailForm.introduce || "请用一段话介绍自己，该简介将会在您的个人主页展示" }}
+              </span>
+            </el-form-item>
+          </div>
+
+          <div class="profile-footer" v-if="!isDisabled()">
+            <el-button type="info" plain @click="changeState('normal')">取消</el-button>
+            <el-button type="primary" @click="editUser()">保存修改</el-button>
+          </div>
+        </el-form>
       </div>
-    </div>
-  </template>
+    </section>
+  </div>
+</template>
   
   <script setup>
   import { getUserDetailService,editUserService, updateAvatarService } from '@/apis/user'
@@ -185,315 +187,215 @@
   
   </script>
   
-  <style lang="scss" scoped>
-  .back-btn-box {
-    background: #fff;
+<style lang="scss" scoped>
+.user-info-page {
+  min-height: calc(100vh - 120px);
+  padding: 20px 0 34px;
+}
+
+.profile-shell {
+  width: min(1520px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 24px;
+  border: 1px solid var(--oj-line);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--oj-shadow-sm);
+
+  h1 {
+    margin: 6px 0 0;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--oj-ink);
+  }
+}
+
+.profile-eyebrow {
+  color: var(--oj-primary-strong);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.profile-card,
+.profile-form {
+  border: 1px solid var(--oj-line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--oj-shadow-sm);
+}
+
+.profile-card {
+  align-self: start;
+  padding: 28px;
+  text-align: center;
+
+  h2 {
+    margin: 18px 0 8px;
+    font-size: 22px;
+    color: var(--oj-ink);
+  }
+
+  p {
+    min-height: 48px;
+    margin: 0;
+    color: var(--oj-muted);
+    line-height: 1.6;
+  }
+}
+
+.avatar-frame {
+  width: 112px;
+  height: 112px;
+  margin: 0 auto;
+  padding: 5px;
+  border-radius: 50%;
+  border: 1px solid rgba(22, 131, 74, 0.16);
+  background: linear-gradient(135deg, var(--oj-primary-soft), #fff);
+
+  img {
     width: 100%;
-    height: 48px;
-    margin-bottom: 16px;
-  
-    .back-btn {
-      height: 100%;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      font-size: 14px;
-      font-weight: 400;
-      color: #999999;
-      cursor: pointer;
-      line-height: unset;
-  
-      i {
-        margin-right: 6px;
-        font-size: 16px;
-        margin-top: 2.5px;
-      }
-    }
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
   }
-  
-  .user-info-page {
-    background-color: rgba(247, 247, 247, 1);
-    position: relative;
-    overflow: hidden;
-  
-    :deep(.el-form) {
-      .el-button--info {
-        background: #f2f3f5;
-        border: 1px solid #f2f3f5;
-        color: #222;
-  
-        &:hover {
-          background: #32C5FF;
-          border: 1px solid #32C5FF;
-          color: #fff;
-        }
-      }
-  
-      .el-form-item {
-        max-width: 1120px;
-        width: 100%;
-  
-        .el-form-item__label {
-          font-family: PingFangSC, PingFang SC;
-          font-weight: 600;
-          font-size: 18px;
-          color: #222222;
-          margin-bottom: 16px;
-        }
-  
-        .photo-image-box {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          width: 100%;
-          padding-bottom: 20px;
-          border-bottom: 1px solid #ebebeb;
-  
-          .photo-image {
-            display: flex;
-            flex: 1;
-            margin-right: 20px;
-  
-            img {
-              border-radius: 50%;
-            }
-  
-            .right {
-              flex: 1;
-              margin-left: 20px;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-  
-              .bold {
-                height: 25px;
-                font-family: PingFangSC, PingFang SC;
-                font-weight: 600;
-                font-size: 18px;
-                color: #222222;
-                line-height: 25px;
-                margin-bottom: 10px;
-              }
-  
-              .normal {
-                height: 22px;
-                font-family: PingFangSC, PingFang SC;
-                font-weight: 400;
-                font-size: 16px;
-                color: #999999;
-                line-height: 22px;
-              }
-            }
-          }
-        }
-  
-        .el-input,
-        .el-select,
-        .el-radio-group {
-          width: 100%;
-          height: 44px;
-          border-radius: 4px;
-          outline-style: none;
-          border: none;
-          font-size: 16px;
-  
-          input {
-            color: #222;
-          }
-        }
-  
-        .el-radio-group {
-  
-          border-bottom: 1px solid #ebebeb;
-        }
-  
-        .el-input__wrapper {
-          border: none;
-          box-shadow: none;
-          border-radius: 0;
-          padding-left: 0;
-          color: #222;
-          border-bottom: 1px solid #ebebeb;
-  
-          &:hover {
-            border-bottom: 1px solid #32c5ff;
-          }
-        }
-      }
-    }
-  
-    .oj-user-info {
-      margin: 0 auto;
-      max-width: 1520px;
-      width: 100%;
-  
-      &.oj-user-info-page {
-        background: #f7f7f7;
-        margin-bottom: 30px;
-  
-        .user-info-back {
-          cursor: pointer;
-          color: #999999;
-          font-size: 15px;
-        }
-  
-        .user-info-edit {
-          cursor: pointer;
-          font-size: 15px;
-          margin-left: auto;
-        }
-  
-        .ku-user-section {
-          background: #fff;
-        }
-  
-        .oj-user-info-body {
-          padding: 0;
-  
-          .oj-user-info-subtitle-box {
-            padding: 30px 20px;
-            padding-bottom: 0;
-  
-            .oj-user-info-subtitle {
-              display: flex;
-              align-items: center;
-              height: 33px;
-              font-family: PingFangSC, PingFang SC;
-              font-weight: 600;
-              font-size: 24px;
-              color: #222222;
-              line-height: 33px;
-            }
-          }
-        }
-  
-        .ku-user-section {
-          padding: 30px 24px;
-          padding-bottom: 0;
-        }
-  
-        .ku-user-real-info {
-          margin-top: 0;
-          margin-bottom: 0;
-          padding-left: 24px;
-          box-sizing: border-box;
-          height: 60px;
-          line-height: 60px;
-          border-bottom: 1px solid #f2f2f2;
-        }
-  
-        .el-form-item__content {
-          margin-left: 110px;
-        }
-  
-        .ku-login-footer {
-          text-align: left;
-          padding-left: 24px;
-          padding-bottom: 24px;
-        }
-      }
-  
-      .oj-user-info-title {
-        background-color: rgba(255, 255, 255, 1);
-        border-radius: 10px;
-        width: 100%;
-        /* 设置宽度为100%以确保水平居中 */
-        height: 60px;
-        font-size: 25px;
-        text-indent: 20px;
-        display: flex;
-        align-items: center;
-        margin: 20px 0 20px 0;
-      }
-  
-      .oj-user-info-body {
-        background-color: #fff;
-        padding: 20px 20px 40px;
-        border-radius: 8px;
-      }
-  
-      .oj-user-info-subtitle {
-        font-size: 16px;
-        font-weight: 500;
-        color: #222222;
-        line-height: 25px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-  
-      .ku-login-footer {
-        text-align: center;
-        margin-top: 30px;
-      }
-  
-      .ku-login-footer-btn {
-        width: 84px;
-        height: 44px;
-        border-radius: 3px;
-        font-size: 15px;
-        font-weight: 400;
-  
-        &.blue {
-          background: #32C5FF !important;
-          color: #fff;
-        }
-      }
-  
-      .ku-user-section {
-        background-color: #f7f7f7;
-        padding: 30px 38px;
-        border-radius: 10px;
-      }
-  
-      .oj-user-info-action {
-        position: relative;
-        height: 0;
-      }
-  
-      .ku-user-validate-phone {
-        display: inline-block;
-        height: 40px;
-        margin-left: 8px;
-        color: #24c68b;
-        font-weight: 700;
-        cursor: pointer;
-        user-select: none;
-      }
-  
-      .ku-user-real-info {
-        margin-top: 47px;
-      }
-    }
+}
+
+.profile-chips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+
+  span {
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: #f7f7f2;
+    color: var(--oj-muted);
+    font-size: 13px;
   }
-  </style>
-  
-  <style lang="scss">
-  .oj-user-info-page {
-    .el-form-item__label {
-      padding-right: 30px !important;
-      color: #666;
-    }
-  
-    .el-form {
-      padding-bottom: 24px;
-    }
-  
-    .right-info {
-      display: inline-block;
-      min-width: 90px;
-      color: #222;
-      font-family: PingFangSC, PingFang SC;
-      font-weight: 400;
-      font-size: 16px;
-      width: 100%;
-      border-bottom: 1px solid #f2f2f2;
-      height: 44px;
-      line-height: 44px;
-  
-      &.gray {
-        color: #999;
-      }
-    }
+}
+
+.profile-form {
+  padding: 26px;
+}
+
+.form-section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+
+  span {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--oj-ink);
   }
-  </style>
+
+  small {
+    color: var(--oj-muted);
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 22px;
+  row-gap: 6px;
+}
+
+.intro-item {
+  grid-column: 1 / -1;
+}
+
+.profile-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--oj-line);
+}
+
+.right-info {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--oj-line);
+  border-radius: 12px;
+  background: #fafaf8;
+  color: var(--oj-ink);
+  box-sizing: border-box;
+
+  &.gray {
+    color: var(--oj-muted);
+  }
+
+  &.intro {
+    align-items: flex-start;
+    min-height: 118px;
+    padding-top: 12px;
+    line-height: 1.7;
+  }
+}
+
+:deep(.el-form-item__label) {
+  color: var(--oj-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+:deep(.el-input__wrapper),
+:deep(.el-textarea__inner) {
+  border-radius: 12px;
+}
+
+:deep(.el-radio-group) {
+  min-height: 42px;
+}
+
+@media (max-width: 960px) {
+  .profile-shell {
+    width: calc(100% - 24px);
+  }
+
+  .profile-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

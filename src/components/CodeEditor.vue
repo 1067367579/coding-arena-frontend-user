@@ -1,5 +1,5 @@
 <template>
-    <el-select v-model="laguage" placeholder="java" style="width: 100px">
+    <el-select v-model="laguage" placeholder="java" class="language-select">
       <el-option v-for="item in languages" :key="item" :label="item" :value="item" />
     </el-select>
     <div ref="editorForm" class="ace-editor">
@@ -27,7 +27,7 @@
   const options = {
     theme: `ace/theme/eclipse`,
     mode: `ace/mode/java`,
-    maxLines: 25,
+    maxLines: Infinity,
     minLines: 25,
     fontSize: 15,
   };
@@ -62,7 +62,14 @@
   </script>
   
   <style lang="scss" scoped>
-  .ace-editor {
-    height: 304px;
-  }
+.language-select {
+  width: 112px;
+  margin: 12px 0 10px 14px;
+}
+
+.ace-editor {
+  width: 100%;
+  height: calc(100% - 62px);
+  min-height: 360px;
+}
   </style>

@@ -93,7 +93,6 @@
   .my-exam-page {
     max-width: 1520px;
     margin: 0 auto;
-    background-color: rgba(247, 247, 247, 1);
     position: relative;
     overflow: hidden;
     display: flex;
@@ -107,8 +106,9 @@
   }
   
   .exam-list-header {
-    background-color: rgba(255, 255, 255, 1);
-    border-radius: 10px;
+    background-color: #fff;
+    border: 1px solid var(--oj-line);
+    border-radius: 18px;
     width: 100%;
     /* 设置宽度为100%以确保水平居中 */
     height: 60px;
@@ -117,17 +117,18 @@
     display: flex;
     align-items: center;
     margin-top: 20px;
+    box-shadow: var(--oj-shadow-sm);
   
     .ex-title {
       font-family: PingFangSC, PingFang SC;
       font-weight: 600;
       font-size: 18px;
-      color: #222222;
+      color: var(--oj-ink);
     }
   
     .exam-list-back {
       cursor: pointer;
-      color: #999999;
+      color: var(--oj-muted);
       font-size: 15px;
       margin-left: auto;
       padding-right: 20px;
@@ -138,7 +139,8 @@
     height: 110px;
     width: 100%;
     background: #FFFFFF;
-    border-radius: 10px;
+    border: 1px solid var(--oj-line);
+    border-radius: 16px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -147,7 +149,8 @@
     cursor: pointer;
   
     &:hover {
-      box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.1);
+      border-color: rgba(22, 131, 74, 0.2);
+      box-shadow: var(--oj-shadow-sm);
     }
   
     img {
@@ -165,25 +168,26 @@
   .exam-list-content .title {
     font-weight: bold;
     font-size: 16px;
+    color: var(--oj-ink);
     margin-bottom: 10px;
   }
   
   .exam-list-content .date {
     font-weight: 400;
-    color: #000;
+    color: var(--oj-ink);
     line-height: 20px;
     margin-left: auto;
     font-size: 14px;
   
     span {
-      color: #999;
+      color: var(--oj-muted);
     }
   
     /* 将日期推至行尾 */
   }
   
   .exam-list-content .exam-status-lable {
-    color: #999999;
+    color: var(--oj-muted);
   }
   
   .exam-end-lable-list {
@@ -195,12 +199,14 @@
       margin-right: 10px;
       font-family: MicrosoftYaHei;
       font-size: 16px;
-      color: #999999;
+      color: var(--oj-muted);
   
     }
   
     .exam-rank-lable {
       font-size: 16px;
+      color: var(--oj-primary-strong);
+      font-weight: 800;
     }
   
   }

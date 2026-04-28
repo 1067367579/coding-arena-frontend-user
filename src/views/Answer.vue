@@ -1,90 +1,88 @@
 <template>
-    <div class="page praticle-page flex-col">
-      <div class="box_1 flex-row">
-        <div class="group_1 ">
-          <img class="label_4" src="@/assets/ide/liebiao.png" />
-          <span>{{ typeof examTitle === 'undefined' ? "精选题库" : examTitle }}</span>
-          <el-countdown v-if="examEndTime && new Date() < new Date(examEndTime)" class="exam-time-countdown"
-            @finish="handleCountdownFinish" title="距离竞赛结束还有:" :value="new Date(examEndTime)" />
-        </div>
-        <div class="group_2">
-          <el-button type="primary" plain @click="submitQuestion">提交代码</el-button>
-        </div>
-        <span class="ide-back" @click="goBack()">返回</span>
+  <div class="answer-workbench">
+    <header class="answer-topbar">
+      <div class="answer-context">
+        <span class="answer-eyebrow">{{ typeof examTitle === 'undefined' ? "精选题库" : examTitle }}</span>
+        <h1>{{ questionDetail.title || '题目加载中' }}</h1>
+        <el-countdown v-if="examEndTime && new Date() < new Date(examEndTime)" class="exam-time-countdown"
+          @finish="handleCountdownFinish" title="距离竞赛结束还有" :value="new Date(examEndTime)" />
       </div>
-      <div class="box_8 flex-col">
-        <div class="group_12 flex-row justify-between">
-          <div class="image-wrapper_1 flex-row">
-            <img class="thumbnail_2" src="@/assets/ide/xiaobiaoti.png" />
-            <div class="question-nav">
-              <span>题目描述</span>
-            </div>
-            <div class="question-nav" @click="preQuestion">
-              <el-icon>
-                <span>上一题</span>
-                <ArrowLeft />
-              </el-icon>
-            </div>
-            <div class="question-nav" @click="nextQuestion">
-              <el-icon>
-                <ArrowRight />
-                <span>下一题</span>
-              </el-icon>
-            </div>
-          </div>
-          <div class="image-wrapper_2 flex-row">
-            <img class="image_1" src="@/assets/ide/daima.png" />
-            代码
+      <div class="answer-actions">
+        <el-button type="primary" @click="submitQuestion">提交代码</el-button>
+        <button class="answer-back" @click="goBack()">返回</button>
+      </div>
+    </header>
+
+    <main class="answer-grid">
+      <section class="problem-panel">
+        <div class="panel-toolbar">
+          <span class="panel-title">题目描述</span>
+          <div class="problem-nav">
+            <button @click="preQuestion">
+              <el-icon><ArrowLeft /></el-icon>
+              上一题
+            </button>
+            <button @click="nextQuestion">
+              下一题
+              <el-icon><ArrowRight /></el-icon>
+            </button>
           </div>
         </div>
-        <div class="group_13 flex-row justify-between">
-          <div class="box_3 flex-col">
-            <span class="question-title">{{ questionDetail.title }}</span>
-            <span class="question-limit">
-              <div v-if="questionDetail.difficulty === 1">题目难度：简单 时间限制：{{ questionDetail.timeLimit }} ms 空间限制：{{
-                questionDetail.spaceLimit }} 字节</div>
-              <div v-if="questionDetail.difficulty === 2">题目难度：中等 时间限制：{{ questionDetail.timeLimit }} ms 空间限制：{{
-                questionDetail.spaceLimit }} 字节</div>
-              <div v-if="questionDetail.difficulty === 3">题目难度：困难 时间限制：{{ questionDetail.timeLimit }} ms 空间限制：{{
-                questionDetail.spaceLimit }} 字节</div>
+
+        <article class="problem-content">
+          <div class="problem-title-row">
+            <h2>{{ questionDetail.title }}</h2>
+            <span class="difficulty-tag" :class="`level-${questionDetail.difficulty || 1}`">
+              <template v-if="questionDetail.difficulty === 1">简单</template>
+              <template v-else-if="questionDetail.difficulty === 2">中等</template>
+              <template v-else-if="questionDetail.difficulty === 3">困难</template>
+              <template v-else>题目</template>
             </span>
-            <span class="question-content" v-html="questionDetail.content"></span>
           </div>
-          <div class="group_14 flex-col">
-            <div class="group_8 flex-col">
-              <codeEditor ref="defaultCodeRef" @update:value="handleEditorContent">
-              </codeEditor>
-            </div>
-            <div class="code-result flex-row">
-              <img class="code-result-image" src="@/assets/ide/codeResult.png" />
-              <span class="code-result-content">执行结果</span>
-            </div>
-            <div class="group_15 flex-row">
-              <div class="section_1 flex-row">
-                <div class="section_3 flex-col">
-                  <div class="text-wrapper_2 flex-row justify-between">
-                    <span class="text_1 red" v-if="userQuestionResultVO.pass === 0">未通过</span>
-                    <span class="text_1 success" v-if="userQuestionResultVO.pass === 1">通过</span>
-                    <span class="text_1 warning" v-if="userQuestionResultVO.pass === 2">请先执行代码</span>
-                    <span class="text_1 info" v-if="userQuestionResultVO.pass === 3">系统正在处理您的代码，请稍后</span>
-                    <span class="text_1 red" v-if="userQuestionResultVO.pass === 4">系统错误</span>
-                  </div>
-                  <span class="error-text" v-if="userQuestionResultVO.pass === 0">异常信息：{{
-                    userQuestionResultVO.exeMessage }}</span>
-                  <el-table v-if="userQuestionResultVO.userExeResultList && userQuestionResultVO.userExeResultList.length > 0"
-                    :data="userQuestionResultVO.userExeResultList">
-                    <el-table-column prop="input" label="输入" />
-                    <el-table-column prop="output" label="预期结果" />
-                    <el-table-column prop="exeOutput" label="实际输出" />
-                  </el-table>
-                </div>
-              </div>
-            </div>
+          <div class="limit-row">
+            <span>时间 {{ questionDetail.timeLimit || '-' }} ms</span>
+            <span>空间 {{ questionDetail.spaceLimit || '-' }} 字节</span>
           </div>
+          <div class="question-content" v-html="questionDetail.content"></div>
+        </article>
+      </section>
+
+      <section class="code-panel">
+        <div class="panel-toolbar code-toolbar">
+          <span class="panel-title">代码编辑器</span>
+          <span class="code-meta">Java · 标准输入输出</span>
         </div>
-      </div>
-    </div>
-  </template>
+        <div class="editor-shell">
+          <codeEditor ref="defaultCodeRef" @update:value="handleEditorContent" />
+        </div>
+
+        <div class="result-panel" :class="{
+          failed: userQuestionResultVO.pass === 0 || userQuestionResultVO.pass === 4,
+          accepted: userQuestionResultVO.pass === 1,
+          pending: userQuestionResultVO.pass === 2 || userQuestionResultVO.pass === 3
+        }">
+          <div class="result-head">
+            <span class="result-title">执行结果</span>
+            <span class="result-status red" v-if="userQuestionResultVO.pass === 0">未通过</span>
+            <span class="result-status success" v-if="userQuestionResultVO.pass === 1">通过</span>
+            <span class="result-status warning" v-if="userQuestionResultVO.pass === 2">等待提交</span>
+            <span class="result-status info" v-if="userQuestionResultVO.pass === 3">判题中</span>
+            <span class="result-status red" v-if="userQuestionResultVO.pass === 4">系统错误</span>
+          </div>
+          <div class="error-text" v-if="userQuestionResultVO.pass === 0">
+            异常信息：{{ userQuestionResultVO.exeMessage }}
+          </div>
+          <el-table v-if="userQuestionResultVO.userExeResultList && userQuestionResultVO.userExeResultList.length > 0"
+            :data="userQuestionResultVO.userExeResultList">
+            <el-table-column prop="input" label="输入" />
+            <el-table-column prop="output" label="预期结果" />
+            <el-table-column prop="exeOutput" label="实际输出" />
+          </el-table>
+        </div>
+      </section>
+    </main>
+  </div>
+</template>
   
   <script setup>
   import { reactive, ref } from "vue"
@@ -96,7 +94,7 @@
   import { examNextQuestionService, examPreQuestionService, getExamFirstQuestionService } from "@/apis/exam"
   import { ElMessage } from "element-plus"
   import { userSubmitService } from "@/apis/user"
-import { loadCode,saveCode } from "@/utils/codeStorage"
+  import { loadCode,saveCode } from "@/utils/codeStorage"
   
   function goBack() {
     router.go(-1);
@@ -256,483 +254,336 @@ import { loadCode,saveCode } from "@/utils/codeStorage"
   
   </script>
   
-  <style lang="scss" scoped>
-  .praticle-page {
-    margin-top: -40px;
-  
-    .box_1 {
-      background-color: rgba(240, 240, 240, 1);
-      height: 60px;
-      display: flex;
-      align-items: center;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-  
-      /* 垂直居中 */
-  
-      .box_1 span {
-        margin-right: 10px;
-        /* 文字与图片之间的间距 */
-      }
-  
-      .exam-time-countdown {
-        margin: 0 0 0 400px;
-      }
-  
-      .group_1 {
-        display: flex;
-        align-items: center;
-  
-        img {
-          margin-right: 10px;
-        }
-      }
-  
-      .thumbnail_1 {
-        width: 1px;
-        height: 20px;
-        margin: 20px 0 0 8px;
-      }
-  
-      .label_4 {
-        width: 26px;
-        height: 26px;
-      }
-  
-      .group_2 {}
-  
-      .group_3 {
-        cursor: pointer;
-        background-color: rgba(7, 126, 255, 0.1);
-        border-radius: 0px 6px 6px 0px;
-        width: 100px;
-        height: 40px;
-        margin: 10px 0 0 2px;
-        font-size: 20px;
-  
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-  
-      .ide-back {
-        cursor: pointer;
-        color: #999999;
-      }
-  
-      .label_2 {
-        width: 30px;
-        height: 30px;
-        margin: 15px 0 0 500px;
-      }
-  
-      .label_3 {
-        width: 30px;
-        height: 30px;
-        margin: 15px 70px 0 30px;
-      }
-    }
-  }
-  
-  .page {
-    background-color: rgba(247, 247, 247, 1);
-    position: relative;
-    height: 910px;
-    overflow: hidden;
-  
-    .box_8 {
-      position: relative;
-      width: 100%;
-      height: 1451px;
-      margin-bottom: 1px;
-  
-      .group_12 {
-        width: 100%;
-        height: 64px;
-        margin-top: 10px;
-  
-        .image-wrapper_1 {
-          background-color: rgba(240, 240, 240, 1);
-          border-radius: 10px 10px 0px 0px;
-          height: 64px;
-          width: 600px;
-          margin: 0 10px 10px 0;
-  
-          display: flex;
-          align-items: center;
-          /* 垂直居中 */
-  
-          .thumbnail_2 {
-            width: 14px;
-            height: 15px;
-            margin: 0 10px 0 19px;
-          }
-  
-          .question-nav {
-            cursor: pointer;
-            margin-right: 100px;
-            display: flex;
-            align-items: center;
-          }
-        }
-  
-        .image-wrapper_2 {
-          background-color: rgba(240, 240, 240, 1);
-          border-radius: 10px 10px 0px 0px;
-          height: 64px;
-          display: flex;
-          align-items: center;
-          flex: 1;
-          /* 垂直居中 */
-  
-          .image_1 {
-            width: 21px;
-            height: 16px;
-            margin: 0 10px 0 19px;
-          }
-        }
-      }
-  
-      .group_13 {
-        height: 904px;
-  
-        .box_3 {
-          background-color: rgba(255, 255, 255, 1);
-          border-radius: 10px;
-          height: 770px;
-          width: 600px;
-          margin-right: 10px;
-          overflow-y: auto; // 允许垂直滚动
-  
-          .question-title {
-            font-weight: bold;
-            font-size: 28px;
-            margin-top: 20px;
-            margin-left: 20px;
-            margin-bottom: 10px;
-          }
-  
-          .question-limit {
-            font-size: 18px;
-            color: #abaeac;
-            margin-left: 20px;
-            margin-bottom: 10px;
-          }
-  
-          .question-content {
-            font-size: 20px;
-            margin-left: 20px;
-          }
-  
-          .group_6 {
-            background-color: rgba(241, 241, 241, 1);
-            width: 21px;
-            height: 874px;
-            justify-content: flex-center;
-            margin: 10px 0 0 923px;
-  
-            .thumbnail_3 {
-              width: 9px;
-              height: 6px;
-              margin: 10px 0 0 6px;
-            }
-  
-            .group_7 {
-              background-color: rgba(192, 192, 192, 1);
-              width: 16px;
-              height: 296px;
-              margin: 10px 0 0 3px;
-            }
-  
-            .thumbnail_4 {
-              width: 9px;
-              height: 6px;
-              margin: 536px 0 10px 6px;
-            }
-          }
-        }
-  
-        .group_14 {
-          height: 904px;
-          display: flex;
-          width: calc(100vw - 663px);
-  
-          .group_8 {
-            background-color: rgba(255, 255, 255, 1);
-            border-radius: 10px;
-            flex: 1;
-  
-            .thumbnail_5 {
-              width: 11px;
-              height: 6px;
-              margin: 31px 0 0 69px;
-            }
-  
-            .block_1 {
-              width: 21px;
-              height: 710px;
-              border: 1px solid rgba(241, 241, 241, 1);
-              margin: 19px 0 0 923px;
-            }
-  
-            .image_2 {
-              width: calc(100vw - 663px);
-              height: 1px;
-              margin: -710px 0 763px 0;
-            }
-          }
-  
-          .code-result {
-            background-color: rgba(240, 240, 240, 1);
-            border-radius: 10px 10px 0px 0px;
-            height: 50px;
-            margin-top: 10px;
-            width: calc(100vw - 663px);
-  
-            .code-result-image {
-              width: 27px;
-              height: 27px;
-              margin: 14px 0 0 20px;
-            }
-  
-            .code-result-content {
-              margin: 16px 0 0 5px;
-            }
-          }
-        }
-      }
-  
-      .group_15 {
-        width: calc(100vw - 663px);
-        height: 452px;
-  
-        .section_1 {
-          background-color: rgba(255, 255, 255, 1);
-          border-radius: 0px 0px 10px 10px;
-          width: 100%;
-          height: 156px;
-          overflow-y: auto; // 允许垂直滚动
-  
-          .section_3 {
-            width: 100%;
-            height: 286px;
-            margin: 8px 0 0 20px;
+<style lang="scss" scoped>
+.answer-workbench {
+  min-height: 100vh;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 16% 6%, rgba(22, 163, 74, 0.12), transparent 28%),
+    var(--oj-bg);
+  color: var(--oj-ink);
+  box-sizing: border-box;
+}
 
-            .el-table {
-                width: 100%; // 确保表格适应容器宽度
-            }
-  
-            .error-text {
-              padding: 6px 20px;
-              font-size: 14px;
-              color: #666;
-              background: #f7f7f7;
-              border-left: 2px solid red;
-              width: 95%;
-            }
-  
-            .text-wrapper_2 {
-              width: 217px;
-              height: 40px;
-  
-              .text_1 {
-                width: 60px;
-                height: 40px;
-                overflow-wrap: break-word;
-                color: rgba(7, 126, 255, 1);
-                font-size: 20px;
-                font-family: MicrosoftYaHei;
-                font-weight: normal;
-                text-align: left;
-                white-space: nowrap;
-                line-height: 40px;
-  
-                &.red {
-                  color: red;
-                }
-  
-                &.info {
-                  color: #32C5FF;
-                }
-  
-                &.success {
-                  color: green;
-                }
-  
-                &.warning {
-                  color: orange;
-                }
-              }
-  
-              .text_2 {
-                width: 137px;
-                height: 24px;
-                overflow-wrap: break-word;
-                color: rgba(153, 153, 153, 1);
-                font-size: 18px;
-                font-family: MicrosoftYaHei;
-                font-weight: normal;
-                text-align: left;
-                white-space: nowrap;
-                line-height: 24px;
-                margin-top: 13px;
-              }
-            }
-  
-            .box_9 {
-              width: 382px;
-              height: 50px;
-              margin-top: 10px;
-  
-              .box_5 {
-                background-color: rgba(242, 243, 245, 1);
-                border-radius: 8px;
-                width: 100px;
-                height: 40px;
-  
-                .section_2 {
-                  background-color: rgba(7, 126, 255, 1);
-                  border-radius: 50%;
-                  width: 5px;
-                  height: 5px;
-                  margin: 23px 0 0 24px;
-                }
-  
-                .text_3 {
-                  width: 63px;
-                  height: 26px;
-                  overflow-wrap: break-word;
-                  color: rgba(34, 34, 34, 1);
-                  font-size: 15px;
-                  font-family: MicrosoftYaHei;
-                  font-weight: normal;
-                  text-align: right;
-                  white-space: nowrap;
-                  line-height: 26px;
-                  margin: 10px 4px 0 0;
-                }
-              }
-  
-              .box_6 {
-                background-color: rgba(153, 153, 153, 1);
-                border-radius: 50%;
-                width: 5px;
-                height: 5px;
-                margin: 23px 0 0 44px;
-              }
-  
-              .text_4 {
-                width: 63px;
-                height: 26px;
-                overflow-wrap: break-word;
-                color: rgba(153, 153, 153, 1);
-                font-size: 20px;
-                font-family: MicrosoftYaHei;
-                font-weight: normal;
-                text-align: right;
-                white-space: nowrap;
-                line-height: 26px;
-                margin: 12px 0 0 6px;
-              }
-  
-              .box_7 {
-                background-color: rgba(153, 153, 153, 1);
-                border-radius: 50%;
-                width: 5px;
-                height: 5px;
-                margin: 23px 0 0 68px;
-              }
-  
-              .text_5 {
-                width: 63px;
-                height: 26px;
-                overflow-wrap: break-word;
-                color: rgba(153, 153, 153, 1);
-                font-size: 20px;
-                font-family: MicrosoftYaHei;
-                font-weight: normal;
-                text-align: right;
-                white-space: nowrap;
-                line-height: 26px;
-                margin: 12px 0 0 6px;
-              }
-            }
-  
-            .text_6 {
-              width: 40px;
-              height: 26px;
-              overflow-wrap: break-word;
-              color: rgba(102, 102, 102, 1);
-              font-size: 20px;
-              font-family: MicrosoftYaHei;
-              font-weight: normal;
-              text-align: right;
-              white-space: nowrap;
-              line-height: 26px;
-              margin-top: 24px;
-            }
-  
-            .block_4 {
-              background-color: rgba(242, 243, 245, 1);
-              border-radius: 8px;
-              width: 883px;
-              height: 106px;
-              margin-top: 16px;
-            }
-          }
-  
-          .block_5 {
-            background-color: rgba(241, 241, 241, 1);
-            width: 20px;
-            height: 422px;
-            justify-content: flex-center;
-            margin: 10px 1px 0 20px;
-  
-            .thumbnail_7 {
-              width: 9px;
-              height: 6px;
-              margin: 10px 0 0 6px;
-            }
-  
-            .group_10 {
-              background-color: rgba(192, 192, 192, 1);
-              width: 16px;
-              height: 296px;
-              margin: 10px 0 0 3px;
-            }
-  
-            .thumbnail_8 {
-              width: 9px;
-              height: 6px;
-              margin: 84px 0 10px 6px;
-            }
-          }
-        }
-      }
-  
-      .group_11 {
-        box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.06);
-        background-color: rgba(255, 255, 255, 1);
-        border-radius: 10px;
-        position: absolute;
-        left: 82px;
-        top: -9px;
-        width: 284px;
-        height: 218px;
-      }
+.answer-topbar {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 22px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--oj-line);
+  border-radius: 18px;
+  box-shadow: var(--oj-shadow-sm);
+}
+
+.answer-context {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.answer-eyebrow {
+  color: var(--oj-primary-strong);
+  background: var(--oj-primary-soft);
+  border: 1px solid rgba(22, 131, 74, 0.14);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.exam-time-countdown {
+  padding-left: 18px;
+  border-left: 1px solid var(--oj-line);
+}
+
+.answer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.answer-back {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--oj-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--oj-muted);
+  cursor: pointer;
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 42%) minmax(460px, 1fr);
+  gap: 14px;
+  height: calc(100vh - 112px);
+  margin-top: 14px;
+}
+
+.problem-panel,
+.code-panel {
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--oj-line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--oj-shadow-sm);
+}
+
+.code-panel {
+  display: grid;
+  grid-template-rows: 58px minmax(320px, 1fr) minmax(164px, 25vh);
+}
+
+.panel-toolbar {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--oj-line);
+  background: #fff;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.problem-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--oj-line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--oj-ink);
+    cursor: pointer;
+    padding: 0 12px;
+
+    &:hover {
+      border-color: rgba(22, 131, 74, 0.24);
+      color: var(--oj-primary-strong);
+      background: var(--oj-primary-soft);
     }
   }
-  
-  .dialog-footer {
-    display: block;
-    text-align: right;
-    /* 确保内容右对齐 */
-    margin-top: 16px;
-  
-    .dialog-button {
-      width: 150px;
+}
+
+.code-toolbar {
+  background: linear-gradient(90deg, #ffffff, rgba(232, 245, 236, 0.72));
+}
+
+.code-meta {
+  color: var(--oj-muted);
+  font-size: 13px;
+}
+
+.problem-content {
+  height: calc(100% - 58px);
+  overflow: auto;
+  padding: 26px;
+  box-sizing: border-box;
+}
+
+.problem-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.25;
+  }
+}
+
+.difficulty-tag {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 800;
+
+  &.level-1 {
+    color: var(--oj-primary-strong);
+    background: var(--oj-primary-soft);
+  }
+
+  &.level-2 {
+    color: #9a5b00;
+    background: #fff4d7;
+  }
+
+  &.level-3 {
+    color: #b91c1c;
+    background: #fee2e2;
+  }
+}
+
+.limit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 24px;
+
+  span {
+    padding: 8px 10px;
+    border: 1px solid var(--oj-line);
+    border-radius: 10px;
+    color: var(--oj-muted);
+    background: #fafaf8;
+    font-size: 13px;
+  }
+}
+
+.question-content {
+  color: #263128;
+  font-size: 16px;
+  line-height: 1.75;
+
+  :deep(pre) {
+    padding: 16px;
+    border-radius: 12px;
+    background: #101b15;
+    color: #d9fbe7;
+    overflow: auto;
+  }
+}
+
+.editor-shell {
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.result-panel {
+  min-height: 0;
+  overflow: auto;
+  border-top: 1px solid var(--oj-line);
+  background: #fff;
+  padding: 16px 18px;
+  box-sizing: border-box;
+
+  &.accepted {
+    border-top-color: rgba(22, 131, 74, 0.28);
+  }
+
+  &.failed {
+    border-top-color: rgba(220, 38, 38, 0.28);
+  }
+}
+
+.result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.result-title {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.result-status {
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 800;
+
+  &.red {
+    color: #b91c1c;
+    background: #fee2e2;
+  }
+
+  &.success {
+    color: var(--oj-primary-strong);
+    background: var(--oj-primary-soft);
+  }
+
+  &.warning {
+    color: #9a5b00;
+    background: #fff4d7;
+  }
+
+  &.info {
+    color: #1d4ed8;
+    background: #dbeafe;
+  }
+}
+
+.error-text {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-left: 3px solid #dc2626;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+@media (max-width: 980px) {
+  .answer-workbench {
+    padding: 12px;
+  }
+
+  .answer-topbar {
+    height: auto;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .answer-context {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+
+    h1 {
+      white-space: normal;
     }
   }
-  </style>
+
+  .exam-time-countdown {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .answer-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .problem-panel {
+    height: 56vh;
+  }
+
+  .code-panel {
+    min-height: 720px;
+  }
+}
+</style>

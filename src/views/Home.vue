@@ -35,8 +35,11 @@
 
     .practice-hero {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: flex-end;
+      gap: 24px;
+      width: min(1520px, calc(100% - 48px));
       max-width: 1520px;
       min-height: 176px;
       margin: 18px auto 0;
@@ -74,10 +77,12 @@
 
       .hero-stats {
         display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
         gap: 12px;
 
         span {
-          min-width: 92px;
+          min-width: 86px;
           padding: 14px 16px;
           border: 1px solid var(--oj-line);
           border-radius: 14px;
@@ -100,6 +105,7 @@
       position: fixed;
       width: 100%;
       padding: 8px 24px 0;
+      box-sizing: border-box;
       background: transparent;
       left: 0;
       top: 0;
@@ -108,7 +114,7 @@
   
     .oj-main-layout-nav {
       max-width: 1520px;
-      min-width: 100%;
+      width: 100%;
       margin: 0 auto;
       height: 64px;
       background: transparent;

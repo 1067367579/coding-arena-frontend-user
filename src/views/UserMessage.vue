@@ -64,7 +64,6 @@
   
   <style lang="scss" scoped>
   .message-list {
-    background-color: rgba(247, 247, 247, 1);
     position: relative;
     overflow: hidden;
     display: flex;
@@ -78,12 +77,14 @@
       max-width: 1520px;
   
       .message-pagination {
-        margin: 20px 0 0 1000px;
+        display: flex;
+        justify-content: flex-end;
+        margin: 20px 0 0;
       }
   
       .message-list-header {
-        background-color: rgba(255, 255, 255, 1);
-        border-radius: 10px;
+        border: 1px solid var(--oj-line);
+        border-radius: 18px;
         max-width: 1520px;
         width: 100%;
         padding: 0 20px;
@@ -95,32 +96,32 @@
         align-items: center;
         background: #fff;
         box-sizing: border-box;
+        box-shadow: var(--oj-shadow-sm);
   
         .ms-title {
           font-family: PingFangSC, PingFang SC;
           font-weight: 600;
           font-size: 18px;
-          color: #222222;
+          color: var(--oj-ink);
           text-align: left;
         }
   
         .message-list-back {
           cursor: pointer;
-          color: #999999;
+          color: var(--oj-muted);
           font-size: 15px;
           margin-left: auto;
         }
       }
   
       .mesage-list-content {
-        box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.1);
-        background-color: rgba(255, 255, 255, 1);
-        border-radius: 10px;
+        border: 1px solid var(--oj-line);
+        box-shadow: var(--oj-shadow-sm);
+        background-color: #fff;
+        border-radius: 16px;
         margin-top: 20px;
         max-width: 1520px;
         background: #FFFFFF;
-        box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -131,13 +132,15 @@
         .mesage-button {
           width: 84px;
           height: 44px;
-          background: #EAF9FF;
+          background: var(--oj-primary-soft);
           border-radius: 22px;
           margin-right: 20px;
+          color: var(--oj-primary-strong);
+          font-weight: 800;
         }
   
         .message-content {
-          color: #333333;
+          color: var(--oj-ink);
           position: relative;
           left: 20px;
           width: calc(100% - 155px);
@@ -151,6 +154,11 @@
           .title {
             font-weight: bold;
             font-size: 16px;
+          }
+
+          .content {
+            color: var(--oj-muted);
+            line-height: 1.6;
           }
         }
       }

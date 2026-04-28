@@ -13,7 +13,7 @@
               <span>当前结果</span>
             </div>
           </div>
-          <el-form inline="true" ref="formModel" :model="params" class="problem-toolbar">
+          <el-form :inline="true" ref="formModel" :model="params" class="problem-toolbar">
             <el-form-item class="keyword-field">
               <el-input v-model="params.keyword" placeholder="搜索题目标题或内容" />
             </el-form-item>
@@ -26,20 +26,20 @@
             </el-form-item>
           </el-form>
           <el-table :data="questionList" height="560px" class="problem-table">
-            <el-table-column align="center" width="88px" label="#">
+            <el-table-column align="center" width="64px" label="#">
               <template #default="{ $index }">
                 {{ (params.pageNum - 1) * params.pageSize + $index + 1 }}
               </template>
             </el-table-column>
             <el-table-column align="left" prop="title" :show-overflow-tooltip="true" label="题目标题" />
-            <el-table-column align="center" width="160px" prop="difficulty" label="难度">
+            <el-table-column align="center" width="108px" prop="difficulty" label="难度">
               <template #default="{ row }">
                 <span class="difficulty-tag easy" v-if="row.difficulty === 1">简单</span>
                 <span class="difficulty-tag medium" v-if="row.difficulty === 2">中等</span>
                 <span class="difficulty-tag hard" v-if="row.difficulty === 3">困难</span>
               </template>
             </el-table-column>
-            <el-table-column label="训练入口" align="center" width="160px">
+            <el-table-column label="训练入口" align="center" width="122px">
               <template #default="{ row }">
                 <el-button class="solve-button" type="text" plain v-if="isLogin" @click="goQuestTest(row.questionId)">
                   开始答题
@@ -156,7 +156,7 @@
   .index-question-table-box {
     display: flex;
     max-width: 1520px;
-    width: 100%;
+    width: min(1520px, calc(100% - 48px));
     justify-content: space-between;
     gap: 20px;
   
@@ -170,6 +170,7 @@
   
     .right {
       width: 342px;
+      flex-shrink: 0;
 
       .training-card {
         width: 100%;
@@ -343,7 +344,8 @@
     }
   
     .problem-workbench {
-      width: calc(100% - 362px);
+      flex: 1 1 680px;
+      min-width: 0;
       border: 1px solid var(--oj-line);
       border-radius: 20px;
       overflow: hidden;
@@ -404,6 +406,7 @@
 
       .problem-toolbar {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 12px;
         padding: 18px 28px;
@@ -413,15 +416,16 @@
         }
 
         .keyword-field {
-          flex: 1;
+          flex: 1 1 240px;
+          min-width: 0;
         }
 
         .difficulty-field {
-          width: 180px;
+          flex: 0 0 180px;
         }
 
         .toolbar-actions {
-          width: 150px;
+          flex: 0 0 auto;
         }
       }
   
@@ -510,6 +514,59 @@
       height: 40px;
       font-weight: 700;
       font-size: 14px;
+    }
+  }
+
+  @media (max-width: 1180px) {
+    .index-question-table-box {
+      flex-direction: column;
+
+      .right {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 342px);
+        gap: 20px;
+        width: 100%;
+
+        .training-card {
+          grid-column: 1 / -1;
+          box-sizing: border-box;
+        }
+
+        .bot-box {
+          width: 100%;
+        }
+      }
+
+      .problem-workbench {
+        flex-basis: auto;
+        width: 100%;
+      }
+    }
+  }
+
+  @media (max-width: 760px) {
+    .index-question-table-box {
+      width: calc(100% - 24px);
+
+      .right {
+        display: block;
+      }
+
+      .problem-workbench {
+        .problem-header {
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .problem-toolbar {
+          padding: 16px;
+
+          .difficulty-field,
+          .toolbar-actions {
+            flex-basis: 100%;
+          }
+        }
+      }
     }
   }
   </style>

@@ -251,7 +251,6 @@
   
   <style lang="scss" scoped>
   .exam-page {
-    background-color: rgba(247, 247, 247, 1);
     position: relative;
     overflow: hidden;
     display: flex;
@@ -261,11 +260,12 @@
       margin: 0 auto;
       width: 100%;
       min-height: 368px;
-      background: #FFFFFF;
-      border-radius: 16px;
-      padding: 0 20px;
-      padding-top: 30px;
-      margin-top: 10px;
+      background: #fff;
+      border: 1px solid var(--oj-line);
+      border-radius: 20px;
+      padding: 28px;
+      margin-top: 8px;
+      box-shadow: var(--oj-shadow-sm);
     }
   
     .exam-selected-section {
@@ -278,63 +278,65 @@
   
       .exam-option-group {
         width: fit-content;
-        height: 50px;
+        height: 42px;
         position: absolute;
         top: 0;
         left: 0;
+        gap: 10px;
   
         .exam-option {
           cursor: pointer;
-          padding: 10px;
-          border-bottom: 2px solid transparent;
+          padding: 0 18px;
+          border: 1px solid var(--oj-line);
+          border-radius: 999px;
           transition: all 0.3s ease;
           font-family: PingFangSC, PingFang SC;
-          font-weight: 600;
-          font-size: 18px;
-          color: #222;
-          height: 50px;
+          font-weight: 800;
+          font-size: 14px;
+          color: var(--oj-muted);
+          height: 40px;
           width: fit-content;
           display: flex;
           justify-content: center;
           align-items: center;
-          margin-right: 20px;
+          margin-right: 0;
+          background: #fff;
         }
   
         .exam-option.selected {
-          color: #32C5FF;
-          border-bottom: 2px solid #32C5FF;
+          color: var(--oj-primary-strong);
+          border-color: rgba(22, 131, 74, 0.22);
+          background: var(--oj-primary-soft);
         }
       }
   
       .exam-list-title {
-        height: 24px;
         font-family: PingFangSC, PingFang SC;
-        font-weight: 600;
-        font-size: 18px;
-        color: #222222;
-        line-height: 25px;
+        font-weight: 800;
+        font-size: 24px;
+        color: var(--oj-ink);
+        line-height: 32px;
         text-align: left;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         display: block;
       }
   
       :deep(.exam-navigation) {
-        width: 554px;
+        width: auto;
         height: 40px;
-        font-size: 100px;
-        margin-bottom: 30px;
+        margin-bottom: 26px;
   
         .el-form-item {
           margin-right: 20px;
         }
   
         .el-form-item__label {
-          background: #fff;
+          background: transparent;
         }
   
         .exam-navigation-box {
-          background-color: rgba(242, 243, 244, 1);
-          border-radius: 6px;
+          background-color: transparent;
+          border-radius: 8px;
           height: 30px;
           // width: 460px;
           font-weight: 700;
@@ -375,9 +377,10 @@
         }
   
         .exam-list-item {
-          height: 220px;
-          background: #F9F9F9;
-          border-radius: 10px;
+          height: 218px;
+          background: #fbfbf8;
+          border: 1px solid var(--oj-line);
+          border-radius: 18px;
           margin-right: 2%;
           margin-bottom: 20px;
           padding: 20px;
@@ -427,15 +430,17 @@
           img {
             width: 126px;
             height: 180px;
-            border-radius: 6px;
+            border-radius: 12px;
+            object-fit: cover;
           }
   
           &:hover {
             background: #fff;
-            box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.1);
+            border-color: rgba(22, 131, 74, 0.2);
+            box-shadow: var(--oj-shadow-sm);
   
             .exam-title {
-              color: #32C5FF;
+              color: var(--oj-primary-strong);
             }
   
             .el-button {
@@ -448,7 +453,7 @@
             font-size: 18px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
-            color: #999;
+            color: var(--oj-muted);
           }
   
           .exam-button-container {
@@ -462,13 +467,13 @@
             .el-button {
               width: 120px;
               height: 44px;
-              background: #F7F7F7;
-              border-radius: 4px;
-              border: 1px solid #32C5FF;
+              background: var(--oj-primary-soft);
+              border-radius: 10px;
+              border: 1px solid rgba(22, 131, 74, 0.22);
               font-family: PingFangSC, PingFang SC;
-              font-weight: 400;
-              font-size: 18px;
-              color: #32C5FF;
+              font-weight: 800;
+              font-size: 15px;
+              color: var(--oj-primary-strong);
               line-height: 44px;
               text-align: center;
             }
@@ -477,9 +482,10 @@
       }
   
       .exam-page-pagination {
-        width: 594px;
+        width: 100%;
         height: 40px;
-        margin: 30px 0 73px 800px;
+        margin: 14px 0 28px;
+        justify-content: flex-end;
       }
     }
   }
