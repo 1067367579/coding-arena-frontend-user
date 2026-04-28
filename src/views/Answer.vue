@@ -8,7 +8,15 @@
           @finish="handleCountdownFinish" title="距离竞赛结束还有" :value="new Date(examEndTime)" />
       </div>
       <div class="answer-actions">
-        <el-button type="primary" @click="submitQuestion">提交代码</el-button>
+        <button class="submit-code-button" :class="{ running: userQuestionResultVO.pass === 3 }"
+          :disabled="userQuestionResultVO.pass === 3" @click="submitQuestion">
+          <span class="submit-pulse" aria-hidden="true"></span>
+          <span class="submit-icon" aria-hidden="true">
+            <UploadFilled />
+          </span>
+          <span class="submit-label">{{ userQuestionResultVO.pass === 3 ? '判题中' : '提交代码' }}</span>
+          <span class="submit-key">Run</span>
+        </button>
         <button class="answer-back" @click="goBack()">返回</button>
       </div>
     </header>
@@ -87,7 +95,7 @@
   <script setup>
   import { reactive, ref } from "vue"
   import codeEditor from "@/components/CodeEditor.vue"
-  import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+  import { ArrowLeft, ArrowRight, UploadFilled } from '@element-plus/icons-vue'
   import { useRoute } from "vue-router"
   import { getQuestionDetailService, preQuestionService, nextQuestionService, getQuestionResultService } from "@/apis/question"
   import router from "@/router"
@@ -317,14 +325,143 @@
   flex-shrink: 0;
 }
 
+.submit-code-button {
+  --submit-base: #16a34a;
+  --submit-deep: #0f6f3b;
+  position: relative;
+  min-width: 138px;
+  height: 44px;
+  display: inline-grid;
+  grid-template-columns: 26px auto 36px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 9px 0 13px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.28), transparent 34%),
+    linear-gradient(135deg, var(--submit-base), var(--submit-deep));
+  box-shadow:
+    0 14px 28px rgba(15, 111, 59, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  isolation: isolate;
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -40% auto -40% -70%;
+    width: 56%;
+    transform: rotate(18deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.36), transparent);
+    transition: left 540ms ease;
+    z-index: -1;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 20px 36px rgba(15, 111, 59, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.24);
+
+    &::before {
+      left: 118%;
+    }
+
+    .submit-icon {
+      transform: translateY(-1px) rotate(-8deg);
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  &:active {
+    transform: translateY(1px) scale(0.98);
+    filter: saturate(1.08);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(22, 163, 74, 0.22);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: progress;
+    opacity: 1;
+  }
+
+  &.running {
+    animation: submit-breath 1.15s ease-in-out infinite;
+
+    .submit-pulse {
+      opacity: 1;
+      animation: submit-ring 1.2s ease-out infinite;
+    }
+
+    .submit-icon {
+      animation: submit-float 880ms ease-in-out infinite;
+    }
+  }
+}
+
+.submit-pulse {
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 12px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.submit-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.18);
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.submit-label {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.submit-key {
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(8, 55, 31, 0.26);
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 11px;
+  font-weight: 900;
+}
+
 .answer-back {
-  height: 36px;
-  padding: 0 14px;
+  height: 40px;
+  padding: 0 16px;
   border: 1px solid var(--oj-line);
-  border-radius: 999px;
+  border-radius: 14px;
   background: #fff;
   color: var(--oj-muted);
+  font-weight: 800;
   cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+
+  &:hover {
+    color: var(--oj-primary-strong);
+    border-color: rgba(22, 131, 74, 0.24);
+    box-shadow: 0 10px 22px rgba(17, 24, 39, 0.06);
+    transform: translateY(-1px);
+  }
 }
 
 .answer-grid {
@@ -592,6 +729,44 @@
 
   .code-panel {
     min-height: 720px;
+  }
+}
+
+@keyframes submit-breath {
+  0%,
+  100% {
+    box-shadow:
+      0 14px 28px rgba(15, 111, 59, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+
+  50% {
+    box-shadow:
+      0 22px 42px rgba(15, 111, 59, 0.36),
+      inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  }
+}
+
+@keyframes submit-ring {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.58;
+  }
+
+  100% {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+}
+
+@keyframes submit-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
   }
 }
 </style>
