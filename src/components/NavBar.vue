@@ -3,8 +3,8 @@
     <div class="apple-dock">
       <!-- Logo & Brand -->
       <div class="dock-brand" @click="goHome">
-        <img class="dock-logo" src="@/assets/logo.png" alt="DevKnight" />
-        <span class="dock-title">DevKnight</span>
+        <img class="dock-logo" src="@/assets/oj-logo.svg" alt="在线判题系统" />
+        <span class="dock-title">在线判题系统</span>
       </div>
 
       <!-- Navigation Links -->
@@ -151,20 +151,22 @@ async function handleLogout() {
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  padding-left: 8px;
+  padding-left: 6px;
 
   .dock-logo {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    object-fit: cover;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 8px 18px rgba(15, 111, 59, 0.18);
   }
 
   .dock-title {
-    font-size: 17px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 800;
     color: var(--oj-ink);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
+    white-space: nowrap;
   }
 }
 

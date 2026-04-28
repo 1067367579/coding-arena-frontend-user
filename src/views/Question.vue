@@ -87,16 +87,34 @@
         <!-- Right: Sidebar -->
         <div class="side-column">
           <div class="floating-card heatmap-card">
-            <h3 class="card-title">学习足迹</h3>
+            <div class="heatmap-header">
+              <div>
+                <h3 class="card-title">学习足迹</h3>
+                <p>近 12 周提交热度</p>
+              </div>
+              <div class="heatmap-today">
+                <strong>{{ todayFootprint.count }}</strong>
+                <span>今日 AC</span>
+              </div>
+            </div>
             <div class="heatmap-container">
+              <div class="heatmap-months">
+                <span v-for="item in heatmapMonthLabels" :key="item.key" :style="{ gridColumn: item.column }">
+                  {{ item.label }}
+                </span>
+              </div>
               <div class="heatmap-grid">
-                <div v-for="week in 52" :key="week" class="heatmap-col">
-                  <div v-for="day in 7" :key="day" 
+                <div v-for="week in heatmapWeeks" :key="week.key" class="heatmap-col">
+                  <div v-for="day in week.days" :key="day.date"
                        class="heatmap-cell" 
-                       :class="'level-' + Math.floor(Math.random() * 5)"
-                       :title="`AC ` + Math.floor(Math.random() * 10) + ` 题`">
+                       :class="'level-' + day.level"
+                       :title="`${day.label}，AC ${day.count} 题`">
                   </div>
                 </div>
+              </div>
+              <div class="heatmap-insight">
+                <span>最近活跃：{{ activeFootprint.label }}</span>
+                <strong>AC {{ activeFootprint.count }} 题</strong>
               </div>
               <div class="heatmap-legend">
                 <span>少</span>
@@ -143,6 +161,15 @@ const params = reactive({
 const questionList = ref([])
 const total = ref(0)
 const isLogin = ref(false)
+
+const heatmapDays = createHeatmapDays()
+const heatmapWeeks = Array.from({ length: 12 }, (_, weekIndex) => ({
+  key: `week-${weekIndex}`,
+  days: heatmapDays.slice(weekIndex * 7, weekIndex * 7 + 7)
+}))
+const heatmapMonthLabels = createMonthLabels(heatmapDays)
+const todayFootprint = heatmapDays[heatmapDays.length - 1]
+const activeFootprint = [...heatmapDays].reverse().find((item) => item.count > 0) || todayFootprint
 
 async function checkLogin() {
   if (getToken()) {
@@ -202,6 +229,45 @@ function getDifficultyClass(difficulty) {
   if (difficulty === 2) return 'medium';
   if (difficulty === 3) return 'hard';
   return '';
+}
+
+function createHeatmapDays() {
+  const formatter = new Intl.DateTimeFormat('zh-CN', {
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short'
+  })
+  const today = new Date()
+  return Array.from({ length: 84 }, (_, index) => {
+    const date = new Date(today)
+    date.setDate(today.getDate() - (83 - index))
+    const seed = (index * 7 + date.getDate() * 3 + date.getMonth() * 11) % 10
+    const count = seed < 2 ? 0 : seed < 5 ? 1 : seed < 7 ? 2 : seed < 9 ? 4 : 7
+    return {
+      date: date.toISOString().slice(0, 10),
+      label: formatter.format(date),
+      count,
+      level: count === 0 ? 0 : count <= 1 ? 1 : count <= 3 ? 2 : count <= 5 ? 3 : 4
+    }
+  })
+}
+
+function createMonthLabels(days) {
+  const labels = []
+  let lastLabel = ''
+  days.forEach((day, index) => {
+    const date = new Date(day.date)
+    const label = `${date.getMonth() + 1}月`
+    if (label !== lastLabel && index % 7 <= 2) {
+      labels.push({
+        key: `${label}-${index}`,
+        label,
+        column: `${Math.floor(index / 7) + 1} / span 2`
+      })
+      lastLabel = label
+    }
+  })
+  return labels
 }
 </script>
 
@@ -306,6 +372,17 @@ function getDifficultyClass(difficulty) {
       box-shadow: none !important;
       border-radius: 12px;
       height: 40px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    :deep(.el-input__prefix) {
+      margin-right: 10px;
+      color: var(--oj-subtle);
+    }
+
+    :deep(.el-input__inner) {
+      padding-left: 4px;
     }
   }
 
@@ -468,16 +545,70 @@ function getDifficultyClass(difficulty) {
   padding: 24px;
 }
 
+.heatmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+
+  .card-title {
+    margin: 0;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: var(--oj-muted);
+    font-size: 13px;
+  }
+}
+
+.heatmap-today {
+  min-width: 72px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--oj-primary-soft), #fff);
+  text-align: right;
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    color: var(--oj-primary-strong);
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  span {
+    margin-top: 4px;
+    color: var(--oj-muted);
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+
 .heatmap-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.heatmap-months {
+  display: grid;
+  grid-template-columns: repeat(12, 13px);
+  gap: 4px;
+  padding-left: 1px;
+  color: var(--oj-subtle);
+  font-size: 10px;
+  font-weight: 800;
 }
 
 .heatmap-grid {
   display: flex;
-  gap: 3px;
+  gap: 4px;
   overflow-x: auto;
   padding-bottom: 8px;
 
@@ -493,13 +624,13 @@ function getDifficultyClass(difficulty) {
 .heatmap-col {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .heatmap-cell {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 4px;
   background-color: #ebedf0;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -511,7 +642,25 @@ function getDifficultyClass(difficulty) {
   &.level-4 { background-color: #216e39; }
 
   &:hover {
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+    transform: translateY(-1px) scale(1.12);
+    box-shadow: 0 0 0 2px rgba(22, 131, 74, 0.16);
+  }
+}
+
+.heatmap-insight {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--oj-surface-soft);
+  color: var(--oj-muted);
+  font-size: 12px;
+
+  strong {
+    color: var(--oj-primary-strong);
+    white-space: nowrap;
   }
 }
 

@@ -6,8 +6,8 @@
       <div v-if="$route.meta.showBanner" class="hero-section">
         <div class="hero-content">
           <span class="hero-eyebrow">Online Judge System</span>
-          <h1 class="hero-title">算法评测平台</h1>
-          <p class="hero-subtitle">提供丰富的题库与高标准编程竞赛。<br>极速代码判题，专注提升您的编程能力。</p>
+          <h1 class="hero-title">在线判题系统</h1>
+          <p class="hero-subtitle">聚合题库训练、代码评测与在线竞赛。<br>让每一次提交都有清晰反馈与复盘价值。</p>
         </div>
         
         <div class="hero-stats">

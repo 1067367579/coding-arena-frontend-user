@@ -7,10 +7,10 @@
       <div class="login-card">
         <div class="card-header">
           <div class="logo-wrapper">
-            <img src="@/assets/logo.png" alt="Logo">
+            <img src="@/assets/oj-logo.svg" alt="在线判题系统">
           </div>
-          <h1 class="brand-title">DevKnight OJ</h1>
-          <p class="brand-subtitle">代码竞技平台</p>
+          <h1 class="brand-title">在线判题系统</h1>
+          <p class="brand-subtitle">题库训练 · 在线竞赛 · 代码评测</p>
         </div>
 
         <div class="hero-text">
