@@ -84,7 +84,20 @@
           <codeEditor ref="defaultCodeRef" @update:value="handleEditorContent" />
         </div>
 
-        <div class="console-panel" :class="{ 'is-expanded': userQuestionResultVO.pass !== 2 }">
+        <div
+          class="console-panel"
+          :class="{ 'is-expanded': userQuestionResultVO.pass !== 2, 'is-resizing': isResizingConsole }"
+          :style="{ height: consolePanelHeight }"
+        >
+          <div
+            class="console-resize-handle"
+            role="separator"
+            aria-orientation="horizontal"
+            title="拖动调整执行结果高度"
+            @pointerdown="startConsoleResize"
+          >
+            <span></span>
+          </div>
           <div class="console-header">
             <div class="tabs">
               <div class="tab active">
@@ -139,7 +152,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue"
+import { computed, onBeforeUnmount, reactive, ref } from "vue"
 import codeEditor from "@/components/CodeEditor.vue"
 import { useRoute } from "vue-router"
 import { getQuestionDetailService, preQuestionService, nextQuestionService, getQuestionResultService } from "@/apis/question"
@@ -228,6 +241,42 @@ const userQuestionResultVO = ref({
   pass: 2,
   exeMessage: '',
   userExeResultList: [],
+})
+
+const consoleHeight = ref(260)
+const isResizingConsole = ref(false)
+
+const consolePanelHeight = computed(() => {
+  return userQuestionResultVO.value.pass === 2 ? '46px' : `${consoleHeight.value}px`
+})
+
+function startConsoleResize(event) {
+  event.preventDefault()
+  isResizingConsole.value = true
+  document.body.classList.add('console-resizing')
+  window.addEventListener('pointermove', resizeConsole)
+  window.addEventListener('pointerup', stopConsoleResize)
+}
+
+function resizeConsole(event) {
+  const editorPanel = document.querySelector('.editor-panel')
+  if (!editorPanel) return
+
+  const rect = editorPanel.getBoundingClientRect()
+  const nextHeight = rect.bottom - event.clientY
+  const maxHeight = Math.max(220, rect.height - 180)
+  consoleHeight.value = Math.min(Math.max(nextHeight, 160), maxHeight)
+}
+
+function stopConsoleResize() {
+  isResizingConsole.value = false
+  document.body.classList.remove('console-resizing')
+  window.removeEventListener('pointermove', resizeConsole)
+  window.removeEventListener('pointerup', stopConsoleResize)
+}
+
+onBeforeUnmount(() => {
+  stopConsoleResize()
 })
 
 const pollingInterval = ref(null);
@@ -661,17 +710,79 @@ async function getQuestionResult() {
 .console-panel {
   position: relative;
   z-index: 10;
-  height: 40px;
   border-top: 1px solid #e5e5e5;
   background: #fff;
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+  min-height: 46px;
+  max-height: calc(100% - 180px);
 
   &.is-expanded {
-    height: 30vh;
+    min-height: 160px;
   }
+
+  &.is-resizing {
+    transition: none;
+
+    .console-resize-handle {
+      opacity: 1;
+    }
+  }
+}
+
+.console-resize-handle {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: row-resize;
+  opacity: 0;
+  z-index: 3;
+  touch-action: none;
+  transition: opacity 0.18s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 5px;
+    height: 1px;
+    background: transparent;
+    transition: background 0.18s ease;
+  }
+
+  span {
+    width: 44px;
+    height: 4px;
+    border-radius: 999px;
+    background: #c8d0d8;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  }
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+
+    &::before {
+      background: #0f7a43;
+    }
+
+    span {
+      background: #0f7a43;
+    }
+  }
+}
+
+:global(body.console-resizing) {
+  cursor: row-resize;
+  user-select: none;
 }
 
 .result-badge {
