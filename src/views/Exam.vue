@@ -1,61 +1,87 @@
 <template>
-    <div class="exam-page flex-col">
-      <div class="exam-selected-section flex-col">
-        <div class="exam-option-group flex-row justify-between">
-          <div class="exam-option" v-for="option in options" :key="option.value" @click="selectOption(option.value)"
-            :class="{ selected: selectedOption === option.value }">
-            <!-- 动态添加 或者 移除 css类 -->
-            {{ option.label }}
+    <div class="exam-page">
+      <section class="contest-board">
+        <header class="contest-board-head">
+          <div class="contest-heading">
+            <span class="board-kicker">Contest Board</span>
+            <h2>推荐竞赛</h2>
+            <p>把竞赛状态、报名动作和赛后复盘拆开呈现，减少扫描成本。</p>
           </div>
-        </div>
-        <div class="center-box">
-          <span class="exam-list-title">推荐竞赛</span>
-          <el-form inline="true" class="exam-navigation flex-row justify-between">
-            <el-form-item label="竞赛时间" prop="datetimeRange" class="exam-navigation-box">
-              <el-date-picker style="width:360px;" v-model="datetimeRange" type="datetimerange" range-separator="至"
+          <div class="contest-segments" role="tablist" aria-label="竞赛状态筛选">
+            <button v-for="option in options" :key="option.value" type="button" @click="selectOption(option.value)"
+              :class="{ active: selectedOption === option.value }">
+              <span>{{ option.label }}</span>
+              <small>{{ option.value === 0 ? 'Active' : 'Archive' }}</small>
+            </button>
+          </div>
+        </header>
+
+        <div class="contest-filterbar">
+          <el-form :inline="true" class="contest-filter-form">
+            <el-form-item label="竞赛窗口" prop="datetimeRange" class="exam-navigation-box">
+              <el-date-picker v-model="datetimeRange" type="datetimerange" range-separator="至"
                 start-placeholder="开始时间" end-placeholder="结束时间"></el-date-picker>
             </el-form-item>
-            <el-form-item>
+            <el-form-item class="filter-actions">
               <el-button @click="onSearch" plain type="primary">搜索</el-button>
               <el-button @click="onReset" plain type="info">重置</el-button>
             </el-form-item>
           </el-form>
-          <!-- </div> -->
-          <div class="exam-list-group flex-row">
-            <div class="exam-list-item flex-col" v-for="(exam, index) in examList" :key="index">
-              <div>
-                <img src="@/assets/images/exam.png">
+        </div>
+
+        <div class="contest-grid">
+          <article class="contest-card" :class="getExamStage(exam).className" v-for="exam in examList"
+            :key="exam.examId">
+            <div class="contest-status-rail" aria-hidden="true">
+              <span>{{ getExamStage(exam).label }}</span>
+            </div>
+            <figure class="contest-cover">
+              <img src="@/assets/images/exam.png">
+              <figcaption>{{ getExamStage(exam).meta }}</figcaption>
+            </figure>
+            <div class="contest-info">
+              <div class="contest-title-row">
+                <h3>{{ exam.title }}</h3>
+                <span class="contest-signal" :class="getExamStage(exam).className">
+                  {{ getExamStage(exam).signal }}
+                </span>
               </div>
-              <div class="right-info">
-                <span class="exam-title">{{ exam.title }}</span>
-                <div class="exam-content flex-col justify-between">
-                  <span>开赛时间：{{ exam.startTime }}</span>
-                  <span>结束时间：{{ exam.endTime }}</span>
+
+              <div class="contest-time-grid">
+                <div>
+                  <small>START</small>
+                  <strong>{{ formatDateLabel(exam.startTime) }}</strong>
+                  <span>{{ formatTimeLabel(exam.startTime) }}</span>
                 </div>
-                <div class="exam-button-container">
-                  <span class="exam-hash-entry" v-if="isOngoingAndUnregisteredCompetition(exam)">已开赛</span>
-                  <span class="exam-hash-entry" v-if="isEntryAndNotStart(exam)">已报名</span>
-                  <div v-if="isHistoryExam(exam)">
-                    <el-button class="exam-practice-button" type="primary" plain
-                      @click="goExam(exam)">竞赛练习</el-button>
-                    <el-button class="exam-rank-button" type="primary" plain
-                      @click="togglePopover(exam.examId)">查看排名</el-button>
-                  </div>
-                  <el-button class="exam-start-button" type="primary" plain v-if="isStartExam(exam)"
-                    @click="goExam(exam)">开始答题</el-button>
-                  <el-button class="exam-enter-button" type="primary" plain v-if="isCanEntry(exam)"
-                    @click="enterExam(exam.examId)">报名参赛</el-button>
+                <div>
+                  <small>END</small>
+                  <strong>{{ formatDateLabel(exam.endTime) }}</strong>
+                  <span>{{ formatTimeLabel(exam.endTime) }}</span>
                 </div>
+              </div>
+
+              <div class="contest-card-actions">
+                <template v-if="isHistoryExam(exam)">
+                  <el-button class="contest-action secondary" type="primary" plain @click="togglePopover(exam.examId)">查看排名</el-button>
+                  <el-button class="contest-action primary" type="primary" @click="goExam(exam)">竞赛练习</el-button>
+                </template>
+                <el-button class="contest-action primary" type="primary" v-else-if="isStartExam(exam)"
+                  @click="goExam(exam)">开始答题</el-button>
+                <el-button class="contest-action primary entry" type="primary" v-else-if="isCanEntry(exam)"
+                  @click="enterExam(exam.examId)">报名参赛</el-button>
+                <div class="contest-note reserved" v-else-if="isEntryAndNotStart(exam)">已锁定席位，等待开赛</div>
+                <div class="contest-note closed" v-else>竞赛已经开始，报名入口已关闭</div>
               </div>
             </div>
-          </div>
-          <div class="exam-page-pagination flex-row">
-            <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="total"
-              v-model:current-page="params.pageNum" v-model:page-size="params.pageSize" :page-sizes="[3, 6, 9, 12]"
-              @size-change="handleSizeChange" @current-change="handleCurrentChange" />
-          </div>
+          </article>
         </div>
-      </div>
+
+        <div class="exam-page-pagination">
+          <el-pagination background layout="total, sizes, prev, pager, next, jumper" :total="total"
+            v-model:current-page="params.pageNum" v-model:page-size="params.pageSize" :page-sizes="[3, 6, 9, 12]"
+            @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+        </div>
+      </section>
     </div>
   
     <el-dialog v-model="dialogVisible" width="600px" top="30vh" :show-close="true" :close-on-click-modal="false"
@@ -77,6 +103,7 @@
   import { getExamListService,enterExamService, getExamRankListService } from '@/apis/exam'
   import { getToken } from '@/utils/cookie'
   import { getUserInfoService } from '@/apis/user'
+  import { ElMessage } from 'element-plus'
   import router from '@/router';
   
   //参数定义
@@ -85,8 +112,8 @@
   const total = ref(0)
   const selectedOption = ref(0); // 初始化选中的文本
   const options = ref([
-    { label: '未完赛', value: 0 },
-    { label: '历史竞赛', value: 1 },
+    { label: '开放竞赛', value: 0 },
+    { label: '历史复盘', value: 1 },
   ])
   const params = reactive({
     pageNum: 1,
@@ -179,6 +206,65 @@
     const now = new Date();
     return new Date(exam.startTime) > now && !exam.enter;
   }
+
+  function getExamStage(exam) {
+    if (isHistoryExam(exam)) {
+      return {
+        className: 'stage-history',
+        label: '历史练习',
+        signal: '复盘',
+        meta: 'Archive',
+      }
+    }
+    if (isStartExam(exam)) {
+      return {
+        className: 'stage-live',
+        label: '进行中',
+        signal: 'Live',
+        meta: 'Now',
+      }
+    }
+    if (isCanEntry(exam)) {
+      return {
+        className: 'stage-open',
+        label: '开放报名',
+        signal: 'Entry',
+        meta: 'Open',
+      }
+    }
+    if (isEntryAndNotStart(exam)) {
+      return {
+        className: 'stage-reserved',
+        label: '已报名',
+        signal: 'Seat',
+        meta: 'Reserved',
+      }
+    }
+    if (isOngoingAndUnregisteredCompetition(exam)) {
+      return {
+        className: 'stage-closed',
+        label: '已开赛',
+        signal: 'Closed',
+        meta: 'Locked',
+      }
+    }
+    return {
+      className: 'stage-open',
+      label: '待开放',
+      signal: 'Soon',
+      meta: 'Soon',
+    }
+  }
+
+  function formatDateLabel(value) {
+    if (!value) return '-'
+    return String(value).slice(0, 10)
+  }
+
+  function formatTimeLabel(value) {
+    if (!value) return '-'
+    return String(value).slice(11, 16)
+  }
   
   const isLogin = ref(false)
   async function checkLogin() {
@@ -249,244 +335,424 @@
   
   </script>
   
-  <style lang="scss" scoped>
-  .exam-page {
-    position: relative;
-    overflow: hidden;
+<style lang="scss" scoped>
+.exam-page {
+  max-width: 1520px;
+  margin: 0 auto 28px;
+}
+
+.contest-board {
+  border: 1px solid var(--oj-line);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9)),
+    var(--oj-surface);
+  box-shadow: var(--oj-shadow-sm);
+  overflow: hidden;
+}
+
+.contest-board-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: end;
+  padding: 30px 32px 22px;
+  border-bottom: 1px solid var(--oj-line);
+}
+
+.contest-heading {
+  min-width: 0;
+
+  h2 {
+    margin: 8px 0;
+    color: var(--oj-ink);
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0;
+    color: var(--oj-muted);
+    font-size: 14px;
+  }
+}
+
+.board-kicker {
+  color: var(--oj-primary-strong);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.contest-segments {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--oj-line);
+  border-radius: 18px;
+  background: #f6f7f1;
+
+  button {
+    min-height: 52px;
     display: flex;
-  
-    .center-box {
-      max-width: 1520px;
-      margin: 0 auto;
-      width: 100%;
-      min-height: 368px;
-      background: #fff;
-      border: 1px solid var(--oj-line);
-      border-radius: 20px;
-      padding: 28px;
-      margin-top: 8px;
-      box-shadow: var(--oj-shadow-sm);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 13px;
+    color: var(--oj-muted);
+    cursor: pointer;
+    transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+
+    span {
+      font-size: 14px;
+      font-weight: 900;
     }
-  
-    .exam-selected-section {
-      margin: 0 auto;
-      margin-bottom: 20px;
-      position: relative;
-      padding-top: 50px;
-      max-width: 1520px;
-      width: 100%;
-  
-      .exam-option-group {
-        width: fit-content;
-        height: 42px;
-        position: absolute;
-        top: 0;
-        left: 0;
-        gap: 10px;
-  
-        .exam-option {
-          cursor: pointer;
-          padding: 0 18px;
-          border: 1px solid var(--oj-line);
-          border-radius: 999px;
-          transition: all 0.3s ease;
-          font-family: PingFangSC, PingFang SC;
-          font-weight: 800;
-          font-size: 14px;
-          color: var(--oj-muted);
-          height: 40px;
-          width: fit-content;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          margin-right: 0;
-          background: #fff;
-        }
-  
-        .exam-option.selected {
-          color: var(--oj-primary-strong);
-          border-color: rgba(22, 131, 74, 0.22);
-          background: var(--oj-primary-soft);
-        }
+
+    small {
+      color: var(--oj-subtle);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    &.active {
+      background: #fff;
+      color: var(--oj-primary-strong);
+      box-shadow: 0 10px 24px rgba(17, 24, 39, 0.07);
+
+      small {
+        color: var(--oj-primary);
       }
-  
-      .exam-list-title {
-        font-family: PingFangSC, PingFang SC;
-        font-weight: 800;
-        font-size: 24px;
-        color: var(--oj-ink);
-        line-height: 32px;
-        text-align: left;
-        margin-bottom: 20px;
-        display: block;
-      }
-  
-      :deep(.exam-navigation) {
-        width: auto;
-        height: 40px;
-        margin-bottom: 26px;
-  
-        .el-form-item {
-          margin-right: 20px;
-        }
-  
-        .el-form-item__label {
-          background: transparent;
-        }
-  
-        .exam-navigation-box {
-          background-color: transparent;
-          border-radius: 8px;
-          height: 30px;
-          // width: 460px;
-          font-weight: 700;
-        }
-      }
-  
-      .exam-list-group {
-        // width: 1200px;
-        flex-wrap: wrap;
-  
-        @media screen and (min-width: 1420px) {
-          .exam-list-item {
-            width: 32%;
-  
-            &:nth-of-type(3n) {
-              margin-right: 0;
-            }
-          }
-  
-        }
-  
-        @media screen and (max-width: 1419px) {
-          .exam-list-item {
-            width: 48%;
-            margin-right: 2%;
-  
-            &:nth-of-type(2n) {
-              margin-right: 0;
-            }
-          }
-        }
-  
-        @media screen and (max-width: 970px) {
-          .exam-list-item {
-            width: 100%;
-            margin-right: 0;
-          }
-        }
-  
-        .exam-list-item {
-          height: 218px;
-          background: #fbfbf8;
-          border: 1px solid var(--oj-line);
-          border-radius: 18px;
-          margin-right: 2%;
-          margin-bottom: 20px;
-          padding: 20px;
-          box-sizing: border-box;
-          display: flex;
-          align-items: center;
-          flex-direction: row;
-          justify-content: space-between;
-          cursor: pointer;
-  
-          .right-info {
-            width: calc(100% - 146px);
-          }
-  
-          .exam-title {
-            height: 26px;
-            font-family: PingFangSC, PingFang SC;
-            font-weight: 600;
-            font-size: 18px;
-            color: #222222;
-            line-height: 26px;
-            text-align: left;
-            max-width: 90%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            margin-bottom: 16px;
-            display: block;
-          }
-  
-          .exam-content {
-            margin-bottom: 26px;
-  
-            span {
-              height: 22px;
-              font-family: PingFangSC, PingFang SC;
-              font-weight: 400;
-              font-size: 16px;
-              color: #666666;
-              line-height: 22px;
-              display: block;
-              margin-bottom: 12px;
-            }
-  
-          }
-  
-          img {
-            width: 126px;
-            height: 180px;
-            border-radius: 12px;
-            object-fit: cover;
-          }
-  
-          &:hover {
-            background: #fff;
-            border-color: rgba(22, 131, 74, 0.2);
-            box-shadow: var(--oj-shadow-sm);
-  
-            .exam-title {
-              color: var(--oj-primary-strong);
-            }
-  
-            .el-button {
-              background: #f7f7f7;
-            }
-          }
-  
-          .exam-hash-entry {
-            float: right;
-            font-size: 18px;
-            font-family: PingFangSC-Regular, PingFang SC;
-            font-weight: 400;
-            color: var(--oj-muted);
-          }
-  
-          .exam-button-container {
-            display: flex;
-            justify-content: space-between;
-            /* 或者使用 flex-start 来紧密排列按钮 */
-            align-items: center;
-  
-            /* 如果需要垂直居中 */
-            /* 其他样式，如外边距、内边距等 */
-            .el-button {
-              width: 120px;
-              height: 44px;
-              background: var(--oj-primary-soft);
-              border-radius: 10px;
-              border: 1px solid rgba(22, 131, 74, 0.22);
-              font-family: PingFangSC, PingFang SC;
-              font-weight: 800;
-              font-size: 15px;
-              color: var(--oj-primary-strong);
-              line-height: 44px;
-              text-align: center;
-            }
-          }
-        }
-      }
-  
-      .exam-page-pagination {
-        width: 100%;
-        height: 40px;
-        margin: 14px 0 28px;
-        justify-content: flex-end;
-      }
+    }
+
+    &:hover {
+      transform: translateY(-1px);
     }
   }
-  </style>
+}
+
+.contest-filterbar {
+  padding: 20px 32px 8px;
+}
+
+.contest-filter-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+
+  :deep(.el-form-item) {
+    margin: 0;
+  }
+
+  :deep(.el-form-item__label) {
+    height: 40px;
+    align-items: center;
+  }
+
+  :deep(.el-date-editor) {
+    width: 420px;
+    max-width: 100%;
+  }
+}
+
+.filter-actions {
+  margin-left: auto !important;
+}
+
+.contest-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  padding: 20px 32px 28px;
+}
+
+.contest-card {
+  position: relative;
+  min-height: 252px;
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 20px;
+  padding: 18px 18px 18px 24px;
+  border: 1px solid var(--oj-line);
+  border-radius: 22px;
+  background: #fbfbf8;
+  overflow: hidden;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: var(--stage-color, var(--oj-primary));
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: rgba(22, 131, 74, 0.18);
+    background: #fff;
+    box-shadow: 0 18px 42px rgba(17, 24, 39, 0.08);
+  }
+
+  &.stage-open {
+    --stage-color: #16a34a;
+    --stage-soft: #e8f5ec;
+    --stage-text: #0f6f3b;
+  }
+
+  &.stage-live {
+    --stage-color: #2563eb;
+    --stage-soft: #dbeafe;
+    --stage-text: #1d4ed8;
+  }
+
+  &.stage-reserved {
+    --stage-color: #f59e0b;
+    --stage-soft: #fff4d6;
+    --stage-text: #9a5b00;
+  }
+
+  &.stage-history {
+    --stage-color: #64748b;
+    --stage-soft: #eef2f6;
+    --stage-text: #475569;
+  }
+
+  &.stage-closed {
+    --stage-color: #dc2626;
+    --stage-soft: #fee2e2;
+    --stage-text: #b91c1c;
+  }
+}
+
+.contest-status-rail {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  span {
+    display: inline-grid;
+    place-items: center;
+    min-width: 76px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 9px;
+    background: var(--stage-soft);
+    color: var(--stage-text);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+}
+
+.contest-cover {
+  align-self: stretch;
+  min-width: 0;
+  margin: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #101b15;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    min-height: 188px;
+    object-fit: cover;
+    opacity: 0.84;
+  }
+
+  figcaption {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    background: rgba(15, 23, 32, 0.68);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    backdrop-filter: blur(8px);
+  }
+}
+
+.contest-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 40px;
+}
+
+.contest-title-row {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+
+  h3 {
+    min-width: 0;
+    margin: 0;
+    color: var(--oj-ink);
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 900;
+  }
+}
+
+.contest-signal {
+  flex-shrink: 0;
+  min-width: 44px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 7px;
+  color: var(--stage-text);
+  background: linear-gradient(135deg, var(--stage-soft), #fff);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.contest-time-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+
+  div {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--oj-line);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  small,
+  strong,
+  span {
+    display: block;
+  }
+
+  small {
+    color: var(--oj-subtle);
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  strong {
+    margin-top: 4px;
+    color: var(--oj-ink);
+    font-size: 14px;
+  }
+
+  span {
+    margin-top: 2px;
+    color: var(--oj-muted);
+    font-size: 13px;
+  }
+}
+
+.contest-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+
+  .contest-action {
+    min-width: 108px;
+    height: 42px;
+    font-weight: 900;
+  }
+
+  .contest-action.secondary {
+    background: #fff;
+    border-color: var(--oj-line);
+    color: var(--stage-text);
+  }
+}
+
+.contest-note {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+
+  &.reserved {
+    background: #fff4d6;
+    color: #9a5b00;
+  }
+
+  &.closed {
+    background: #f3f4ef;
+    color: var(--oj-muted);
+  }
+}
+
+.exam-page-pagination {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 32px 32px;
+}
+
+.range_page {
+  margin-top: 18px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1280px) {
+  .contest-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .contest-board-head {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .contest-filter-form {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .filter-actions {
+    margin-left: 0 !important;
+  }
+
+  .contest-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .contest-board-head,
+  .contest-filterbar,
+  .contest-grid {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .contest-segments {
+    grid-template-columns: 1fr;
+  }
+
+  .contest-card {
+    grid-template-columns: 1fr;
+  }
+
+  .contest-cover img {
+    height: 170px;
+  }
+}
+</style>
