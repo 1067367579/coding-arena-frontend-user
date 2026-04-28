@@ -357,7 +357,6 @@
         justify-content: space-between;
         align-items: flex-start;
         padding: 28px 28px 18px;
-        border-bottom: 1px solid var(--oj-line);
 
         .section-kicker {
           color: var(--oj-primary-strong);
@@ -433,15 +432,17 @@
         width: 100%;
 
         th.el-table__cell {
-          background-color: #f8faf5 !important;
+          background-color: transparent !important;
           color: var(--oj-muted);
           font-size: 13px;
           font-weight: 800;
+          border-bottom: none !important;
         }
   
         td {
           height: 58px;
           color: var(--oj-ink);
+          border-bottom: 1px dashed var(--oj-line);
         }
       }
 
@@ -476,7 +477,7 @@
       }
 
       .problem-pagination {
-        margin: 18px 28px 22px 0;
+        margin: 30px 28px 30px 0;
         justify-content: flex-end;
       }
 

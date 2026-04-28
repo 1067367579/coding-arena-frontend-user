@@ -193,7 +193,9 @@
   .exam-end-lable-list {
     padding-right: 20px;
     min-width: 228px;
-    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   
     .exam-end-lable {
       margin-right: 10px;
@@ -215,6 +217,7 @@
     width: 100%;
     display: flex;
     justify-content: flex-end;
-    padding-bottom: 20px;
+    margin-top: 24px;
+    padding-bottom: 24px;
   }
   </style>

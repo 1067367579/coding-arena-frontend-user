@@ -466,7 +466,7 @@
 .contest-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 24px;
   padding: 20px 32px 28px;
 }
 
@@ -505,9 +505,9 @@
   }
 
   &.stage-live {
-    --stage-color: #2563eb;
-    --stage-soft: #dbeafe;
-    --stage-text: #1d4ed8;
+    --stage-color: var(--oj-primary);
+    --stage-soft: var(--oj-primary-soft);
+    --stage-text: var(--oj-primary-strong);
   }
 
   &.stage-reserved {

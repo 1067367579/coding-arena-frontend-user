@@ -195,6 +195,8 @@ import { clearAllStorage } from '@/utils/codeStorage';
       width: 280px;
       border: none;
       background: transparent;
+      display: flex;
+      align-items: center;
   
       .el-menu-item {
         font-size: 15px;
