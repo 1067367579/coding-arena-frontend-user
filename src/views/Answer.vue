@@ -79,7 +79,7 @@
         </div>
       </section>
 
-      <section class="editor-panel">
+      <section class="editor-panel" :style="{ '--console-panel-height': consolePanelHeight }">
         <div class="editor-container">
           <codeEditor ref="defaultCodeRef" @update:value="handleEditorContent" />
         </div>
@@ -158,7 +158,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, reactive, ref } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue"
 import codeEditor from "@/components/CodeEditor.vue"
 import { useRoute } from "vue-router"
 import { getQuestionDetailService, preQuestionService, nextQuestionService, getQuestionResultService } from "@/apis/question"
@@ -174,30 +174,65 @@ function goBack() {
 
 const questionDetail = reactive({})
 const defaultCodeRef = ref()
+const route = useRoute()
 
-let questionId = useRoute().query.questionId
-let examId = useRoute().query.examId
-let examTitle = useRoute().query.examTitle
-let examEndTime = useRoute().query.examEndTime
+let questionId = route.query.questionId
+let examId = route.query.examId
+let examTitle = route.query.examTitle
+let examEndTime = route.query.examEndTime
+
+function syncRouteParams() {
+  questionId = route.query.questionId
+  examId = route.query.examId
+  examTitle = route.query.examTitle
+  examEndTime = route.query.examEndTime
+}
+
+function createPendingResult() {
+  return {
+    pass: 2,
+    exeMessage: '',
+    userExeResultList: [],
+  }
+}
+
+function resetSubmissionWorkspace() {
+  stopPolling()
+  currentTime = undefined
+  submitTime = undefined
+  userQuestionResultVO.value = createPendingResult()
+  resetConsoleLayout()
+}
 
 async function getQuestionDetail() {
+  resetSubmissionWorkspace()
+
   if (examId && (questionId == null || questionId == '')) {
     const eqrs = await getExamFirstQuestionService(examId)
     questionId = eqrs.data
   }
+
   const res = await getQuestionDetailService(questionId)
   Object.assign(questionDetail, res.data)
-  let code = loadCode(examId, questionId)
-  defaultCodeRef.value.setAceCode(code == null ? questionDetail.defaultCode : code)
-  
-  if(currentTime) {
-    const resultRes = await getQuestionResultService(examId, questionDetail.questionId, currentTime);
-    userQuestionResultVO.value = (resultRes.data.pass == 3) ? { pass: 2 } : resultRes.data;
-  }
 
+  const code = loadCode(examId, questionId)
+  defaultCodeRef.value?.setAceCode(code == null ? questionDetail.defaultCode : code)
   revealConsoleResult()
 }
-getQuestionDetail()
+
+onMounted(() => {
+  syncRouteParams()
+  resetConsoleLayout()
+  getQuestionDetail()
+})
+
+watch(
+  () => route.fullPath,
+  () => {
+    syncRouteParams()
+    getQuestionDetail()
+  }
+)
 
 async function preQuestion() {
   try {
@@ -245,11 +280,7 @@ function handleEditorContent(content) {
   submitDTO.userCode = content
 }
 
-const userQuestionResultVO = ref({
-  pass: 2,
-  exeMessage: '',
-  userExeResultList: [],
-})
+const userQuestionResultVO = ref(createPendingResult())
 
 const hasExecutionRows = computed(() => {
   return userQuestionResultVO.value.userExeResultList && userQuestionResultVO.value.userExeResultList.length > 0
@@ -275,7 +306,9 @@ const submissionStatus = computed(() => {
 })
 
 const consolePanelRef = ref(null)
-const consoleHeight = ref(340)
+const DEFAULT_CONSOLE_HEIGHT = 340
+const MOBILE_CONSOLE_HEIGHT = 320
+const consoleHeight = ref(DEFAULT_CONSOLE_HEIGHT)
 const isResizingConsole = ref(false)
 
 const consolePanelHeight = computed(() => {
@@ -308,6 +341,7 @@ function stopConsoleResize() {
 
 onBeforeUnmount(() => {
   stopConsoleResize()
+  stopPolling()
 })
 
 function clampConsoleHeight(height, editorRect) {
@@ -319,20 +353,23 @@ function clampConsoleHeight(height, editorRect) {
   return Math.round(Math.min(Math.max(height, minHeight), maxHeight))
 }
 
+function getDefaultConsoleHeight() {
+  return window.innerWidth <= 768 ? MOBILE_CONSOLE_HEIGHT : DEFAULT_CONSOLE_HEIGHT
+}
+
+function resetConsoleLayout() {
+  consoleHeight.value = clampConsoleHeight(getDefaultConsoleHeight())
+}
+
 async function revealConsoleResult() {
   await nextTick()
   const panel = consolePanelRef.value
   if (!panel) return
 
-  const header = panel.querySelector('.console-header')
   const body = panel.querySelector('.console-body')
-  const empty = panel.querySelector('.console-empty')
-  const contentHeight = (header?.offsetHeight || 40)
-    + (body?.scrollHeight || empty?.scrollHeight || 96)
-    + 42
-  consoleHeight.value = clampConsoleHeight(contentHeight)
+  resetConsoleLayout()
   requestAnimationFrame(() => {
-    body?.scrollTo({ top: 0, behavior: 'smooth' })
+    body?.scrollTo({ top: 0, behavior: 'auto' })
   })
 }
 
@@ -642,6 +679,8 @@ async function getQuestionResult() {
 .editor-panel {
   flex: 1;
   min-height: 0;
+  position: relative;
+  padding-bottom: var(--console-panel-height);
 }
 
 .panel-header, .console-header {
@@ -768,15 +807,19 @@ async function getQuestionResult() {
 
 /* Editor Area */
 .editor-container {
-  flex: 1;
+  flex: none;
   min-height: 0;
+  height: calc(100% - var(--console-panel-height));
   display: flex;
   flex-direction: column;
 }
 
 /* Console Panel */
 .console-panel {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 10;
   border-top: 1px solid #e5e5e5;
   background: #fff;
@@ -785,7 +828,7 @@ async function getQuestionResult() {
   flex-direction: column;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
   min-height: 46px;
-  max-height: calc(100% - 180px);
+  max-height: calc(100% - 112px);
   overflow: hidden;
 
   &.is-expanded {
