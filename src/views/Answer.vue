@@ -109,43 +109,47 @@
                 执行结果
               </div>
             </div>
-            <div class="result-badge" v-if="userQuestionResultVO.pass !== 2">
-              <span class="badge red" v-if="userQuestionResultVO.pass === 0 || userQuestionResultVO.pass === 4">
-                {{ userQuestionResultVO.pass === 0 ? '解答错误' : '系统错误' }}
+            <div class="result-badge">
+              <span class="badge" :class="submissionStatus.className">
+                {{ submissionStatus.label }}
               </span>
-              <span class="badge green" v-else-if="userQuestionResultVO.pass === 1">通过</span>
-              <span class="badge blue" v-else-if="userQuestionResultVO.pass === 3">判题中...</span>
             </div>
           </div>
 
-          <div class="console-body" v-if="userQuestionResultVO.pass !== 2">
+          <div class="console-body">
+            <div class="workspace-intro">
+              <div>
+                <span class="workspace-kicker">Test Case Workspace</span>
+                <h3>样例工作区</h3>
+              </div>
+              <p>先确认输入输出，再提交代码。提交后这里会自动展开并展示判题结果。</p>
+            </div>
+
             <div class="error-box" v-if="userQuestionResultVO.pass === 0 && userQuestionResultVO.exeMessage">
               <div class="error-title">异常信息</div>
               <code>{{ userQuestionResultVO.exeMessage }}</code>
             </div>
 
-            <div class="testcases-wrap" v-if="userQuestionResultVO.userExeResultList && userQuestionResultVO.userExeResultList.length > 0">
+            <div class="testcases-wrap">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>输入</th>
-                    <th>预期输出</th>
-                    <th>实际输出</th>
+                    <th>Sample Input</th>
+                    <th>Expected Output</th>
+                    <th v-if="hasExecutionRows">Actual Output</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(row, idx) in userQuestionResultVO.userExeResultList" :key="idx">
+                  <tr v-for="(row, idx) in workspaceRows" :key="idx">
                     <td class="code-cell">{{ row.input }}</td>
                     <td class="code-cell">{{ row.output }}</td>
-                    <td class="code-cell" :class="{'is-wrong': row.output !== row.exeOutput}">{{ row.exeOutput }}</td>
+                    <td v-if="hasExecutionRows" class="code-cell" :class="{'is-wrong': row.output !== row.exeOutput}">
+                      {{ row.exeOutput }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-          </div>
-          <div class="console-empty" v-else>
-            <span class="empty-title">等待提交</span>
-            <span class="empty-desc">可先拖动上边缘调整结果区高度，提交后会自动展开显示判题结果。</span>
           </div>
         </div>
       </section>
@@ -243,6 +247,29 @@ const userQuestionResultVO = ref({
   pass: 2,
   exeMessage: '',
   userExeResultList: [],
+})
+
+const hasExecutionRows = computed(() => {
+  return userQuestionResultVO.value.userExeResultList && userQuestionResultVO.value.userExeResultList.length > 0
+})
+
+const workspaceRows = computed(() => {
+  if (hasExecutionRows.value) return userQuestionResultVO.value.userExeResultList
+  return [
+    {
+      input: '2 7 11 15, target = 9',
+      output: '0 1',
+      exeOutput: ''
+    }
+  ]
+})
+
+const submissionStatus = computed(() => {
+  if (userQuestionResultVO.value.pass === 0) return { label: '解答错误', className: 'red' }
+  if (userQuestionResultVO.value.pass === 1) return { label: '通过', className: 'green' }
+  if (userQuestionResultVO.value.pass === 3) return { label: '判题中...', className: 'blue' }
+  if (userQuestionResultVO.value.pass === 4) return { label: '系统错误', className: 'red' }
+  return { label: 'Pending Submission', className: 'neutral' }
 })
 
 const consolePanelRef = ref(null)
@@ -693,9 +720,9 @@ async function getQuestionResult() {
       font-size: 12px;
       font-weight: 700;
 
-      &.level-1 { background: #eaf7f1; color: #257653; border: 1px solid #caebdc; }
-      &.level-2 { background: #fff5df; color: #8b641f; border: 1px solid #f3dfb6; }
-      &.level-3 { background: #fff0f0; color: #9a4b4b; border: 1px solid #f0cdcd; }
+      &.level-1 { background: #248A3D; color: #fff; border: 1px solid #1F7A35; }
+      &.level-2 { background: #C65D00; color: #fff; border: 1px solid #A84F00; }
+      &.level-3 { background: #D70015; color: #fff; border: 1px solid #B80012; }
     }
 
     .meta-item {
@@ -827,13 +854,14 @@ async function getQuestionResult() {
 .result-badge {
   .badge {
     font-size: 12px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 4px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 999px;
 
-    &.red { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
-    &.green { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
-    &.blue { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+    &.neutral { background: #edf4ff; color: #2d5f96; border: 1px solid #c9ddf6; }
+    &.red { background: #D70015; color: #fff; border: 1px solid #B80012; }
+    &.green { background: #248A3D; color: #fff; border: 1px solid #1F7A35; }
+    &.blue { background: #007AFF; color: #fff; border: 1px solid #0064D2; }
   }
 }
 
@@ -845,31 +873,47 @@ async function getQuestionResult() {
   padding: 16px;
   background: #fafafa;
   overscroll-behavior: contain;
-}
-
-.console-empty {
-  flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  padding: 18px 24px;
-  overflow-y: auto;
-  background:
-    linear-gradient(135deg, rgba(46, 144, 250, 0.05), rgba(52, 199, 89, 0.05)),
-    #fafafa;
-  color: #7a8491;
+  gap: 14px;
+}
 
-  .empty-title {
-    color: #1d1d1f;
-    font-size: 14px;
-    font-weight: 700;
+.workspace-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #e7eef8;
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(0, 122, 255, 0.06), rgba(52, 199, 89, 0.05)),
+    #fff;
+
+  .workspace-kicker {
+    display: block;
+    color: #6c7889;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
   }
 
-  .empty-desc {
-    font-size: 13px;
+  h3 {
+    margin: 0;
+    color: #1d1d1f;
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  p {
+    max-width: 360px;
+    margin: 0;
+    color: #6c7889;
+    font-size: 12px;
     line-height: 1.6;
+    text-align: right;
   }
 }
 
@@ -898,7 +942,7 @@ async function getQuestionResult() {
 .testcases-wrap {
   background: #fff;
   border: 1px solid #e5e5e5;
-  border-radius: 6px;
+  border-radius: 14px;
   overflow: auto;
 }
 
@@ -906,27 +950,28 @@ async function getQuestionResult() {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  border-radius: 6px;
+  border-radius: 14px;
   border-style: hidden; /* hide outer border */
   box-shadow: 0 0 0 1px #e5e5e5;
 
   th, td {
-    padding: 12px 14px;
+    padding: 14px 16px;
     border: 1px solid #e5e5e5;
     font-size: 13px;
     vertical-align: top;
   }
 
   th {
-    background: #fafafa;
-    color: #595959;
-    font-weight: 600;
+    background: #f6f8fb;
+    color: #596575;
+    font-weight: 800;
+    letter-spacing: 0.01em;
   }
 
   .code-cell {
     font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
     color: #262626;
-    background: #fafafa;
+    background: #fff;
     white-space: pre-wrap;
     word-break: break-all;
     line-height: 1.5;
@@ -1010,6 +1055,15 @@ async function getQuestionResult() {
 
   .data-table {
     min-width: 520px;
+  }
+
+  .workspace-intro {
+    flex-direction: column;
+
+    p {
+      max-width: none;
+      text-align: left;
+    }
   }
 }
 </style>

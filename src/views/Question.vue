@@ -88,6 +88,43 @@
 
         <!-- Right: Sidebar -->
         <div class="side-column">
+          <div class="floating-card ai-insight-card">
+            <div class="ai-greeting">
+              <span class="ai-kicker">CodeFlow Insight</span>
+              <h3>今天适合稳定推进。</h3>
+              <p>保持一组高质量提交，比刷很多题更重要。</p>
+            </div>
+
+            <div class="ai-recommendation">
+              <div class="recommend-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v4"></path>
+                  <path d="M12 18v4"></path>
+                  <path d="m4.93 4.93 2.83 2.83"></path>
+                  <path d="m16.24 16.24 2.83 2.83"></path>
+                  <path d="M2 12h4"></path>
+                  <path d="M18 12h4"></path>
+                  <path d="m4.93 19.07 2.83-2.83"></path>
+                  <path d="m16.24 7.76 2.83-2.83"></path>
+                </svg>
+              </div>
+              <div>
+                <span>AI Recommendations</span>
+                <strong>Strengthen your “Recursion” today</strong>
+              </div>
+            </div>
+
+            <div class="goal-tracker">
+              <div class="goal-copy">
+                <span>Daily Solved Problems</span>
+                <strong>{{ todaySolved }} / {{ dailyGoal }}</strong>
+              </div>
+              <div class="goal-ring" :style="{ '--progress': `${dailyProgress}deg` }">
+                <span>{{ dailyProgressText }}</span>
+              </div>
+            </div>
+          </div>
+
           <div class="floating-card heatmap-card">
             <div class="heatmap-header">
               <div>
@@ -147,7 +184,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue"
+import { computed, reactive, ref } from "vue"
 import Selector from "@/components/QuestionSelector.vue"
 import { getQuestionListService, getHotQuestionListService } from '@/apis/question'
 import { getToken } from "@/utils/cookie"
@@ -172,6 +209,10 @@ const heatmapWeeks = Array.from({ length: 12 }, (_, weekIndex) => ({
 const heatmapMonthLabels = createMonthLabels(heatmapDays)
 const todayFootprint = heatmapDays[heatmapDays.length - 1]
 const activeFootprint = [...heatmapDays].reverse().find((item) => item.count > 0) || todayFootprint
+const dailyGoal = 3
+const todaySolved = computed(() => Math.min(todayFootprint.count, dailyGoal))
+const dailyProgressText = computed(() => `${Math.round((todaySolved.value / dailyGoal) * 100)}%`)
+const dailyProgress = computed(() => Math.round((todaySolved.value / dailyGoal) * 360))
 
 async function checkLogin() {
   if (getToken()) {
@@ -295,7 +336,7 @@ function createMonthLabels(days) {
 
 .content-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 30%);
   gap: 32px;
   align-items: start;
 }
@@ -494,21 +535,21 @@ function createMonthLabels(days) {
       border: 1px solid transparent;
 
       &.easy {
-        color: #257653;
-        background: #eaf7f1;
-        border-color: #caebdc;
+        color: #fff;
+        background: #248A3D;
+        border-color: #1F7A35;
       }
 
       &.medium {
-        color: #8b641f;
-        background: #fff5df;
-        border-color: #f3dfb6;
+        color: #fff;
+        background: #C65D00;
+        border-color: #A84F00;
       }
 
       &.hard {
-        color: #9a4b4b;
-        background: #fff0f0;
-        border-color: #f0cdcd;
+        color: #fff;
+        background: #D70015;
+        border-color: #B80012;
       }
     }
   }
@@ -555,6 +596,136 @@ function createMonthLabels(days) {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.ai-insight-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(242, 248, 255, 0.9)),
+    var(--oj-surface);
+  border: 1px solid rgba(46, 144, 250, 0.08);
+}
+
+.ai-greeting {
+  .ai-kicker {
+    color: #6c7889;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    margin: 8px 0 6px;
+    color: var(--oj-ink);
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  p {
+    margin: 0;
+    color: var(--oj-muted);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+}
+
+.ai-recommendation {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(0, 122, 255, 0.07);
+
+  .recommend-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    color: #007AFF;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.1);
+  }
+
+  span,
+  strong {
+    display: block;
+  }
+
+  span {
+    color: #6c7889;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  strong {
+    margin-top: 3px;
+    color: var(--oj-ink);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+}
+
+.goal-tracker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 2px;
+
+  .goal-copy {
+    span,
+    strong {
+      display: block;
+    }
+
+    span {
+      color: var(--oj-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    strong {
+      margin-top: 4px;
+      color: var(--oj-ink);
+      font-size: 22px;
+      font-weight: 800;
+    }
+  }
+
+  .goal-ring {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background:
+      conic-gradient(#007AFF var(--progress), #edf2f7 0deg);
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    span {
+      position: relative;
+      z-index: 1;
+      color: var(--oj-ink);
+      font-size: 12px;
+      font-weight: 800;
+    }
+  }
 }
 
 .training-card {
@@ -791,6 +962,12 @@ function createMonthLabels(days) {
   .content-grid {
     grid-template-columns: 1fr;
   }
+
+  .side-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .problem-workbench {
     padding: 24px;
   }
@@ -837,6 +1014,10 @@ function createMonthLabels(days) {
         flex: 1;
       }
     }
+  }
+
+  .side-column {
+    display: flex;
   }
 
   .table-container {

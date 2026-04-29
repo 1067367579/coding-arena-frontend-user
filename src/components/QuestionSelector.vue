@@ -185,21 +185,21 @@ onUnmounted(() => {
     font-weight: 700;
 
     &.level-1 {
-      color: #257653;
-      background: #eaf7f1;
-      border: 1px solid #caebdc;
+      color: #fff;
+      background: #248A3D;
+      border: 1px solid #1F7A35;
     }
 
     &.level-2 {
-      color: #8b641f;
-      background: #fff5df;
-      border: 1px solid #f3dfb6;
+      color: #fff;
+      background: #C65D00;
+      border: 1px solid #A84F00;
     }
 
     &.level-3 {
-      color: #9a4b4b;
-      background: #fff0f0;
-      border: 1px solid #f0cdcd;
+      color: #fff;
+      background: #D70015;
+      border: 1px solid #B80012;
     }
   }
 
