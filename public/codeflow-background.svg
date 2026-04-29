@@ -1,0 +1,54 @@
+<svg width="1920" height="1280" viewBox="0 0 1920 1280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="blueGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(310 150) rotate(38) scale(760 520)">
+      <stop stop-color="#0A84FF" stop-opacity="0.16"/>
+      <stop offset="0.48" stop-color="#64D2FF" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#F7F8FB" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="greenGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1660 1110) rotate(-142) scale(820 560)">
+      <stop stop-color="#30D158" stop-opacity="0.13"/>
+      <stop offset="0.52" stop-color="#5AC8FA" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#F7F8FB" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="warmGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1120 210) rotate(112) scale(560 360)">
+      <stop stop-color="#FFD60A" stop-opacity="0.08"/>
+      <stop offset="0.5" stop-color="#FF9F0A" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#F7F8FB" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dotGrid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.5" fill="#1D1D1F" opacity="0.055"/>
+    </pattern>
+    <filter id="softNoise" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.026"/>
+      </feComponentTransfer>
+    </filter>
+    <filter id="blurLine" x="-20%" y="-80%" width="140%" height="260%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+  <rect width="1920" height="1280" fill="#F6F7FA"/>
+  <rect width="1920" height="1280" fill="url(#blueGlow)"/>
+  <rect width="1920" height="1280" fill="url(#greenGlow)"/>
+  <rect width="1920" height="1280" fill="url(#warmGlow)"/>
+  <rect width="1920" height="1280" fill="url(#dotGrid)" opacity="0.45"/>
+  <g opacity="0.18" filter="url(#blurLine)">
+    <path d="M-90 846C226 682 454 741 714 578C972 417 1180 307 1438 370C1645 421 1781 524 2010 450" stroke="#0A84FF" stroke-width="22" stroke-linecap="round"/>
+    <path d="M-64 1018C302 827 560 936 879 738C1215 529 1515 675 1984 568" stroke="#30D158" stroke-width="18" stroke-linecap="round"/>
+  </g>
+  <g opacity="0.09">
+    <path d="M105 946C365 808 612 815 870 670C1125 526 1338 483 1582 555" stroke="#007AFF" stroke-width="1.2"/>
+    <path d="M170 1036C420 894 650 920 934 770C1232 612 1458 666 1742 594" stroke="#34C759" stroke-width="1.2"/>
+    <path d="M1235 92C1368 166 1471 185 1619 142C1722 112 1817 128 1920 182" stroke="#FF9F0A" stroke-width="1"/>
+  </g>
+  <g opacity="0.08">
+    <circle cx="1518" cy="226" r="104" stroke="#0A84FF"/>
+    <circle cx="1518" cy="226" r="70" stroke="#0A84FF"/>
+    <circle cx="364" cy="1032" r="88" stroke="#30D158"/>
+    <circle cx="364" cy="1032" r="55" stroke="#30D158"/>
+  </g>
+  <rect width="1920" height="1280" fill="#FFFFFF" opacity="0.32"/>
+  <rect width="1920" height="1280" filter="url(#softNoise)" opacity="0.75"/>
+</svg>

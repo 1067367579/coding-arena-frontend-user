@@ -1,5 +1,10 @@
 :root {
-  --oj-bg: #F5F5F7;
+  --oj-bg: #F6F7FA;
+  --oj-bg-image: url('/codeflow-background.svg');
+  --oj-app-background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.64) 0%, rgba(246, 247, 250, 0.82) 58%, rgba(246, 247, 250, 0.92) 100%),
+    var(--oj-bg-image),
+    var(--oj-bg);
   --oj-surface: #FFFFFF;
   --oj-surface-soft: #F5F5F7;
   --oj-ink: #1D1D1F;
@@ -52,10 +57,54 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: var(--oj-bg);
+  background: var(--oj-app-background);
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
   color: var(--oj-ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro", "PingFang SC", sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.apple-layout,
+.apple-login-page,
+.apple-question-page,
+.apple-exam-page,
+.apple-my-exam-page,
+.apple-message-page,
+.apple-profile-page,
+.apple-exam-result-page,
+.contest-detail-page,
+.problem-set-gallery,
+.problem-set-detail,
+.oj-workspace {
+  background: var(--oj-app-background) !important;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-attachment: fixed !important;
+}
+
+@media (max-width: 768px) {
+  body,
+  .apple-layout,
+  .apple-login-page,
+  .apple-question-page,
+  .apple-exam-page,
+  .apple-my-exam-page,
+  .apple-message-page,
+  .apple-profile-page,
+  .apple-exam-result-page,
+  .contest-detail-page,
+  .problem-set-gallery,
+  .problem-set-detail,
+  .oj-workspace {
+    background-attachment: scroll !important;
+  }
 }
 
 input {
