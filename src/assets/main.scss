@@ -401,9 +401,38 @@ button:active,
   }
 }
 
-/* CodeFlow Apple-style confirm dialog */
+/* Fallback styling for any existing Element Plus confirm instances */
+.el-overlay.is-message-box {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 4999 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 24px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255, 255, 255, 0.6), rgba(246, 247, 250, 0.2) 34%, rgba(18, 28, 45, 0.3) 100%),
+    rgba(16, 24, 40, 0.28) !important;
+  backdrop-filter: blur(18px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(130%) !important;
+  pointer-events: auto !important;
+}
+
+.el-overlay.is-message-box .el-overlay-message-box,
+.el-overlay-message-box {
+  position: static !important;
+  inset: auto !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  padding: 24px !important;
+  pointer-events: auto !important;
+}
+
 .apple-message-box {
   width: min(420px, calc(100vw - 32px)) !important;
+  margin: 0 !important;
   padding: 0 !important;
   border: 1px solid rgba(255, 255, 255, 0.72) !important;
   border-radius: 22px !important;
@@ -431,37 +460,12 @@ button:active,
     letter-spacing: 0 !important;
 
     &::before {
-      content: "!";
-      width: 34px;
-      height: 34px;
-      flex: 0 0 auto;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      background:
-        linear-gradient(135deg, rgba(255, 59, 48, 0.92), rgba(255, 149, 0, 0.86));
-      box-shadow: 0 10px 22px rgba(255, 59, 48, 0.18);
-      color: #fff;
-      font-size: 19px;
-      font-weight: 850;
-      line-height: 1;
+      content: none !important;
     }
   }
 
   .el-message-box__headerbtn {
-    top: 18px !important;
-    right: 18px !important;
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 999px !important;
-    transition:
-      background var(--motion-fast) var(--motion-spring-soft),
-      transform var(--motion-fast) var(--motion-spring);
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.045) !important;
-    }
+    display: none !important;
   }
 
   .el-message-box__content {

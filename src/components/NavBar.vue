@@ -41,7 +41,7 @@
               <el-dropdown-menu class="apple-dropdown">
                 <el-dropdown-item @click="goUserDetail">个人中心</el-dropdown-item>
                 <el-dropdown-item @click="goMyExam">我的竞赛</el-dropdown-item>
-                <el-dropdown-item divided @click="handleLogout" class="danger-item">退出登录</el-dropdown-item>
+                <el-dropdown-item divided @click="openLogoutDialog" class="danger-item">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -52,18 +52,55 @@
       </div>
     </div>
   </div>
+
+  <Teleport to="body">
+    <Transition name="logout-modal">
+      <div
+        v-if="showLogoutDialog"
+        class="codeflow-logout-overlay"
+        role="presentation"
+        aria-modal="true"
+      >
+        <section class="codeflow-logout-dialog" role="dialog" aria-labelledby="logout-title">
+          <div class="logout-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M15 3h3a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-3" />
+              <path d="M10 17l5-5-5-5" />
+              <path d="M15 12H3" />
+            </svg>
+          </div>
+
+          <div class="logout-copy">
+            <p class="logout-eyebrow">CodeFlow Session</p>
+            <h2 id="logout-title">退出当前账号？</h2>
+            <p>退出后会清除本机登录状态和本地代码缓存，可随时重新登录继续练习。</p>
+          </div>
+
+          <div class="logout-actions">
+            <button class="logout-secondary" type="button" @click="closeLogoutDialog">
+              继续使用
+            </button>
+            <button class="logout-danger" type="button" @click="confirmLogout">
+              退出登录
+            </button>
+          </div>
+        </section>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, onUnmounted } from 'vue';
+import { reactive, ref, onMounted, onUnmounted, watch } from 'vue';
 import router from '@/router';
 import { getToken, removeToken } from '@/utils/cookie';
 import { logoutService, getUserInfoService } from '@/apis/user';
 import { eventBus } from '@/utils/eventBus';
 import { clearAllStorage } from '@/utils/codeStorage';
-import { ElMessageBox, ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus';
 
 const isLogin = ref(false);
+const showLogoutDialog = ref(false);
 const userInfo = reactive({
   nickName: '',
   avatar: ''
@@ -75,6 +112,11 @@ onMounted(() => {
 
 onUnmounted(() => {
   eventBus.$off('user-info-updated', checkLogin);
+  document.body.classList.remove('codeflow-modal-open');
+});
+
+watch(showLogoutDialog, (visible) => {
+  document.body.classList.toggle('codeflow-modal-open', visible);
 });
 
 async function checkLogin() {
@@ -109,27 +151,15 @@ function goMessage() {
   router.push('/c-oj/home/user/message');
 }
 
-async function handleLogout() {
-  try {
-    await ElMessageBox.confirm(
-      '退出后会清除本机登录状态和本地代码缓存，可随时重新登录。',
-      '退出 CodeFlow？',
-      {
-        confirmButtonText: '退出登录',
-        cancelButtonText: '继续使用',
-        customClass: 'apple-message-box',
-        confirmButtonClass: 'codeflow-danger-btn',
-        cancelButtonClass: 'codeflow-cancel-btn',
-        showClose: true,
-        closeOnClickModal: true,
-        closeOnPressEscape: true,
-        distinguishCancelAndClose: true
-      }
-    );
-  } catch {
-    return;
-  }
+function openLogoutDialog() {
+  showLogoutDialog.value = true;
+}
 
+function closeLogoutDialog() {
+  showLogoutDialog.value = false;
+}
+
+async function confirmLogout() {
   try {
     if (getToken()) {
       await logoutService();
@@ -140,6 +170,7 @@ async function handleLogout() {
     removeToken();
     clearAllStorage();
     isLogin.value = false;
+    showLogoutDialog.value = false;
     eventBus.$emit('user-info-updated');
     ElMessage.success('已退出登录');
     router.push('/c-oj/login');
@@ -388,6 +419,10 @@ async function handleLogout() {
 </style>
 
 <style lang="scss">
+body.codeflow-modal-open {
+  overflow: hidden;
+}
+
 /* Global overrides for Apple-style dropdowns */
 .apple-dropdown {
   border-radius: 16px !important;
@@ -414,6 +449,177 @@ async function handleLogout() {
       background: var(--oj-danger-soft) !important;
       color: var(--oj-danger) !important;
     }
+  }
+}
+
+.codeflow-logout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255, 255, 255, 0.62), rgba(246, 247, 250, 0.22) 34%, rgba(18, 28, 45, 0.28) 100%),
+    rgba(16, 24, 40, 0.28);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+}
+
+.codeflow-logout-dialog {
+  width: min(420px, calc(100vw - 32px));
+  padding: 28px;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(248, 251, 255, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 32px 90px rgba(15, 23, 42, 0.24),
+    0 0 0 1px rgba(0, 122, 255, 0.05) inset;
+  color: var(--oj-ink);
+  text-align: center;
+  transform-origin: center;
+}
+
+.logout-mark {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(0, 122, 255, 0.14), rgba(52, 199, 89, 0.12)),
+    rgba(255, 255, 255, 0.78);
+  color: var(--oj-primary);
+  box-shadow:
+    0 14px 28px rgba(0, 122, 255, 0.14),
+    0 0 0 1px rgba(0, 122, 255, 0.1) inset;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+.logout-copy {
+  .logout-eyebrow {
+    margin: 0 0 8px;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 0;
+    color: var(--oj-ink);
+    font-size: 24px;
+    font-weight: 850;
+    line-height: 1.22;
+    letter-spacing: 0;
+  }
+
+  p:not(.logout-eyebrow) {
+    margin: 12px auto 0;
+    max-width: 320px;
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+}
+
+.logout-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 26px;
+
+  button {
+    min-height: 46px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0;
+    transition:
+      transform 180ms var(--motion-spring),
+      box-shadow 180ms var(--motion-spring-soft),
+      background 180ms var(--motion-spring-soft);
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+}
+
+.logout-secondary {
+  background: rgba(17, 24, 39, 0.06);
+  color: var(--oj-ink);
+
+  &:hover {
+    background: rgba(17, 24, 39, 0.09);
+  }
+}
+
+.logout-danger {
+  background: linear-gradient(135deg, #ff3b30 0%, #d70015 100%);
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(215, 0, 21, 0.2);
+
+  &:hover {
+    box-shadow: 0 16px 34px rgba(215, 0, 21, 0.26);
+  }
+}
+
+.logout-modal-enter-active,
+.logout-modal-leave-active {
+  transition:
+    opacity 220ms var(--motion-spring-soft),
+    backdrop-filter 220ms var(--motion-spring-soft);
+}
+
+.logout-modal-enter-active .codeflow-logout-dialog,
+.logout-modal-leave-active .codeflow-logout-dialog {
+  transition:
+    opacity 240ms var(--motion-spring-soft),
+    transform 240ms var(--motion-spring);
+}
+
+.logout-modal-enter-from,
+.logout-modal-leave-to {
+  opacity: 0;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+}
+
+.logout-modal-enter-from .codeflow-logout-dialog,
+.logout-modal-leave-to .codeflow-logout-dialog {
+  opacity: 0;
+  transform: translateY(14px) scale(0.96);
+}
+
+@media (max-width: 520px) {
+  .codeflow-logout-overlay {
+    padding: 16px;
+  }
+
+  .codeflow-logout-dialog {
+    padding: 24px 20px 20px;
+    border-radius: 22px;
+  }
+
+  .logout-actions {
+    grid-template-columns: 1fr;
   }
 }
 </style>
