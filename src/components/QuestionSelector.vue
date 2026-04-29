@@ -174,9 +174,33 @@ onUnmounted(() => {
   }
 
   .item-label {
-    &.level-1 { color: var(--oj-success); }
-    &.level-2 { color: #d97706; }
-    &.level-3 { color: var(--oj-danger); }
+    height: 22px;
+    min-width: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+
+    &.level-1 {
+      color: #257653;
+      background: #eaf7f1;
+      border: 1px solid #caebdc;
+    }
+
+    &.level-2 {
+      color: #8b641f;
+      background: #fff5df;
+      border: 1px solid #f3dfb6;
+    }
+
+    &.level-3 {
+      color: #9a4b4b;
+      background: #fff0f0;
+      border: 1px solid #f0cdcd;
+    }
   }
 
   .check-icon {

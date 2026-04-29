@@ -5,8 +5,8 @@
     <main class="apple-main">
       <div v-if="$route.meta.showBanner" class="hero-section">
         <div class="hero-content">
-          <span class="hero-eyebrow">Online Judge System</span>
-          <h1 class="hero-title">在线判题系统</h1>
+          <span class="hero-eyebrow">Online Judge Workspace</span>
+          <h1 class="hero-title">CodeFlow</h1>
           <p class="hero-subtitle">聚合题库训练、代码评测与在线竞赛。<br>让每一次提交都有清晰反馈与复盘价值。</p>
         </div>
         
@@ -77,7 +77,7 @@ import Navbar from '@/components/NavBar.vue'
 .hero-section {
   width: 100%;
   max-width: 1200px;
-  padding: 80px 24px;
+  padding: clamp(56px, 8vw, 80px) 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,7 +99,7 @@ import Navbar from '@/components/NavBar.vue'
   }
 
   .hero-title {
-    font-size: 64px;
+    font-size: clamp(48px, 9vw, 72px);
     font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.02em;
@@ -166,6 +166,38 @@ import Navbar from '@/components/NavBar.vue'
   max-width: 1200px;
   padding: 0 24px 80px;
   margin: 0 auto;
+}
+
+@media (max-width: 720px) {
+  .apple-main {
+    padding-top: 94px;
+  }
+
+  .hero-section {
+    gap: 40px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .hero-content {
+    .hero-subtitle {
+      font-size: 17px;
+    }
+  }
+
+  .hero-stats {
+    width: 100%;
+
+    .stat-card {
+      width: 100%;
+      max-width: 320px;
+      padding: 28px 24px;
+    }
+  }
+
+  .content-section {
+    padding: 0 12px 56px;
+  }
 }
 
 /* Page Transition */

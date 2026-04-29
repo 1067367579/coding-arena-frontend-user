@@ -26,11 +26,20 @@
 
 body * {
   box-sizing: border-box;
-  flex-shrink: 0;
+  min-width: 0;
 }
 
 img {
   display: block;
+  max-width: 100%;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -285,4 +294,3 @@ button:active, .el-button:active {
     }
   }
 }
-

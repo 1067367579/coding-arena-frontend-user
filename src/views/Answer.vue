@@ -85,6 +85,7 @@
         </div>
 
         <div
+          ref="consolePanelRef"
           class="console-panel"
           :class="{ 'is-expanded': userQuestionResultVO.pass !== 2, 'is-resizing': isResizingConsole }"
           :style="{ height: consolePanelHeight }"
@@ -143,7 +144,8 @@
             </div>
           </div>
           <div class="console-empty" v-else>
-            请点击右上角「提交运行」测试您的代码
+            <span class="empty-title">等待提交</span>
+            <span class="empty-desc">可先拖动上边缘调整结果区高度，提交后会自动展开显示判题结果。</span>
           </div>
         </div>
       </section>
@@ -152,7 +154,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, reactive, ref } from "vue"
+import { computed, nextTick, onBeforeUnmount, reactive, ref } from "vue"
 import codeEditor from "@/components/CodeEditor.vue"
 import { useRoute } from "vue-router"
 import { getQuestionDetailService, preQuestionService, nextQuestionService, getQuestionResultService } from "@/apis/question"
@@ -243,11 +245,12 @@ const userQuestionResultVO = ref({
   userExeResultList: [],
 })
 
-const consoleHeight = ref(260)
+const consolePanelRef = ref(null)
+const consoleHeight = ref(220)
 const isResizingConsole = ref(false)
 
 const consolePanelHeight = computed(() => {
-  return userQuestionResultVO.value.pass === 2 ? '46px' : `${consoleHeight.value}px`
+  return `${consoleHeight.value}px`
 })
 
 function startConsoleResize(event) {
@@ -259,13 +262,12 @@ function startConsoleResize(event) {
 }
 
 function resizeConsole(event) {
-  const editorPanel = document.querySelector('.editor-panel')
+  const editorPanel = consolePanelRef.value?.closest('.editor-panel')
   if (!editorPanel) return
 
   const rect = editorPanel.getBoundingClientRect()
   const nextHeight = rect.bottom - event.clientY
-  const maxHeight = Math.max(220, rect.height - 180)
-  consoleHeight.value = Math.min(Math.max(nextHeight, 160), maxHeight)
+  consoleHeight.value = clampConsoleHeight(nextHeight, rect)
 }
 
 function stopConsoleResize() {
@@ -278,6 +280,31 @@ function stopConsoleResize() {
 onBeforeUnmount(() => {
   stopConsoleResize()
 })
+
+function clampConsoleHeight(height, editorRect) {
+  const rect = editorRect || consolePanelRef.value?.closest('.editor-panel')?.getBoundingClientRect()
+  const available = rect?.height || window.innerHeight * 0.6
+  const minHeight = window.innerWidth <= 768 ? 150 : 180
+  const maxHeight = Math.max(minHeight, available - 140)
+  return Math.round(Math.min(Math.max(height, minHeight), maxHeight))
+}
+
+async function revealConsoleResult() {
+  await nextTick()
+  const panel = consolePanelRef.value
+  if (!panel) return
+
+  const header = panel.querySelector('.console-header')
+  const body = panel.querySelector('.console-body')
+  const empty = panel.querySelector('.console-empty')
+  const contentHeight = (header?.offsetHeight || 40)
+    + (body?.scrollHeight || empty?.scrollHeight || 96)
+    + 34
+  consoleHeight.value = clampConsoleHeight(contentHeight)
+  requestAnimationFrame(() => {
+    body?.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+}
 
 const pollingInterval = ref(null);
 let currentTime
@@ -318,6 +345,7 @@ async function submitQuestion() {
     userQuestionResultVO.value.exeMessage = '';
     userQuestionResultVO.value.userExeResultList = [];
     userQuestionResultVO.value.pass = 3;
+    consoleHeight.value = clampConsoleHeight(220);
     saveCode(examId, questionId, submitDTO.userCode);
     startPolling()
   } catch (error) {
@@ -340,6 +368,7 @@ async function getQuestionResult() {
   userQuestionResultVO.value = res.data
   if (userQuestionResultVO.value.pass !== 3) {
     stopPolling();
+    revealConsoleResult();
   }
 }
 </script>
@@ -556,8 +585,10 @@ async function getQuestionResult() {
   display: flex;
   flex: 1;
   min-height: 0;
+  width: 100%;
   gap: 8px;
   padding: 8px;
+  overflow: hidden;
 }
 
 /* Panel Common */
@@ -569,15 +600,18 @@ async function getQuestionResult() {
   border-radius: 8px;
   border: 1px solid #e5e5e5;
   overflow: hidden;
+  min-width: 0;
 }
 
 .problem-panel {
   flex: 1;
+  flex-basis: 50%;
   max-width: 50%;
 }
 
 .editor-panel {
   flex: 1;
+  min-height: 0;
 }
 
 .panel-header, .console-header {
@@ -651,13 +685,17 @@ async function getQuestionResult() {
     font-size: 13px;
 
     .difficulty {
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 500;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
 
-      &.level-1 { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
-      &.level-2 { background: #fffbe6; color: #d46b08; border: 1px solid #ffe58f; }
-      &.level-3 { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+      &.level-1 { background: #eaf7f1; color: #257653; border: 1px solid #caebdc; }
+      &.level-2 { background: #fff5df; color: #8b641f; border: 1px solid #f3dfb6; }
+      &.level-3 { background: #fff0f0; color: #9a4b4b; border: 1px solid #f0cdcd; }
     }
 
     .meta-item {
@@ -718,6 +756,7 @@ async function getQuestionResult() {
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
   min-height: 46px;
   max-height: calc(100% - 180px);
+  overflow: hidden;
 
   &.is-expanded {
     min-height: 160px;
@@ -742,7 +781,7 @@ async function getQuestionResult() {
   align-items: center;
   justify-content: center;
   cursor: row-resize;
-  opacity: 0;
+  opacity: 0.42;
   z-index: 3;
   touch-action: none;
   transition: opacity 0.18s ease;
@@ -800,13 +839,38 @@ async function getQuestionResult() {
 
 .console-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: auto;
   padding: 16px;
   background: #fafafa;
+  overscroll-behavior: contain;
 }
 
 .console-empty {
-  display: none;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px 24px;
+  overflow-y: auto;
+  background:
+    linear-gradient(135deg, rgba(46, 144, 250, 0.05), rgba(52, 199, 89, 0.05)),
+    #fafafa;
+  color: #7a8491;
+
+  .empty-title {
+    color: #1d1d1f;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .empty-desc {
+    font-size: 13px;
+    line-height: 1.6;
+  }
 }
 
 .error-box {
@@ -835,7 +899,7 @@ async function getQuestionResult() {
   background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 6px;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .data-table {
@@ -919,17 +983,33 @@ async function getQuestionResult() {
 }
 
 @media (max-width: 768px) {
+  .oj-workspace {
+    height: 100dvh;
+  }
+
   .workspace-main {
     flex-direction: column;
+    overflow-y: auto;
   }
 
   .problem-panel {
     max-width: 100%;
-    height: 40vh;
+    flex: 0 0 auto;
+    height: min(42dvh, 360px);
   }
 
   .editor-panel {
-    height: 60vh;
+    flex: 0 0 auto;
+    height: min(70dvh, 620px);
+    min-height: 460px;
+  }
+
+  .console-panel {
+    max-height: calc(100% - 120px);
+  }
+
+  .data-table {
+    min-width: 520px;
   }
 }
 </style>

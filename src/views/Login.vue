@@ -7,9 +7,9 @@
       <div class="login-card">
         <div class="card-header">
           <div class="logo-wrapper">
-            <img src="@/assets/oj-logo.svg" alt="在线判题系统">
+            <img src="@/assets/oj-logo.svg" alt="CodeFlow">
           </div>
-          <h1 class="brand-title">在线判题系统</h1>
+          <h1 class="brand-title">CodeFlow</h1>
           <p class="brand-subtitle">题库训练 · 在线竞赛 · 代码评测</p>
         </div>
 
@@ -179,9 +179,9 @@ async function loginFun() {
   align-items: center;
 
   .logo-wrapper {
-    width: 64px;
-    height: 64px;
-    background: var(--oj-ink);
+    width: 154px;
+    height: 52px;
+    background: transparent;
     border-radius: 18px;
     display: flex;
     align-items: center;
@@ -190,8 +190,8 @@ async function loginFun() {
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
     
     img {
-      width: 40px;
-      height: 40px;
+      width: 154px;
+      height: 52px;
       object-fit: contain;
     }
   }

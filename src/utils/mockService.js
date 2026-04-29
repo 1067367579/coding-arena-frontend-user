@@ -58,7 +58,7 @@ const exams = [
 
 const user = {
   userId: 3001,
-  nickName: 'DevKnight',
+  nickName: 'FlowPilot',
   avatar: '/src/assets/user/head_image.png',
   gender: 1,
   school: '示例大学',
@@ -151,7 +151,7 @@ export function mockRequest(config) {
   if (url === '/exam/semiLogin/rank/list') {
     return ok(pageRows([
       { examRank: 1, nickName: 'Alice', score: 500 },
-      { examRank: 2, nickName: 'DevKnight', score: 460 },
+      { examRank: 2, nickName: 'FlowPilot', score: 460 },
       { examRank: 3, nickName: 'Bob', score: 420 },
       { examRank: 4, nickName: 'Carol', score: 390 },
     ], params))

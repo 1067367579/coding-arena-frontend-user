@@ -81,7 +81,7 @@ const passCount = ref(4)
 const timeSpent = ref(3600) // seconds
 
 const rankList = ref([
-  { rank: 1, nickName: 'DevKnight', passCount: 4, score: 100, isMe: true },
+  { rank: 1, nickName: 'FlowPilot', passCount: 4, score: 100, isMe: true },
   { rank: 2, nickName: 'CodeMaster', passCount: 3, score: 85, isMe: false },
   { rank: 3, nickName: 'ByteNinja', passCount: 3, score: 80, isMe: false },
   { rank: 4, nickName: 'AlgoPro', passCount: 2, score: 60, isMe: false },

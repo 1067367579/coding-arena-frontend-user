@@ -3,8 +3,7 @@
     <div class="apple-dock">
       <!-- Logo & Brand -->
       <div class="dock-brand" @click="goHome">
-        <img class="dock-logo" src="@/assets/oj-logo.svg" alt="在线判题系统" />
-        <span class="dock-title">在线判题系统</span>
+        <img class="dock-logo" src="@/assets/oj-logo.svg" alt="CodeFlow" />
       </div>
 
       <!-- Navigation Links -->
@@ -143,30 +142,24 @@ async function handleLogout() {
   border-radius: 32px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
   gap: 32px;
+  max-width: min(92vw, 760px);
+  width: max-content;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dock-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
-  padding-left: 6px;
+  padding-left: 2px;
 
   .dock-logo {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
+    width: 128px;
+    height: 42px;
+    border-radius: 16px;
     object-fit: contain;
-    box-shadow: 0 8px 18px rgba(15, 111, 59, 0.18);
-  }
-
-  .dock-title {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--oj-ink);
-    letter-spacing: 0;
-    white-space: nowrap;
+    filter: drop-shadow(0 10px 18px rgba(44, 166, 112, 0.16));
   }
 }
 
@@ -270,6 +263,68 @@ async function handleLogout() {
     &:active {
       transform: scale(0.95);
     }
+  }
+}
+
+@media (max-width: 720px) {
+  .apple-dock-wrapper {
+    top: 12px;
+    padding: 0 12px;
+  }
+
+  .apple-dock {
+    width: 100%;
+    max-width: 100%;
+    height: 58px;
+    gap: 12px;
+    padding: 0 10px;
+    border-radius: 24px;
+  }
+
+  .dock-brand {
+    .dock-logo {
+      width: 112px;
+      height: 38px;
+    }
+  }
+
+  .dock-nav {
+    gap: 4px;
+
+    .dock-item {
+      padding: 7px 10px;
+      font-size: 14px;
+    }
+  }
+
+  .dock-actions {
+    gap: 8px;
+    padding-right: 0;
+
+    .dock-icon-btn {
+      width: 32px;
+      height: 32px;
+    }
+
+    .dock-user {
+      padding: 2px;
+
+      .user-name {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .dock-brand {
+    .dock-logo {
+      width: 98px;
+    }
+  }
+
+  .dock-nav .dock-item {
+    padding: 7px 8px;
   }
 }
 </style>

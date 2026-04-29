@@ -50,7 +50,9 @@
                   <template #default="{ row }">
                     <div class="question-title-cell">
                       <span class="title-text">{{ row.title }}</span>
-                      <span class="difficulty-indicator" :class="getDifficultyClass(row.difficulty)"></span>
+                      <span class="difficulty-pill" :class="getDifficultyClass(row.difficulty)">
+                        {{ getDifficultyLabel(row.difficulty) }}
+                      </span>
                     </div>
                   </template>
                 </el-table-column>
@@ -231,6 +233,13 @@ function getDifficultyClass(difficulty) {
   return '';
 }
 
+function getDifficultyLabel(difficulty) {
+  if (difficulty === 1) return '简单'
+  if (difficulty === 2) return '中等'
+  if (difficulty === 3) return '困难'
+  return '未分级'
+}
+
 function createHeatmapDays() {
   const formatter = new Intl.DateTimeFormat('zh-CN', {
     month: 'long',
@@ -274,10 +283,12 @@ function createMonthLabels(days) {
 <style lang="scss" scoped>
 .apple-question-page {
   padding: 40px 0 80px;
+  width: 100%;
 }
 
 .page-container {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -291,7 +302,7 @@ function createMonthLabels(days) {
 
 /* Left Column */
 .problem-workbench {
-  padding: 40px;
+  padding: clamp(24px, 4vw, 40px);
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -350,16 +361,16 @@ function createMonthLabels(days) {
   gap: 16px;
   align-items: center;
   flex-wrap: wrap;
-  background: var(--oj-surface-soft);
+  background: #f3f5f8;
   padding: 12px;
   border-radius: 20px;
 
   .search-box {
-    flex: 1;
-    min-width: 200px;
+    flex: 1 1 260px;
+    min-width: min(100%, 220px);
   }
   .filter-box {
-    width: 140px;
+    flex: 0 1 140px;
   }
   .action-box {
     display: flex;
@@ -368,21 +379,42 @@ function createMonthLabels(days) {
 
   .apple-input {
     :deep(.el-input__wrapper) {
-      background: var(--oj-surface);
+      background: #fff !important;
       box-shadow: none !important;
-      border-radius: 12px;
+      border: 1px solid transparent !important;
+      border-radius: 16px !important;
       height: 40px;
-      padding-left: 16px;
+      padding-left: 14px;
       padding-right: 16px;
+      transition: background 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+    }
+
+    :deep(.el-input__wrapper:hover) {
+      background: #fbfcff !important;
+    }
+
+    :deep(.el-input__wrapper.is-focus) {
+      background: #fff !important;
+      border-color: rgba(46, 144, 250, 0.18) !important;
+      box-shadow:
+        0 0 0 4px rgba(46, 144, 250, 0.11),
+        0 10px 24px rgba(46, 144, 250, 0.08) !important;
+      transform: translateY(-1px);
     }
 
     :deep(.el-input__prefix) {
-      margin-right: 10px;
+      margin-right: 12px;
       color: var(--oj-subtle);
+      transition: color 0.22s ease;
+    }
+
+    :deep(.el-input__wrapper.is-focus .el-input__prefix) {
+      color: var(--oj-primary);
     }
 
     :deep(.el-input__inner) {
-      padding-left: 4px;
+      padding-left: 2px;
+      font-weight: 500;
     }
   }
 
@@ -438,7 +470,8 @@ function createMonthLabels(days) {
   .question-title-cell {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+    flex-wrap: wrap;
 
     .title-text {
       font-size: 17px;
@@ -446,13 +479,37 @@ function createMonthLabels(days) {
       color: var(--oj-ink);
     }
 
-    .difficulty-indicator {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      &.easy { background: var(--oj-success); }
-      &.medium { background: var(--oj-accent); }
-      &.hard { background: var(--oj-danger); }
+    .difficulty-pill {
+      min-width: 48px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0;
+      border: 1px solid transparent;
+
+      &.easy {
+        color: #257653;
+        background: #eaf7f1;
+        border-color: #caebdc;
+      }
+
+      &.medium {
+        color: #8b641f;
+        background: #fff5df;
+        border-color: #f3dfb6;
+      }
+
+      &.hard {
+        color: #9a4b4b;
+        background: #fff0f0;
+        border-color: #f0cdcd;
+      }
     }
   }
 
@@ -736,6 +793,75 @@ function createMonthLabels(days) {
   }
   .problem-workbench {
     padding: 24px;
+  }
+}
+
+@media (max-width: 720px) {
+  .apple-question-page {
+    padding: 24px 0 56px;
+  }
+
+  .page-container {
+    padding: 0 12px;
+  }
+
+  .problem-workbench {
+    gap: 24px;
+    padding: 20px;
+  }
+
+  .workbench-header {
+    flex-direction: column;
+    gap: 18px;
+
+    .progress-pill {
+      align-items: flex-start;
+      width: 100%;
+    }
+  }
+
+  .workbench-toolbar {
+    gap: 10px;
+    border-radius: 18px;
+
+    .search-box,
+    .filter-box,
+    .action-box {
+      width: 100%;
+      flex-basis: 100%;
+    }
+
+    .action-box {
+      .apple-btn,
+      .apple-btn-subtle {
+        flex: 1;
+      }
+    }
+  }
+
+  .table-container {
+    overflow-x: hidden;
+
+    .apple-table {
+      :deep(.el-table__cell) {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+    }
+
+    .question-title-cell {
+      gap: 8px;
+
+      .title-text {
+        max-width: 100%;
+        font-size: 16px;
+      }
+    }
+
+    .solve-btn {
+      padding: 8px 6px;
+      font-size: 14px;
+    }
   }
 }
 </style>
