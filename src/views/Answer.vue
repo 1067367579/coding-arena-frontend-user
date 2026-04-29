@@ -194,6 +194,8 @@ async function getQuestionDetail() {
     const resultRes = await getQuestionResultService(examId, questionDetail.questionId, currentTime);
     userQuestionResultVO.value = (resultRes.data.pass == 3) ? { pass: 2 } : resultRes.data;
   }
+
+  revealConsoleResult()
 }
 getQuestionDetail()
 
@@ -273,7 +275,7 @@ const submissionStatus = computed(() => {
 })
 
 const consolePanelRef = ref(null)
-const consoleHeight = ref(220)
+const consoleHeight = ref(340)
 const isResizingConsole = ref(false)
 
 const consolePanelHeight = computed(() => {
@@ -311,8 +313,9 @@ onBeforeUnmount(() => {
 function clampConsoleHeight(height, editorRect) {
   const rect = editorRect || consolePanelRef.value?.closest('.editor-panel')?.getBoundingClientRect()
   const available = rect?.height || window.innerHeight * 0.6
-  const minHeight = window.innerWidth <= 768 ? 150 : 180
-  const maxHeight = Math.max(minHeight, available - 140)
+  const minHeight = window.innerWidth <= 768 ? 180 : 240
+  const reservedEditorHeight = window.innerWidth <= 768 ? 120 : 112
+  const maxHeight = Math.max(minHeight, available - reservedEditorHeight)
   return Math.round(Math.min(Math.max(height, minHeight), maxHeight))
 }
 
@@ -326,7 +329,7 @@ async function revealConsoleResult() {
   const empty = panel.querySelector('.console-empty')
   const contentHeight = (header?.offsetHeight || 40)
     + (body?.scrollHeight || empty?.scrollHeight || 96)
-    + 34
+    + 42
   consoleHeight.value = clampConsoleHeight(contentHeight)
   requestAnimationFrame(() => {
     body?.scrollTo({ top: 0, behavior: 'smooth' })
@@ -372,7 +375,7 @@ async function submitQuestion() {
     userQuestionResultVO.value.exeMessage = '';
     userQuestionResultVO.value.userExeResultList = [];
     userQuestionResultVO.value.pass = 3;
-    consoleHeight.value = clampConsoleHeight(220);
+    revealConsoleResult();
     saveCode(examId, questionId, submitDTO.userCode);
     startPolling()
   } catch (error) {
