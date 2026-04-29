@@ -1,6 +1,52 @@
 <template>
   <div class="apple-question-page">
     <div class="page-container">
+      <section class="problem-set-square">
+        <div class="square-heading">
+          <div>
+            <span class="square-kicker">Problem Set Square</span>
+            <h2>Featured Problem Sets</h2>
+            <p>像挑选歌单一样选择训练主题，把今天的练习节奏交给一组精心编排的题单。</p>
+          </div>
+          <button class="square-link" type="button" @click="openProblemSet(featuredProblemSets[0].id)">
+            查看题单广场
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div class="set-gallery">
+          <article
+            v-for="set in featuredProblemSets"
+            :key="set.id"
+            class="set-card"
+            :class="set.gradientClass"
+            tabindex="0"
+            role="button"
+            @click="openProblemSet(set.id)"
+            @keyup.enter="openProblemSet(set.id)"
+          >
+            <div class="set-card-shine"></div>
+            <div class="set-card-top">
+              <span>{{ set.eyebrow }}</span>
+              <strong>{{ set.total }} 题</strong>
+            </div>
+            <div class="set-card-body">
+              <h3>{{ set.title }}</h3>
+              <p>{{ set.description }}</p>
+            </div>
+            <div class="set-card-footer">
+              <span>{{ set.focus }}</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6"></path>
+              </svg>
+            </div>
+          </article>
+        </div>
+      </section>
+
       <div class="content-grid">
         
         <!-- Left: Main Problem List -->
@@ -123,6 +169,19 @@
                 <span>{{ dailyProgressText }}</span>
               </div>
             </div>
+
+            <div class="active-study-plan" v-if="activeStudyPlan">
+              <span>Active Study Plan</span>
+              <strong>{{ activeStudyPlan.title }}</strong>
+              <p>{{ activeStudyPlan.focus }} · {{ activeStudyPlan.total }} 题</p>
+              <button type="button" @click="openProblemSet(activeStudyPlan.id)">继续计划</button>
+            </div>
+
+            <div class="active-study-plan empty" v-else>
+              <span>Active Study Plan</span>
+              <strong>选择一张题单开始</strong>
+              <p>加入计划后，这里会同步显示你的每日目标。</p>
+            </div>
           </div>
 
           <div class="floating-card heatmap-card">
@@ -184,12 +243,14 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from "vue"
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue"
 import Selector from "@/components/QuestionSelector.vue"
 import { getQuestionListService, getHotQuestionListService } from '@/apis/question'
 import { getToken } from "@/utils/cookie"
 import router from "@/router"
 import { getUserInfoService } from "@/apis/user"
+import { featuredProblemSets } from "@/data/problemSets"
+import { getJoinedStudyPlanId, onStudyPlanChange } from "@/utils/studyPlan"
 
 const params = reactive({
   pageNum: 1,
@@ -213,6 +274,19 @@ const dailyGoal = 3
 const todaySolved = computed(() => Math.min(todayFootprint.count, dailyGoal))
 const dailyProgressText = computed(() => `${Math.round((todaySolved.value / dailyGoal) * 100)}%`)
 const dailyProgress = computed(() => Math.round((todaySolved.value / dailyGoal) * 360))
+const activeStudyPlanId = ref(getJoinedStudyPlanId())
+const activeStudyPlan = computed(() => featuredProblemSets.find((item) => item.id === activeStudyPlanId.value))
+
+let stopStudyPlanListener = null
+onMounted(() => {
+  stopStudyPlanListener = onStudyPlanChange((planId) => {
+    activeStudyPlanId.value = planId
+  })
+})
+
+onUnmounted(() => {
+  stopStudyPlanListener?.()
+})
 
 async function checkLogin() {
   if (getToken()) {
@@ -265,6 +339,10 @@ function goQuestTest(questionId) {
     return;
   }
   router.push(`/c-oj/answer?questionId=${questionId}`)
+}
+
+function openProblemSet(setId) {
+  router.push(`/c-oj/home/problem-set/${setId}`)
 }
 
 function getDifficultyClass(difficulty) {
@@ -332,6 +410,186 @@ function createMonthLabels(days) {
   width: 100%;
   margin: 0 auto;
   padding: 0 24px;
+}
+
+.problem-set-square {
+  margin-bottom: clamp(28px, 5vw, 48px);
+}
+
+.square-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+
+  .square-kicker {
+    color: var(--oj-muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 8px 0 8px;
+    color: var(--oj-ink);
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 850;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    max-width: 620px;
+    margin: 0;
+    color: var(--oj-muted);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+}
+
+.square-link {
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: #fff;
+  background: #1d1d1f;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    background: #000;
+    box-shadow: 0 22px 42px rgba(0, 0, 0, 0.18);
+  }
+}
+
+.set-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.set-card {
+  position: relative;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  border-radius: 16px;
+  color: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 18px 42px rgba(29, 29, 31, 0.13);
+  isolation: isolate;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.32s ease, filter 0.32s ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: scale(1.05) translateY(-4px);
+    box-shadow: 0 30px 64px rgba(29, 29, 31, 0.22);
+    filter: saturate(1.05);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(0, 122, 255, 0.28);
+    outline-offset: 4px;
+  }
+
+  &.from-emerald-to-teal {
+    background:
+      radial-gradient(circle at 78% 12%, rgba(255, 255, 255, 0.38), transparent 28%),
+      linear-gradient(135deg, #0f9f6e 0%, #05a7a0 100%);
+  }
+
+  &.from-sky-to-indigo {
+    background:
+      radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.34), transparent 30%),
+      linear-gradient(135deg, #0a84ff 0%, #4554d8 100%);
+  }
+
+  &.from-indigo-to-violet {
+    background:
+      radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.32), transparent 28%),
+      linear-gradient(135deg, #3f46d8 0%, #8d3ed6 100%);
+  }
+
+  &.from-amber-to-rose {
+    background:
+      radial-gradient(circle at 76% 16%, rgba(255, 255, 255, 0.36), transparent 28%),
+      linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+  }
+}
+
+.set-card-shine {
+  position: absolute;
+  inset: 1px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.set-card-top,
+.set-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.set-card-top {
+  span {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  strong {
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+    font-size: 12px;
+    font-weight: 850;
+    backdrop-filter: blur(14px);
+  }
+}
+
+.set-card-body {
+  h3 {
+    margin: 0 0 10px;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 900;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.58;
+  }
+}
+
+.set-card-footer {
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .content-grid {
@@ -728,6 +986,56 @@ function createMonthLabels(days) {
   }
 }
 
+.active-study-plan {
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.1);
+
+  span,
+  strong,
+  p {
+    display: block;
+  }
+
+  span {
+    color: #6c7889;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  strong {
+    margin-top: 7px;
+    color: var(--oj-ink);
+    font-size: 16px;
+    font-weight: 850;
+  }
+
+  p {
+    margin: 5px 0 14px;
+    color: var(--oj-muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  button {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--oj-primary);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  &.empty {
+    background: rgba(255, 255, 255, 0.58);
+  }
+}
+
 .training-card {
   padding: 32px;
   background: linear-gradient(145deg, var(--oj-surface), var(--oj-surface-soft));
@@ -959,6 +1267,10 @@ function createMonthLabels(days) {
 }
 
 @media (max-width: 1024px) {
+  .set-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .content-grid {
     grid-template-columns: 1fr;
   }
@@ -980,6 +1292,23 @@ function createMonthLabels(days) {
 
   .page-container {
     padding: 0 12px;
+  }
+
+  .square-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .square-link {
+    width: 100%;
+  }
+
+  .set-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .set-card {
+    min-height: 220px;
   }
 
   .problem-workbench {

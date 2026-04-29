@@ -35,6 +35,14 @@ const router = createRouter({
           }
         },
         {
+          path: "problem-set/:setId",
+          name: "ProblemSetDetail",
+          component: () => import("@/views/ProblemSetDetail.vue"),
+          meta: {
+            showBanner: false
+          }
+        },
+        {
           path: 'user/exam',
           name: "UserExam",
           component: () => import("@/views/UserExam.vue"),
