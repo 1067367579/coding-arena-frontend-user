@@ -19,10 +19,11 @@
 
         <div class="set-gallery">
           <article
-            v-for="set in featuredProblemSets"
+            v-for="(set, index) in featuredProblemSets"
             :key="set.id"
             class="set-card"
             :class="set.gradientClass"
+            :style="{ '--stagger': `${index * 55}ms` }"
             tabindex="0"
             role="button"
             @click="openProblemSet(set.id)"
@@ -414,6 +415,7 @@ function createMonthLabels(days) {
 
 .problem-set-square {
   margin-bottom: clamp(28px, 5vw, 48px);
+  animation: cf-slide-fade-up 360ms var(--motion-spring-soft) both;
 }
 
 .square-heading {
@@ -464,7 +466,10 @@ function createMonthLabels(days) {
   cursor: pointer;
   white-space: nowrap;
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    box-shadow var(--motion-mid) var(--motion-spring-soft),
+    background var(--motion-fast) var(--motion-spring-soft);
 
   &:hover {
     transform: translateY(-2px);
@@ -492,7 +497,14 @@ function createMonthLabels(days) {
   overflow: hidden;
   box-shadow: 0 18px 42px rgba(29, 29, 31, 0.13);
   isolation: isolate;
-  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.32s ease, filter 0.32s ease;
+  animation: cf-slide-fade-up 360ms var(--motion-spring-soft) both;
+  animation-delay: var(--stagger);
+  transform-origin: center bottom;
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    box-shadow var(--motion-mid) var(--motion-spring-soft),
+    filter var(--motion-mid) var(--motion-spring-soft);
+  will-change: transform, filter;
 
   &:hover,
   &:focus-visible {
@@ -599,6 +611,14 @@ function createMonthLabels(days) {
   align-items: start;
 }
 
+.content-grid > * {
+  animation: cf-slide-fade-up 360ms var(--motion-spring-soft) both;
+}
+
+.content-grid > *:nth-child(2) {
+  animation-delay: 80ms;
+}
+
 /* Left Column */
 .problem-workbench {
   padding: clamp(24px, 4vw, 40px);
@@ -685,7 +705,11 @@ function createMonthLabels(days) {
       height: 40px;
       padding-left: 14px;
       padding-right: 16px;
-      transition: background 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+      transition:
+        background var(--motion-mid) var(--motion-spring-soft),
+        box-shadow var(--motion-mid) var(--motion-spring-soft),
+        border-color var(--motion-mid) var(--motion-spring-soft),
+        transform var(--motion-mid) var(--motion-spring);
     }
 
     :deep(.el-input__wrapper:hover) {
@@ -743,10 +767,50 @@ function createMonthLabels(days) {
   }
 }
 
+.problem-workbench:has(.el-input__wrapper.is-focus) {
+  .workbench-header,
+  .pagination-container {
+    opacity: 0.64;
+    filter: saturate(0.82) blur(0.2px);
+    transform: scale(0.995);
+  }
+
+  .table-container {
+    filter: saturate(0.88);
+  }
+}
+
+.problem-workbench .workbench-header,
+.problem-workbench .pagination-container,
+.problem-workbench .table-container {
+  transition:
+    opacity var(--motion-mid) var(--motion-spring-soft),
+    filter var(--motion-mid) var(--motion-spring-soft),
+    transform var(--motion-mid) var(--motion-spring);
+}
+
 .table-container {
   margin-top: 8px;
 
   .apple-table {
+    :deep(.el-table__row) {
+      opacity: 0;
+      animation: cf-slide-fade-left 340ms var(--motion-spring-soft) both;
+      animation-delay: calc(var(--row-index, 0) * 52ms);
+      will-change: transform, opacity;
+    }
+
+    :deep(.el-table__row:nth-child(1)) { --row-index: 0; }
+    :deep(.el-table__row:nth-child(2)) { --row-index: 1; }
+    :deep(.el-table__row:nth-child(3)) { --row-index: 2; }
+    :deep(.el-table__row:nth-child(4)) { --row-index: 3; }
+    :deep(.el-table__row:nth-child(5)) { --row-index: 4; }
+    :deep(.el-table__row:nth-child(6)) { --row-index: 5; }
+    :deep(.el-table__row:nth-child(7)) { --row-index: 6; }
+    :deep(.el-table__row:nth-child(8)) { --row-index: 7; }
+    :deep(.el-table__row:nth-child(9)) { --row-index: 8; }
+    :deep(.el-table__row:nth-child(10)) { --row-index: 9; }
+
     :deep(td.el-table__cell) {
       padding: 24px 0 !important;
       border-bottom: 1px solid var(--oj-line) !important;
@@ -823,13 +887,17 @@ function createMonthLabels(days) {
     cursor: pointer;
     padding: 8px 16px;
     border-radius: 16px;
-    transition: background 0.2s;
+    transition:
+      transform var(--motion-mid) var(--motion-spring),
+      background var(--motion-fast) var(--motion-spring-soft),
+      color var(--motion-fast) var(--motion-spring-soft);
 
     svg {
       transition: transform 0.2s;
     }
 
     &:hover {
+      transform: translateY(-2px);
       background: var(--oj-primary-soft);
       svg {
         transform: translateX(4px);
@@ -855,6 +923,14 @@ function createMonthLabels(days) {
   flex-direction: column;
   gap: 24px;
 }
+
+.side-column > .floating-card {
+  animation: cf-slide-fade-left 360ms var(--motion-spring-soft) both;
+}
+
+.side-column > .floating-card:nth-child(1) { animation-delay: 120ms; }
+.side-column > .floating-card:nth-child(2) { animation-delay: 180ms; }
+.side-column > .floating-card:nth-child(3) { animation-delay: 240ms; }
 
 .ai-insight-card {
   padding: 24px;
@@ -1236,10 +1312,13 @@ function createMonthLabels(days) {
     cursor: pointer;
     padding: 8px;
     border-radius: 12px;
-    transition: background 0.2s;
+    transition:
+      transform var(--motion-mid) var(--motion-spring),
+      background var(--motion-fast) var(--motion-spring-soft);
     margin: -8px;
 
     &:hover {
+      transform: translateX(4px);
       background: var(--oj-surface-soft);
     }
 

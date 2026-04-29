@@ -19,6 +19,12 @@
   --oj-radius-sm: 12px;
   --oj-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
   --oj-shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.03);
+  --motion-spring: cubic-bezier(0.18, 1.18, 0.22, 1);
+  --motion-spring-soft: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --motion-spring-snappy: cubic-bezier(0.22, 1.35, 0.32, 1);
+  --motion-fast: 180ms;
+  --motion-mid: 280ms;
+  --motion-page: 320ms;
   --el-color-primary: var(--oj-primary) !important;
   --el-color-primary-light-9: var(--oj-primary-soft) !important;
   --el-border-radius-base: 12px;
@@ -66,9 +72,18 @@ button {
 }
 
 /* Micro-interactions */
-button:active, .el-button:active {
-  transform: scale(0.95) !important;
-  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+button,
+[role="button"],
+.el-button {
+  touch-action: manipulation;
+  transform-origin: center;
+}
+
+button:active,
+[role="button"]:active,
+.el-button:active {
+  transform: scale(0.96) !important;
+  transition: transform 90ms var(--motion-spring-snappy);
 }
 
 .flex-col { display: flex; flex-direction: column; }
@@ -88,7 +103,11 @@ button:active, .el-button:active {
   border-radius: var(--oj-radius-sm);
   font-weight: 500;
   letter-spacing: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    box-shadow var(--motion-mid) var(--motion-spring-soft),
+    background var(--motion-fast) var(--motion-spring-soft),
+    color var(--motion-fast) var(--motion-spring-soft);
   border: none !important;
 }
 
@@ -134,7 +153,10 @@ button:active, .el-button:active {
   box-shadow: none !important;
   background: var(--oj-surface) !important;
   border: none !important;
-  transition: all 0.3s ease;
+  transition:
+    background var(--motion-mid) var(--motion-spring-soft),
+    box-shadow var(--motion-mid) var(--motion-spring-soft),
+    transform var(--motion-mid) var(--motion-spring);
 }
 
 .el-input__wrapper:hover,
@@ -147,7 +169,10 @@ button:active, .el-button:active {
 .el-select__wrapper.is-focused,
 .el-textarea__inner:focus {
   background: var(--oj-surface) !important;
-  box-shadow: 0 0 0 2px var(--oj-primary-soft) !important;
+  box-shadow:
+    0 0 0 3px rgba(0, 122, 255, 0.12),
+    0 12px 32px rgba(0, 122, 255, 0.08) !important;
+  transform: translateY(-1px);
 }
 
 .el-form-item {
@@ -245,12 +270,74 @@ button:active, .el-button:active {
   background: var(--oj-surface);
   border-radius: var(--oj-radius);
   box-shadow: var(--oj-shadow);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    box-shadow var(--motion-mid) var(--motion-spring-soft),
+    filter var(--motion-mid) var(--motion-spring-soft);
+  will-change: transform;
 }
 
 .floating-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.09);
+}
+
+@keyframes cf-slide-fade-up {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.985);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes cf-slide-fade-left {
+  0% {
+    opacity: 0;
+    transform: translate3d(18px, 0, 0) scale(0.985);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes cf-success-radiate {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.82);
+    box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.45);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+    box-shadow: 0 0 0 24px rgba(52, 199, 89, 0);
+  }
+}
+
+@keyframes cf-error-shake {
+  0%, 100% { transform: translateX(0); }
+  18% { transform: translateX(-5px); }
+  36% { transform: translateX(4px); }
+  54% { transform: translateX(-3px); }
+  72% { transform: translateX(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 /* ElMessageBox Apple HIG Override */

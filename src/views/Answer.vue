@@ -16,8 +16,17 @@
       </div>
       
       <div class="header-right">
-        <button class="submit-code-button" :class="{ running: userQuestionResultVO.pass === 3 }"
-          :disabled="userQuestionResultVO.pass === 3" @click="submitQuestion">
+        <button
+          class="submit-code-button"
+          :class="{
+            running: userQuestionResultVO.pass === 3,
+            success: userQuestionResultVO.pass === 1,
+            failed: userQuestionResultVO.pass === 0 || userQuestionResultVO.pass === 4
+          }"
+          :style="submitButtonOriginStyle"
+          :disabled="userQuestionResultVO.pass === 3"
+          @pointerdown="captureSubmitOrigin"
+          @click="submitQuestion">
           <span class="submit-pulse" aria-hidden="true"></span>
           <span class="submit-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -110,7 +119,7 @@
               </div>
             </div>
             <div class="result-badge">
-              <span class="badge" :class="submissionStatus.className">
+              <span class="badge" :key="userQuestionResultVO.pass" :class="submissionStatus.className">
                 {{ submissionStatus.label }}
               </span>
             </div>
@@ -304,6 +313,20 @@ const submissionStatus = computed(() => {
   if (userQuestionResultVO.value.pass === 4) return { label: '系统错误', className: 'red' }
   return { label: 'Pending Submission', className: 'neutral' }
 })
+
+const submitButtonOrigin = ref({ x: '50%', y: '50%' })
+const submitButtonOriginStyle = computed(() => ({
+  '--origin-x': submitButtonOrigin.value.x,
+  '--origin-y': submitButtonOrigin.value.y,
+}))
+
+function captureSubmitOrigin(event) {
+  const rect = event.currentTarget.getBoundingClientRect()
+  submitButtonOrigin.value = {
+    x: `${event.clientX - rect.left}px`,
+    y: `${event.clientY - rect.top}px`,
+  }
+}
 
 const consolePanelRef = ref(null)
 const DEFAULT_CONSOLE_HEIGHT = 340
@@ -587,6 +610,24 @@ async function getQuestionResult() {
         }
       }
 
+      &.success::after {
+        content: "";
+        position: absolute;
+        left: var(--origin-x, 50%);
+        top: var(--origin-y, 50%);
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: rgba(191, 255, 210, 0.52);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        animation: cf-success-radiate 380ms var(--motion-spring-soft) both;
+      }
+
+      &.failed {
+        animation: cf-error-shake 260ms var(--motion-spring-soft);
+      }
+
       .submit-pulse {
         position: absolute;
         inset: 4px;
@@ -681,6 +722,31 @@ async function getQuestionResult() {
   min-height: 0;
   position: relative;
   padding-bottom: var(--console-panel-height);
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    box-shadow var(--motion-mid) var(--motion-spring-soft),
+    filter var(--motion-mid) var(--motion-spring-soft);
+}
+
+.oj-workspace:has(.ace_focus) {
+  .problem-panel {
+    opacity: 0.68;
+    filter: saturate(0.78) blur(0.3px);
+    transform: scale(0.992);
+  }
+
+  .editor-panel {
+    box-shadow:
+      0 0 0 1px rgba(56, 189, 248, 0.16),
+      0 24px 70px rgba(15, 23, 42, 0.16);
+  }
+}
+
+.problem-panel {
+  transition:
+    opacity var(--motion-mid) var(--motion-spring-soft),
+    transform var(--motion-mid) var(--motion-spring),
+    filter var(--motion-mid) var(--motion-spring-soft);
 }
 
 .panel-header, .console-header {
@@ -905,8 +971,21 @@ async function getQuestionResult() {
     border-radius: 999px;
 
     &.neutral { background: #edf4ff; color: #2d5f96; border: 1px solid #c9ddf6; }
-    &.red { background: #D70015; color: #fff; border: 1px solid #B80012; }
-    &.green { background: #248A3D; color: #fff; border: 1px solid #1F7A35; }
+    &.red {
+      display: inline-flex;
+      background: #D70015;
+      color: #fff;
+      border: 1px solid #B80012;
+      animation: cf-error-shake 280ms var(--motion-spring-soft);
+    }
+    &.green {
+      display: inline-flex;
+      background: #248A3D;
+      color: #fff;
+      border: 1px solid #1F7A35;
+      box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.34);
+      animation: status-success-pulse 390ms var(--motion-spring-soft);
+    }
     &.blue { background: #007AFF; color: #fff; border: 1px solid #0064D2; }
   }
 }
@@ -1065,6 +1144,23 @@ async function getQuestionResult() {
 
   50% {
     transform: translateY(-2px);
+  }
+}
+
+@keyframes status-success-pulse {
+  0% {
+    transform: scale(0.92);
+    box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.36);
+  }
+
+  58% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 12px rgba(52, 199, 89, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(52, 199, 89, 0);
   }
 }
 

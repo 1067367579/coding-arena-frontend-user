@@ -58,7 +58,12 @@
         </div>
 
         <div class="problem-list">
-          <article v-for="(problem, index) in problemSet.problems" :key="problem.questionId" class="problem-row">
+          <article
+            v-for="(problem, index) in problemSet.problems"
+            :key="problem.questionId"
+            class="problem-row"
+            :style="{ '--stagger': `${index * 52}ms` }"
+          >
             <div class="problem-index">{{ String(index + 1).padStart(2, '0') }}</div>
             <div class="problem-main">
               <h3>{{ problem.title }}</h3>
@@ -89,7 +94,12 @@
         </div>
 
         <div class="leaderboard-list">
-          <div v-for="(user, index) in leaderboard" :key="user.name" class="leaderboard-row">
+          <div
+            v-for="(user, index) in leaderboard"
+            :key="user.name"
+            class="leaderboard-row"
+            :style="{ '--stagger': `${index * 42}ms` }"
+          >
             <div class="rank-badge" :class="getRankClass(index)">{{ index + 1 }}</div>
             <div class="avatar">{{ user.avatar }}</div>
             <div class="leader-user">
@@ -187,6 +197,16 @@ onBeforeUnmount(() => {
   font-weight: 750;
   cursor: pointer;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    box-shadow var(--motion-mid) var(--motion-spring-soft),
+    background var(--motion-fast) var(--motion-spring-soft);
+
+  &:hover {
+    transform: translateY(-2px);
+    background: #fff;
+    box-shadow: 0 14px 28px rgba(29, 29, 31, 0.08);
+  }
 }
 
 .set-hero {
@@ -201,6 +221,7 @@ onBeforeUnmount(() => {
   color: #fff;
   overflow: hidden;
   box-shadow: 0 30px 80px rgba(29, 29, 31, 0.16);
+  animation: cf-slide-fade-up 380ms var(--motion-spring-soft) both;
 
   &.from-emerald-to-teal {
     background:
@@ -315,6 +336,11 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.86);
   box-shadow: 0 18px 50px rgba(29, 29, 31, 0.07);
   backdrop-filter: blur(20px);
+  animation: cf-slide-fade-up 360ms var(--motion-spring-soft) both;
+}
+
+.leaderboard-panel {
+  animation-delay: 90ms;
 }
 
 .problem-list-panel {
@@ -361,7 +387,10 @@ onBeforeUnmount(() => {
   cursor: pointer;
   white-space: nowrap;
   box-shadow: 0 18px 36px rgba(0, 122, 255, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    box-shadow var(--motion-mid) var(--motion-spring-soft),
+    background var(--motion-fast) var(--motion-spring-soft);
 
   &:hover {
     transform: translateY(-2px);
@@ -429,6 +458,19 @@ onBeforeUnmount(() => {
   align-items: center;
   padding: 20px 0;
   border-bottom: 1px solid #f5f5f7;
+  opacity: 0;
+  animation: cf-slide-fade-left 340ms var(--motion-spring-soft) both;
+  animation-delay: var(--stagger);
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    background var(--motion-fast) var(--motion-spring-soft),
+    box-shadow var(--motion-mid) var(--motion-spring-soft);
+
+  &:hover {
+    transform: translateX(4px);
+    background: rgba(0, 122, 255, 0.035);
+    box-shadow: inset 3px 0 0 rgba(0, 122, 255, 0.28);
+  }
 
   &:last-child {
     border-bottom: 0;
@@ -493,13 +535,23 @@ onBeforeUnmount(() => {
   font-size: 14px;
   font-weight: 850;
   cursor: pointer;
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    background var(--motion-fast) var(--motion-spring-soft),
+    box-shadow var(--motion-mid) var(--motion-spring-soft);
 
   svg {
     transition: transform 0.18s ease;
   }
 
-  &:hover svg {
-    transform: translateX(3px);
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(0, 122, 255, 0.12);
+    box-shadow: 0 12px 22px rgba(0, 122, 255, 0.12);
+
+    svg {
+      transform: translateX(3px);
+    }
   }
 }
 
@@ -548,6 +600,17 @@ onBeforeUnmount(() => {
   align-items: center;
   padding: 13px 0;
   border-bottom: 1px solid #f5f5f7;
+  opacity: 0;
+  animation: cf-slide-fade-left 320ms var(--motion-spring-soft) both;
+  animation-delay: var(--stagger);
+  transition:
+    transform var(--motion-mid) var(--motion-spring),
+    background var(--motion-fast) var(--motion-spring-soft);
+
+  &:hover {
+    transform: translateX(4px);
+    background: rgba(0, 122, 255, 0.035);
+  }
 
   &:last-child {
     border-bottom: 0;
