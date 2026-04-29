@@ -53,13 +53,22 @@ body,
   overflow-x: hidden;
 }
 
+html {
+  background: var(--oj-app-background);
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
   background: var(--oj-app-background);
-  background-size: cover;
-  background-position: center top;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--oj-ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro", "PingFang SC", sans-serif;
@@ -83,9 +92,11 @@ body {
 .problem-set-gallery,
 .problem-set-detail,
 .oj-workspace {
+  min-height: 100vh !important;
   background: var(--oj-app-background) !important;
-  background-size: cover !important;
-  background-position: center top !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
   background-attachment: fixed !important;
 }
 
@@ -104,6 +115,7 @@ body {
   .problem-set-detail,
   .oj-workspace {
     background-attachment: scroll !important;
+    background-size: 100% 100% !important;
   }
 }
 
@@ -389,44 +401,117 @@ button:active,
   }
 }
 
-/* ElMessageBox Apple HIG Override */
-.el-message-box {
-  border-radius: 16px !important;
-  border: none !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  padding: 24px !important;
-}
+/* CodeFlow Apple-style confirm dialog */
+.apple-message-box {
+  width: min(420px, calc(100vw - 32px)) !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 255, 0.9)) !important;
+  box-shadow:
+    0 28px 70px rgba(18, 28, 45, 0.18),
+    0 0 0 1px rgba(0, 122, 255, 0.05) inset !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
 
-.el-message-box__header {
-  padding-bottom: 12px !important;
-}
+  .el-message-box__header {
+    position: relative;
+    padding: 28px 28px 10px !important;
+  }
 
-.el-message-box__title {
-  font-weight: 600 !important;
-  color: var(--oj-ink) !important;
-  font-size: 18px !important;
-}
+  .el-message-box__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--oj-ink) !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0 !important;
 
-.el-message-box__content {
-  color: var(--oj-muted) !important;
-  font-size: 14px !important;
-  padding: 12px 0 24px !important;
-}
-
-.el-message-box__btns {
-  padding-top: 0 !important;
-  
-  .el-button {
-    border-radius: 8px !important;
-    padding: 8px 16px !important;
-    font-weight: 500 !important;
-    
-    &--primary {
-      background-color: var(--oj-primary) !important;
-      border-color: var(--oj-primary) !important;
+    &::before {
+      content: "!";
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(255, 59, 48, 0.92), rgba(255, 149, 0, 0.86));
+      box-shadow: 0 10px 22px rgba(255, 59, 48, 0.18);
+      color: #fff;
+      font-size: 19px;
+      font-weight: 850;
+      line-height: 1;
     }
+  }
+
+  .el-message-box__headerbtn {
+    top: 18px !important;
+    right: 18px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 999px !important;
+    transition:
+      background var(--motion-fast) var(--motion-spring-soft),
+      transform var(--motion-fast) var(--motion-spring);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.045) !important;
+    }
+  }
+
+  .el-message-box__content {
+    padding: 8px 28px 24px !important;
+    color: #667085 !important;
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+  }
+
+  .el-message-box__container {
+    align-items: flex-start !important;
+  }
+
+  .el-message-box__message {
+    margin: 0 !important;
+  }
+
+  .el-message-box__btns {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 18px 28px 28px !important;
+    background: rgba(255, 255, 255, 0.42);
+    border-top: 1px solid rgba(0, 0, 0, 0.045);
+  }
+
+  .el-button {
+    width: 100%;
+    min-height: 44px !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    box-shadow: none !important;
+  }
+
+  .el-button--primary {
+    background: #1d1d1f !important;
+    color: #fff !important;
+  }
+
+  .codeflow-cancel-btn {
+    background: rgba(0, 0, 0, 0.045) !important;
+    color: var(--oj-ink) !important;
+  }
+
+  .codeflow-danger-btn {
+    background:
+      linear-gradient(135deg, #ff3b30 0%, #d70015 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 10px 24px rgba(215, 0, 21, 0.18) !important;
   }
 }

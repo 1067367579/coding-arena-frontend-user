@@ -111,12 +111,21 @@ function goMessage() {
 
 async function handleLogout() {
   try {
-    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
-      confirmButtonText: '退出',
-      cancelButtonText: '取消',
-      type: 'warning',
-      customClass: 'apple-message-box'
-    });
+    await ElMessageBox.confirm(
+      '退出后会清除本机登录状态和本地代码缓存，可随时重新登录。',
+      '退出 CodeFlow？',
+      {
+        confirmButtonText: '退出登录',
+        cancelButtonText: '继续使用',
+        customClass: 'apple-message-box',
+        confirmButtonClass: 'codeflow-danger-btn',
+        cancelButtonClass: 'codeflow-cancel-btn',
+        showClose: true,
+        closeOnClickModal: true,
+        closeOnPressEscape: true,
+        distinguishCancelAndClose: true
+      }
+    );
   } catch {
     return;
   }
