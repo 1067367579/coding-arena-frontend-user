@@ -108,7 +108,8 @@ function goHistoryExam(exam) {
 }
 
 function togglePopover(examId) {
-  // Can be implemented similar to Exam.vue
+  // Route directly to Contest Detail to view ranking
+  router.push(`/c-oj/home/exam/${examId}`)
 }
 </script>
 

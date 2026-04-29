@@ -8,7 +8,7 @@
             <h2>Featured Problem Sets</h2>
             <p>像挑选歌单一样选择训练主题，把今天的练习节奏交给一组精心编排的题单。</p>
           </div>
-          <button class="square-link" type="button" @click="openProblemSet(featuredProblemSets[0].id)">
+          <button class="square-link" type="button" @click="openProblemSetGallery">
             查看题单广场
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -344,6 +344,10 @@ function goQuestTest(questionId) {
 
 function openProblemSet(setId) {
   router.push(`/c-oj/home/problem-set/${setId}`)
+}
+
+function openProblemSetGallery() {
+  router.push('/c-oj/home/problem-set-gallery')
 }
 
 function getDifficultyClass(difficulty) {

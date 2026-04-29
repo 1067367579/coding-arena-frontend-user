@@ -25,7 +25,7 @@
                 进入竞赛
               </button>
               <button class="apple-btn-small" v-if="item.title.includes('竞赛结果')" @click.stop="handleExamResult(item)">
-                查看竞赛详情
+                查看排名
               </button>
             </div>
           </div>
@@ -74,19 +74,13 @@ function extractExamId(content) {
 }
 
 function handleExamEntry(item) {
-  // Example logic for entering exam
-  // In real app, we check if exam started. We mock it here.
-  const isStarted = Math.random() > 0.5; // mocked logic
-  if (!isStarted) {
-    ElMessage.info('竞赛尚未开始，请等候...');
-  } else {
-    // If we have examId we should pass it, but since we don't know the schema, we use query param if available
-    router.push({ path: '/c-oj/home/exam' });
-  }
+  // Deep linking to Contest Detail Page
+  router.push({ path: `/c-oj/home/exam/${item.examId || 1}` });
 }
 
 function handleExamResult(item) {
-  router.push({ path: '/c-oj/exam/result', query: { examId: item.examId || 1 } });
+  // Directly route to Contest Detail Page to view leaderboard
+  router.push({ path: `/c-oj/home/exam/${item.examId || 1}` });
 }
 
 const messageList = ref([])

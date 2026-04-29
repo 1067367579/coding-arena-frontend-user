@@ -19,6 +19,13 @@
       <!-- User Actions -->
       <div class="dock-actions">
         <template v-if="isLogin">
+          <div class="dock-wallet" title="Flow Points">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+            <span class="points">1,250</span>
+          </div>
+
           <div class="dock-icon-btn" @click="goMessage">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -215,6 +222,34 @@ async function handleLogout() {
     svg {
       width: 20px;
       height: 20px;
+    }
+  }
+
+  .dock-wallet {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #2c2c2e, #1c1c1e);
+    color: #f5f5f7;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    svg {
+      color: #f59e0b; /* Golden Flow Points color */
+    }
+
+    .points {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
   }
 

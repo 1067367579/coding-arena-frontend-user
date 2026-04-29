@@ -43,6 +43,22 @@ const router = createRouter({
           }
         },
         {
+          path: "problem-set-gallery",
+          name: "ProblemSetGallery",
+          component: () => import("@/views/ProblemSetGallery.vue"),
+          meta: {
+            showBanner: false
+          }
+        },
+        {
+          path: "exam/:examId",
+          name: "ContestDetail",
+          component: () => import("@/views/ContestDetail.vue"),
+          meta: {
+            showBanner: false
+          }
+        },
+        {
           path: 'user/exam',
           name: "UserExam",
           component: () => import("@/views/UserExam.vue"),
