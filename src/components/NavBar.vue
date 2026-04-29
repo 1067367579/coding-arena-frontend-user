@@ -85,7 +85,10 @@ async function checkLogin() {
       isLogin.value = true;
     } catch (e) {
       console.error(e);
+      isLogin.value = false;
     }
+  } else {
+    isLogin.value = false;
   }
 }
 checkLogin();
@@ -107,19 +110,30 @@ function goMessage() {
 }
 
 async function handleLogout() {
-  await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
-    confirmButtonText: '退出',
-    cancelButtonText: '取消',
-    type: 'warning',
-    customClass: 'apple-message-box'
-  });
   try {
-    await logoutService();
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '退出',
+      cancelButtonText: '取消',
+      type: 'warning',
+      customClass: 'apple-message-box'
+    });
+  } catch {
+    return;
+  }
+
+  try {
+    if (getToken()) {
+      await logoutService();
+    }
+  } catch (error) {
+    console.warn('Server logout failed, clearing local session anyway.', error);
+  } finally {
     removeToken();
     clearAllStorage();
     isLogin.value = false;
-  } catch (error) {
-    ElMessage.error(error.message);
+    eventBus.$emit('user-info-updated');
+    ElMessage.success('已退出登录');
+    router.push('/c-oj/login');
   }
 }
 </script>
