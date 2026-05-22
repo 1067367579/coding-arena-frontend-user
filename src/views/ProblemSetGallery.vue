@@ -199,7 +199,7 @@ function goToDetail(setId) {
 .problem-set-gallery {
   padding: 40px 0 80px;
   min-height: 100vh;
-  background: #fbfbfd;
+  background: transparent;
 }
 
 .page-container {
@@ -286,18 +286,27 @@ function goToDetail(setId) {
   display: flex;
   flex-direction: column;
   height: 340px; /* Fixed height for uniformity */
-  background: #fff;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
   cursor: pointer;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  transition: 
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    border-color 0.3s,
+    background-color 0.3s;
   animation: cf-slide-fade-up 400ms var(--motion-spring-soft) both;
   animation-delay: var(--stagger);
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 24px 56px rgba(0, 122, 255, 0.08);
   }
 
   .card-visual {

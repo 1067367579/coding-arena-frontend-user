@@ -179,9 +179,8 @@ function handlerDelete(item) {
   padding: 60px 0;
   color: var(--oj-muted);
   font-size: 15px;
-  background: var(--oj-surface);
   border-radius: 20px;
-  border: 1px dashed var(--oj-line);
+  border: 1px dashed rgba(0, 0, 0, 0.08);
 }
 
 .message-item {
@@ -189,14 +188,6 @@ function handlerDelete(item) {
   align-items: flex-start;
   padding: 24px;
   gap: 24px;
-  background: var(--oj-surface);
-  border-radius: 20px;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.06);
-  }
 
   .item-icon {
     width: 56px;
@@ -294,17 +285,18 @@ function handlerDelete(item) {
 
   .apple-btn-small {
     padding: 6px 14px;
-    background: #1890ff;
+    background: #007aff;
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.15s;
 
     &:hover {
-      background: #40a9ff;
+      background: #0063d1;
+      transform: translateY(-1px);
     }
   }
 }

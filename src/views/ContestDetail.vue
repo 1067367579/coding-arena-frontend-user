@@ -337,7 +337,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .contest-detail-page {
   padding: 40px 0 80px;
-  background: #fbfbfd;
+  background: transparent;
   min-height: 100vh;
 }
 
@@ -366,18 +366,11 @@ onUnmounted(() => {
 }
 
 .loading-state {
-  background: #fff;
-  border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
 .floating-card {
-  background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
   padding: 32px;
-  animation: cf-slide-fade-up 400ms var(--motion-spring-soft) both;
 }
 
 .contest-hero {

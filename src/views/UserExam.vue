@@ -169,14 +169,6 @@ function togglePopover(examId) {
   align-items: center;
   padding: 24px;
   gap: 24px;
-  background: var(--oj-surface);
-  border-radius: 20px;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.06);
-  }
 
   .item-icon {
     width: 64px;

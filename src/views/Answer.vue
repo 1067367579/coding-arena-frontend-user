@@ -469,7 +469,7 @@ async function getQuestionResult() {
   flex-direction: column;
   width: 100vw;
   height: 100vh;
-  background: #f0f0f0; /* pragmatic background */
+  background: var(--oj-app-background);
   color: #262626;
   overflow: hidden;
 }
@@ -480,8 +480,10 @@ async function getQuestionResult() {
   justify-content: space-between;
   height: 48px;
   padding: 0 16px;
-  background: #fff;
-  border-bottom: 1px solid #e5e5e5;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
 
   .header-left {
@@ -704,9 +706,14 @@ async function getQuestionResult() {
 .editor-panel {
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #e5e5e5;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.03),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
   overflow: hidden;
   min-width: 0;
 }
@@ -754,8 +761,8 @@ async function getQuestionResult() {
   align-items: center;
   justify-content: space-between;
   height: 40px;
-  background: #fafafa;
-  border-bottom: 1px solid #e5e5e5;
+  background: rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   padding: 0 12px;
 }
 
@@ -887,12 +894,14 @@ async function getQuestionResult() {
   right: 0;
   bottom: 0;
   z-index: 10;
-  border-top: 1px solid #e5e5e5;
-  background: #fff;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.04);
   min-height: 46px;
   max-height: calc(100% - 112px);
   overflow: hidden;
@@ -996,7 +1005,7 @@ async function getQuestionResult() {
   overflow-y: auto;
   overflow-x: auto;
   padding: 16px;
-  background: #fafafa;
+  background: transparent;
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;

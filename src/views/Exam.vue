@@ -307,14 +307,16 @@ function goExam(exam) {
 <style lang="scss" scoped>
 .apple-exam-page {
   padding: 0 0 80px;
-  background: #fbfbfd;
+  background: transparent;
   min-height: 100vh;
 }
 
 /* Compact Horizontal Hero */
 .compact-hero {
-  background: #fff;
-  border-bottom: 1px solid var(--oj-line);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   padding: 24px 0;
   margin-bottom: 32px;
 }
@@ -408,10 +410,13 @@ function goExam(exam) {
   gap: 16px;
   align-items: center;
   flex-wrap: wrap;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   padding: 12px 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.02);
 
   .date-picker-wrap {
     flex: 1;
@@ -460,7 +465,7 @@ function goExam(exam) {
 .contest-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  gap: 24px;
 }
 
 @media (max-width: 768px) {
@@ -473,19 +478,10 @@ function goExam(exam) {
 .contest-card {
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border-radius: 20px;
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
   
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-  }
-
   &::before {
     content: '';
     position: absolute;
@@ -664,15 +660,12 @@ function goExam(exam) {
 }
 
 .hall-of-fame-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
   position: sticky;
   top: 100px;
+  padding: 24px;
   
   .card-header {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     
     .kicker {
       font-size: 12px;
@@ -686,7 +679,7 @@ function goExam(exam) {
       font-size: 20px;
       font-weight: 800;
       color: var(--oj-ink);
-      margin: 4px 0 6px;
+      margin: 6px 0 8px;
       line-height: 1.2;
     }
     
@@ -694,7 +687,7 @@ function goExam(exam) {
       font-size: 13px;
       color: var(--oj-muted);
       margin: 0;
-      line-height: 1.4;
+      line-height: 1.5;
     }
   }
 }
@@ -702,19 +695,19 @@ function goExam(exam) {
 .competitor-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
 
 .competitor-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border-radius: 12px;
-  transition: background 0.2s;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  transition: background 0.2s ease;
   
   &:hover {
-    background: #f9f9fb;
+    background: rgba(0, 122, 255, 0.04);
   }
   
   .rank-badge {

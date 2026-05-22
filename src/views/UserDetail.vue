@@ -258,7 +258,7 @@ function editUser() {
 .apple-profile-page {
   padding: 40px 0 80px;
   min-height: 100vh;
-  background: #fbfbfd;
+  background: transparent;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -269,11 +269,7 @@ function editUser() {
 }
 
 .floating-card {
-  background: #fff;
-  border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0,0,0,0.02);
 }
 
 .fade-rise {
@@ -534,12 +530,14 @@ function editUser() {
     border-radius: 16px;
     
     &.current {
-      background: linear-gradient(135deg, #fff5e6, #fff);
+      background: rgba(255, 149, 0, 0.08);
+      border: 1px solid rgba(255, 149, 0, 0.15);
       color: #ff9500;
     }
     
     &.max {
-      background: linear-gradient(135deg, #e8f5e9, #fff);
+      background: rgba(52, 199, 89, 0.08);
+      border: 1px solid rgba(52, 199, 89, 0.15);
       color: #34c759;
     }
 

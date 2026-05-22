@@ -113,7 +113,7 @@ function getAvatarColor(name) {
 <style lang="scss" scoped>
 .apple-exam-result-page {
   padding: 40px;
-  background: #f5f5f7;
+  background: transparent;
   min-height: 100vh;
   color: #1d1d1f;
 }
@@ -157,12 +157,8 @@ function getAvatarColor(name) {
 }
 
 .floating-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px) saturate(180%);
-  border-radius: 20px;
   padding: 32px;
   margin-bottom: 24px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
 }
 
 .result-overview {
@@ -174,13 +170,13 @@ function getAvatarColor(name) {
     width: 140px;
     height: 140px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1890ff, #0050b3);
+    background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
     color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 12px 24px rgba(24, 144, 255, 0.3);
+    box-shadow: 0 16px 32px rgba(0, 122, 255, 0.25);
 
     .score {
       font-size: 48px;
@@ -200,10 +196,12 @@ function getAvatarColor(name) {
     flex: 1;
     justify-content: space-around;
     align-items: center;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     padding: 24px;
     border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.02);
 
     .stat-item {
       display: flex;
@@ -261,7 +259,7 @@ function getAvatarColor(name) {
   color: #86868b;
 
   &.top-rank {
-    color: #1890ff;
+    color: #007aff;
   }
 }
 
@@ -287,17 +285,17 @@ function getAvatarColor(name) {
     color: #1d1d1f;
 
     &.is-me {
-      color: #1890ff;
+      color: #007aff;
     }
   }
 
   .me-tag {
     font-size: 11px;
     padding: 2px 6px;
-    background: #e6f7ff;
-    color: #1890ff;
-    border-radius: 4px;
-    font-weight: 600;
+    background: rgba(0, 122, 255, 0.08);
+    color: #007aff;
+    border-radius: 6px;
+    font-weight: 700;
   }
 }
 

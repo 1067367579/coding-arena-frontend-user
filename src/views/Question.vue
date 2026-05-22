@@ -684,7 +684,8 @@ function createMonthLabels(days) {
   gap: 16px;
   align-items: center;
   flex-wrap: wrap;
-  background: #f3f5f8;
+  background: rgba(0, 0, 0, 0.035);
+  border: 1px solid rgba(0, 0, 0, 0.01);
   padding: 12px;
   border-radius: 20px;
 
@@ -824,7 +825,7 @@ function createMonthLabels(days) {
       border-bottom: none !important;
     }
     :deep(.el-table__row:hover td.el-table__cell) {
-      background: transparent !important;
+      background: rgba(0, 122, 255, 0.035) !important;
     }
   }
 

@@ -332,10 +332,14 @@ onBeforeUnmount(() => {
 
 .problem-list-panel,
 .leaderboard-panel {
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: 0 18px 50px rgba(29, 29, 31, 0.07);
-  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.03), 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   animation: cf-slide-fade-up 360ms var(--motion-spring-soft) both;
 }
 

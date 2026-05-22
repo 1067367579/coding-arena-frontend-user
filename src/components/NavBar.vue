@@ -197,15 +197,19 @@ async function confirmLogout() {
   justify-content: space-between;
   height: 64px;
   padding: 0 16px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: saturate(190%) blur(24px);
+  -webkit-backdrop-filter: saturate(190%) blur(24px);
   border-radius: 32px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.06), 
+    0 0 0 1px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
   gap: 32px;
   max-width: min(92vw, 760px);
   width: max-content;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dock-brand {
@@ -214,6 +218,11 @@ async function confirmLogout() {
   gap: 10px;
   cursor: pointer;
   padding-left: 2px;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: scale(1.05) translateY(-1px);
+  }
 
   .dock-logo {
     width: 128px;
@@ -233,20 +242,27 @@ async function confirmLogout() {
     padding: 8px 16px;
     border-radius: 20px;
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--oj-muted);
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: 
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.2s, 
+      color 0.2s, 
+      box-shadow 0.2s;
 
     &:hover {
       color: var(--oj-ink);
       background: rgba(0, 0, 0, 0.04);
+      transform: scale(1.08) translateY(-1px);
     }
 
     &.is-active {
       color: var(--oj-ink);
       background: var(--oj-surface);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.04),
+        0 0 0 1px rgba(0, 0, 0, 0.02);
     }
   }
 }
@@ -266,11 +282,15 @@ async function confirmLogout() {
     border-radius: 50%;
     color: var(--oj-muted);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: 
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.2s, 
+      color 0.2s;
 
     &:hover {
       color: var(--oj-ink);
       background: rgba(0, 0, 0, 0.04);
+      transform: scale(1.12) translateY(-1px);
     }
 
     svg {
@@ -288,12 +308,14 @@ async function confirmLogout() {
     background: linear-gradient(135deg, #2c2c2e, #1c1c1e);
     color: #f5f5f7;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: 
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+      box-shadow 0.25s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
     &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      transform: scale(1.05) translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
     }
 
     svg {
@@ -314,11 +336,14 @@ async function confirmLogout() {
     padding: 4px 12px 4px 4px;
     border-radius: 24px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: 
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.2s;
     border: 1px solid transparent;
 
     &:hover {
       background: rgba(0, 0, 0, 0.04);
+      transform: scale(1.04) translateY(-1px);
     }
 
     .user-avatar {
@@ -330,7 +355,7 @@ async function confirmLogout() {
 
     .user-name {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--oj-ink);
     }
   }
@@ -343,10 +368,15 @@ async function confirmLogout() {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.1s ease, opacity 0.2s ease;
+    transition: 
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+      opacity 0.2s ease,
+      box-shadow 0.2s;
 
     &:hover {
       opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     &:active {
