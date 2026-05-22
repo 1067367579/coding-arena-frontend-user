@@ -39,10 +39,6 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import ace from "ace-builds";
-import "ace-builds/src-noconflict/mode-java"
-import "ace-builds/src-noconflict/theme-one_dark"
-import "ace-builds/src-noconflict/ext-language_tools";
 
 const languages = ref([
   "java",
@@ -55,6 +51,8 @@ const langSelectorRef = ref(null)
 
 const editorForm = ref(null);
 let editor = null;
+let pendingCode = null;
+let isUnmounted = false;
 const emit = defineEmits(['update:value']);
 
 function selectLanguage(lang) {
@@ -82,8 +80,17 @@ const options = {
   useSoftTabs: true,
 };
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('mousedown', handleClickOutside);
+  const [{ default: ace }] = await Promise.all([
+    import("ace-builds/src-noconflict/ace"),
+    import("ace-builds/src-noconflict/mode-java"),
+    import("ace-builds/src-noconflict/theme-one_dark"),
+    import("ace-builds/src-noconflict/ext-language_tools"),
+  ]);
+
+  if (isUnmounted || !editorForm.value) return;
+
   editor = ace.edit(editorForm.value, options);
   editor.setOptions({
     enableBasicAutocompletion: true,
@@ -92,9 +99,14 @@ onMounted(() => {
   editor.getSession().on('change', () => {
     emit('update:value', editor.getValue());
   });
+  if (pendingCode !== null) {
+    editor.setValue(pendingCode, -1);
+    pendingCode = null;
+  }
 });
 
 onBeforeUnmount(() => {
+  isUnmounted = true;
   document.removeEventListener('mousedown', handleClickOutside);
   if (editor) {
     editor.destroy();
@@ -103,6 +115,10 @@ onBeforeUnmount(() => {
 });
 
 function setAceCode(content) {
+  if (!editor) {
+    pendingCode = content;
+    return;
+  }
   editor.setValue(content, -1)
 }
 

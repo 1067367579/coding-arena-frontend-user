@@ -33,5 +33,21 @@ export default defineConfig({
         rewrite: (p) => p.replace(/^\/dev-api/,""),
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (id.includes('ace-builds/src-noconflict/mode-')) return 'vendor-ace-mode'
+          if (id.includes('ace-builds/src-noconflict/theme-')) return 'vendor-ace-theme'
+          if (id.includes('ace-builds/src-noconflict/ext-')) return 'vendor-ace-ext'
+          if (id.includes('ace-builds')) return 'vendor-ace-core'
+          if (id.includes('element-plus') || id.includes('@element-plus')) return 'vendor-element-plus'
+          if (id.includes('/vue') || id.includes('vue-router')) return 'vendor-vue'
+          return 'vendor'
+        },
+      },
+    },
   }
 })
